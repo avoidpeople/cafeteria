@@ -1,0 +1,8 @@
+RewriteEngine On
+
+# If request is not explicitly targeting /public and file/dir doesn't exist,
+# forward it into the /public folder so URLs like /cart.php work.
+RewriteCond %{REQUEST_URI} !^/public/
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ public/$1 [L]
