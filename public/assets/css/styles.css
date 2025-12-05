@@ -58,7 +58,6 @@ body {
     display: flex;
     gap: 12px;
     flex-wrap: wrap;
-    margin: 25px 0 5px;
 }
 
 .hero-stats {

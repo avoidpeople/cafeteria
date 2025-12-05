@@ -11,12 +11,6 @@
                         <?php echo 'Создайте профиль за минуту, добавляйте позиции в корзину и отслеживайте статус приготовления в реальном времени.'; ?>
                     <?php endif; ?>
                 </p>
-                <div class="hero-actions">
-                    <a href="/menu" class="btn btn-light btn-lg text-primary fw-semibold px-4">Открыть меню</a>
-                    <?php if (!isset($_SESSION['user_id'])): ?>
-                        <a href="/register" class="btn btn-outline-light btn-lg px-4">Создать профиль</a>
-                    <?php endif; ?>
-                </div>
                 <div class="hero-stats">
                     <div>
                         <span><?= $menuCount ?></span>
@@ -26,6 +20,12 @@
                         <span>*** мин</span>
                         <p>среднее время доставки</p>
                     </div>
+                </div>
+                 <div class="hero-actions">
+                    <a href="/menu" class="btn btn-light btn-lg text-primary fw-semibold px-4">Открыть меню</a>
+                    <?php if (!isset($_SESSION['user_id'])): ?>
+                        <a href="/register" class="btn btn-outline-light btn-lg px-4">Создать профиль</a>
+                    <?php endif; ?>
                 </div>
             </div>
             <div class="hero-panel shadow-sm">
