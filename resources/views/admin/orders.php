@@ -91,15 +91,19 @@
                                 </span>
                             </td>
                             <td>
-                                <form method="POST" action="/admin/orders/status" class="d-flex flex-column gap-2">
-                                    <input type="hidden" name="id" value="<?= $order->id ?>">
-                                    <select name="status" class="form-select form-select-sm" required>
-                                        <?php foreach (['new','cooking','ready','delivered','cancelled'] as $status): ?>
-                                            <option value="<?= $status ?>" <?= $order->status === $status ? 'selected' : '' ?>><?= ucfirst($status) ?></option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                    <button type="submit" class="btn btn-outline-primary btn-sm">Применить</button>
-                                </form>
+                                <?php if ($order->status === 'cancelled'): ?>
+                                    <div class="text-muted small mb-2">Заказ отменён. Статус изменить нельзя.</div>
+                                <?php else: ?>
+                                    <form method="POST" action="/admin/orders/status" class="d-flex flex-column gap-2 status-form">
+                                        <input type="hidden" name="id" value="<?= $order->id ?>">
+                                        <select name="status" class="form-select form-select-sm" required>
+                                            <?php foreach (['new','cooking','ready','delivered','cancelled'] as $status): ?>
+                                                <option value="<?= $status ?>" <?= $order->status === $status ? 'selected' : '' ?>><?= ucfirst($status) ?></option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                        <button type="submit" class="btn btn-outline-primary btn-sm">Применить</button>
+                                    </form>
+                                <?php endif; ?>
                                 <form method="POST" action="/admin/orders/delete" class="mt-2" onsubmit="return confirm('Удалить заказ?');">
                                     <input type="hidden" name="id" value="<?= $order->id ?>">
                                     <button type="submit" class="btn btn-danger btn-sm">Удалить</button>
@@ -117,3 +121,21 @@
     </div>
 <?php endif; ?>
 </div>
+
+<?php if (!empty($orders)): ?>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.status-form').forEach((form) => {
+        form.addEventListener('submit', (event) => {
+            const select = form.querySelector('select[name="status"]');
+            if (select && select.value === 'cancelled') {
+                const confirmed = confirm('Вы уверены, что хотите отменить заказ? Изменить статус обратно будет нельзя.');
+                if (!confirmed) {
+                    event.preventDefault();
+                }
+            }
+        });
+    });
+});
+</script>
+<?php endif; ?>

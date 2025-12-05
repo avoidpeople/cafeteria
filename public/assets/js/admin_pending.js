@@ -65,6 +65,12 @@
     };
 
     const handleAction = async (id, action) => {
+        if (action === 'decline') {
+            const confirmed = window.confirm('Отклонить заказ? Эта операция необратима.');
+            if (!confirmed) {
+                return;
+            }
+        }
         try {
             const response = await fetch('/api/admin/pending-orders/action', {
                 method: 'POST',
