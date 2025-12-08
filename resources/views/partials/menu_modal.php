@@ -2,7 +2,13 @@
   <div class="modal-dialog modal-lg modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="dishTitle">...</h5>
+        <div>
+            <p class="text-uppercase text-muted small mb-1">Комплексный обед</p>
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+                <h5 class="modal-title mb-0" id="dishTitle">...</h5>
+                <span class="dish-unique-badge d-none" id="dishUniqueBadge">★ Уникальное блюдо</span>
+            </div>
+        </div>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body row g-3">
@@ -25,7 +31,7 @@
             <p class="text-muted" id="dishCategory"></p>
             <p id="dishDescription" class="text-break"></p>
             <p id="dishIngridients" class="text-break"></p>
-            <p class="fs-4 fw-bold text-success" id="dishPrice"></p>
+            <p class="fs-4 fw-bold text-info" id="dishPrice"></p>
             <button class="btn btn-primary" id="modalAddToCart">Добавить в комплекс</button>
         </div>
       </div>

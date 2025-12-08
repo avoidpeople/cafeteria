@@ -36,7 +36,7 @@
     </tr>
     <?php foreach ($order->items as $item): ?>
         <?php if ($item->isCombo()): ?>
-            <?php $combo = $item->comboDetails; $comboItems = $combo['items'] ?? []; ?>
+            <?php $combo = $item->comboDetails; $comboItems = $combo['items'] ?? []; $soupExtraText = number_format(\App\Application\Service\ComboService::SOUP_EXTRA, 2, '.', ' '); ?>
             <tr class="combo-order-row">
                 <td colspan="5">
                     <div class="combo-order-card">
@@ -57,6 +57,11 @@
                         </div>
                         <div class="combo-breakdown">
                             <?php foreach ($comboItems as $comboItem): ?>
+                                <?php
+                                $isUniqueItem = !empty($comboItem['is_unique']);
+                                $itemRole = ($comboItem['type'] ?? '') === 'soup' ? 'Суп' : 'Основное';
+                                $itemPrice = $isUniqueItem ? (float)($comboItem['price'] ?? 0) : null;
+                                ?>
                                 <div class="combo-breakdown-item">
                                     <div class="combo-breakdown-thumb">
                                         <?php if (!empty($comboItem['image'])): ?>
@@ -67,8 +72,16 @@
                                     </div>
                                     <div>
                                         <div class="combo-breakdown-title">
-                                            <span class="text-muted text-uppercase small me-2"><?= ($comboItem['type'] ?? '') === 'soup' ? 'Суп' : 'Горячее' ?></span>
-                                            <?= htmlspecialchars($comboItem['title']) ?>
+                                            <div>
+                                                <span class="text-muted text-uppercase small me-2"><?= $itemRole ?></span>
+                                                <?= htmlspecialchars($comboItem['title']) ?>
+                                                <?php if ($isUniqueItem): ?>
+                                                    <span class="combo-unique-chip ms-2">★ Уникальное</span>
+                                                <?php endif; ?>
+                                            </div>
+                                            <?php if ($itemPrice): ?>
+                                                <div class="combo-item-price"><?= number_format($itemPrice, 2, '.', ' ') ?> €</div>
+                                            <?php endif; ?>
                                         </div>
                                         <?php if (!empty($comboItem['description'])): ?>
                                             <div class="text-muted small text-truncate-2"><?= htmlspecialchars($comboItem['description']) ?></div>
@@ -78,6 +91,18 @@
                                     </div>
                                 </div>
                             <?php endforeach; ?>
+                            <?php if (empty(array_filter($comboItems, static fn ($ci) => ($ci['type'] ?? '') === 'soup'))): ?>
+                                <div class="combo-breakdown-item combo-breakdown-placeholder">
+                                    <div class="combo-breakdown-thumb">—</div>
+                                    <div>
+                                        <div class="combo-breakdown-title">
+                                            <span class="text-muted text-uppercase small me-2">Суп</span>
+                                            <span>Без супа</span>
+                                        </div>
+                                        <div class="text-muted small">Добавление обычного супа увеличивает стоимость на <?= $soupExtraText ?> €.</div>
+                                    </div>
+                                </div>
+                            <?php endif; ?>
                         </div>
                     </div>
                 </td>

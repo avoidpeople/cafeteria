@@ -90,8 +90,8 @@ class MenuRepository implements MenuRepositoryInterface
         if (!array_key_exists('is_today', $data)) {
             $data['is_today'] = 0;
         }
-        $stmt = $this->prepare("INSERT INTO menu (title, description, ingredients, price, category, image_url, image_gallery, is_today)
-            VALUES (:title, :description, :ingredients, :price, :category, :image_url, :image_gallery, :is_today)");
+        $stmt = $this->prepare("INSERT INTO menu (title, description, ingredients, price, category, image_url, image_gallery, is_today, use_manual_price)
+            VALUES (:title, :description, :ingredients, :price, :category, :image_url, :image_gallery, :is_today, :use_manual_price)");
         $this->bindCommonFields($stmt, $data);
         $stmt->execute();
         $data['id'] = (int)$this->db->lastInsertRowID();
@@ -105,7 +105,8 @@ class MenuRepository implements MenuRepositoryInterface
             $data['is_today'] = $existing? ($existing->isToday ? 1 : 0) : 0;
         }
         $stmt = $this->prepare("UPDATE menu SET title = :title, description = :description, ingredients = :ingredients,
-            price = :price, category = :category, image_url = :image_url, image_gallery = :image_gallery, is_today = :is_today WHERE id = :id");
+            price = :price, category = :category, image_url = :image_url, image_gallery = :image_gallery, is_today = :is_today,
+            use_manual_price = :use_manual_price WHERE id = :id");
         $stmt->bindValue(':id', $id, SQLITE3_INTEGER);
         $this->bindCommonFields($stmt, $data);
         $stmt->execute();
@@ -130,6 +131,7 @@ class MenuRepository implements MenuRepositoryInterface
         $stmt->bindValue(':image_url', $data['image_url'] ?? null, SQLITE3_TEXT);
         $stmt->bindValue(':image_gallery', !empty($data['image_gallery']) ? json_encode($data['image_gallery']) : null, SQLITE3_TEXT);
         $stmt->bindValue(':is_today', !empty($data['is_today']) ? 1 : 0, SQLITE3_INTEGER);
+        $stmt->bindValue(':use_manual_price', !empty($data['use_manual_price']) ? 1 : 0, SQLITE3_INTEGER);
     }
 
     private function mapMenuItem(array $row): MenuItem
@@ -151,6 +153,7 @@ class MenuRepository implements MenuRepositoryInterface
             description: $row['description'] ?? null,
             ingredients: $row['ingredients'] ?? null,
             price: (float)$row['price'],
+            useManualPrice: !empty($row['use_manual_price'] ?? 0),
             category: $row['category'] ?? null,
             imageUrl: $row['image_url'] ?? null,
             gallery: $gallery,

@@ -42,6 +42,14 @@ if (!in_array('is_today', $menuColumns, true)) {
     $conn->exec("ALTER TABLE menu ADD COLUMN is_today INTEGER DEFAULT 0");
 }
 
+if (!in_array('ingredients', $menuColumns, true)) {
+    $conn->exec("ALTER TABLE menu ADD COLUMN ingredients TEXT");
+}
+
+if (!in_array('use_manual_price', $menuColumns, true)) {
+    $conn->exec("ALTER TABLE menu ADD COLUMN use_manual_price INTEGER DEFAULT 0");
+}
+
 $orderColumns = [];
 $orderInfo = $conn->query("PRAGMA table_info(orders)");
 while ($row = $orderInfo->fetchArray(SQLITE3_ASSOC)) {

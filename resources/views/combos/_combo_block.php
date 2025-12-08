@@ -14,6 +14,7 @@ $missingList = $comboEntry['missing'] ?? [];
 $missingIds = array_map(static fn ($item) => (int)($item['id'] ?? 0), $missingList);
 $rowClass = $isAvailable ? 'row-selected' : 'row-unavailable';
 $availableAttr = $isAvailable ? '1' : '0';
+$soupExtraText = number_format(\App\Application\Service\ComboService::SOUP_EXTRA, 2, '.', ' ');
 ?>
 <tr class="cart-row combo-row <?= $rowClass ?>" data-id="<?= htmlspecialchars($comboId) ?>" data-sum="<?= htmlspecialchars((string)$sum) ?>" data-qty="<?= $quantity ?>" data-available="<?= $availableAttr ?>">
     <td>
@@ -46,7 +47,13 @@ $availableAttr = $isAvailable ? '1' : '0';
         </div>
         <div class="combo-breakdown">
             <?php foreach ($items as $item): ?>
-                <?php $itemId = (int)($item['id'] ?? 0); $missing = in_array($itemId, $missingIds, true); ?>
+                <?php
+                $itemId = (int)($item['id'] ?? 0);
+                $missing = in_array($itemId, $missingIds, true);
+                $isUniqueItem = !empty($item['is_unique']);
+                $itemRole = ($item['type'] ?? '') === 'soup' ? 'Суп' : 'Основное';
+                $itemPrice = $isUniqueItem ? (float)($item['price'] ?? 0) : null;
+                ?>
                 <div class="combo-breakdown-item <?= $missing ? 'combo-breakdown-missing' : '' ?>">
                     <div class="combo-breakdown-thumb">
                         <?php if (!empty($item['image'])): ?>
@@ -57,8 +64,16 @@ $availableAttr = $isAvailable ? '1' : '0';
                     </div>
                     <div>
                         <div class="combo-breakdown-title">
-                            <span class="text-muted text-uppercase small me-2"><?= $item['type'] === 'soup' ? 'Суп' : 'Горячее' ?></span>
-                            <?= htmlspecialchars($item['title']) ?>
+                            <div>
+                                <span class="text-muted text-uppercase small me-2"><?= $itemRole ?></span>
+                                <?= htmlspecialchars($item['title']) ?>
+                                <?php if ($isUniqueItem): ?>
+                                    <span class="combo-unique-chip ms-2">★ Уникальное</span>
+                                <?php endif; ?>
+                            </div>
+                            <?php if ($itemPrice): ?>
+                                <div class="combo-item-price"><?= number_format($itemPrice, 2, '.', ' ') ?> €</div>
+                            <?php endif; ?>
                         </div>
                         <?php if (!empty($item['description'])): ?>
                             <div class="text-muted small text-truncate-2"><?= htmlspecialchars($item['description']) ?></div>
@@ -71,6 +86,18 @@ $availableAttr = $isAvailable ? '1' : '0';
                     </div>
                 </div>
             <?php endforeach; ?>
+            <?php if (!$hasSoup): ?>
+                <div class="combo-breakdown-item combo-breakdown-placeholder">
+                    <div class="combo-breakdown-thumb">—</div>
+                    <div>
+                        <div class="combo-breakdown-title">
+                            <span class="text-muted text-uppercase small me-2">Суп</span>
+                            <span>Без супа</span>
+                        </div>
+                        <div class="text-muted small">Добавление обычного супа увеличит стоимость на <?= $soupExtraText ?> €.</div>
+                    </div>
+                </div>
+            <?php endif; ?>
             <?php if (!$isAvailable && empty($items)): ?>
                 <div class="text-muted small">Состав комплекса недоступен</div>
             <?php endif; ?>

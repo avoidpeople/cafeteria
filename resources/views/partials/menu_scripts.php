@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const modalIngr = document.getElementById('dishIngridients');
     const modalCat = document.getElementById('dishCategory');
     const modalPrice = document.getElementById('dishPrice');
+    const modalUniqueBadge = document.getElementById('dishUniqueBadge');
     const carouselEl = document.getElementById('dishCarousel');
     const carouselInner = document.getElementById('dishCarouselInner');
     const carouselIndicators = document.getElementById('dishCarouselIndicators');
@@ -23,7 +24,14 @@ document.addEventListener('DOMContentLoaded', () => {
             modalDesc.textContent = item.description || 'Описание пока отсутствует.';
             modalIngr.textContent = item.ingredients ? `Состав: ${item.ingredients}` : '';
             modalCat.textContent = item.category ? `Категория: ${item.category}` : 'Без категории';
-            modalPrice.textContent = `${item.price} €`;
+            const rawPrice = typeof item.raw_price !== 'undefined' ? parseFloat(item.raw_price) : parseFloat(item.price);
+            const isUnique = Boolean(item.is_unique);
+            modalUniqueBadge?.classList.toggle('d-none', !isUnique);
+            if (modalPrice) {
+                modalPrice.textContent = isUnique && rawPrice > 0
+                    ? `${rawPrice.toFixed(2)} €`
+                    : 'Входит в комплексный обед';
+            }
             modalAddBtn.dataset.id = item.id;
             modalAddBtn.dataset.comboRole = card.dataset.comboRole || 'main';
 
@@ -248,16 +256,40 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         if (soupData) {
             comboSummary.appendChild(renderSummaryItem(soupData, 'Суп'));
+        } else if (comboState.soup === null) {
+            comboSummary.appendChild(renderNoSoupSummary());
         }
     }
 
     function updatePrice() {
         if (!comboPriceValue) return;
-        const hasSoup = Boolean(comboState.soup);
-        const price = (COMBO_BASE_PRICE + (hasSoup ? COMBO_SOUP_EXTRA : 0)).toFixed(2);
-        comboPriceValue.textContent = `${price} €`;
+        const mainData = comboState.main ? getCardData('main', comboState.main) : null;
+        const soupData = comboState.soup ? getCardData('soup', comboState.soup) : null;
+        if (!mainData) {
+            comboPriceValue.textContent = `${COMBO_BASE_PRICE.toFixed(2)} €`;
+            comboPriceHint && (comboPriceHint.textContent = 'Выберите горячее блюдо');
+            return;
+        }
+        let total = mainData.is_unique ? parsePrice(mainData.price) : COMBO_BASE_PRICE;
+        const hintParts = [];
+        if (mainData.is_unique) {
+            hintParts.push(`Основное: ${formatCurrency(mainData.price)}`);
+        } else {
+            hintParts.push('Стандартный сет 4.00 €');
+        }
+        if (soupData) {
+            if (soupData.is_unique) {
+                const soupPrice = parsePrice(soupData.price);
+                total += soupPrice;
+                hintParts.push(`Суп: ${formatCurrency(soupPrice)}`);
+            } else {
+                total += COMBO_SOUP_EXTRA;
+                hintParts.push('Суп: +0.50 €');
+            }
+        }
+        comboPriceValue.textContent = `${total.toFixed(2)} €`;
         if (comboPriceHint) {
-            comboPriceHint.textContent = hasSoup ? 'Суп включён в стоимость набора' : 'Добавьте суп — цена будет 4.50 €';
+            comboPriceHint.textContent = hintParts.join(' · ');
         }
     }
 
@@ -277,6 +309,8 @@ document.addEventListener('DOMContentLoaded', () => {
             title: card.dataset.title || 'Блюдо',
             description: card.dataset.description || '',
             image: card.dataset.image || '',
+            price: card.dataset.price || '0',
+            is_unique: card.dataset.unique === '1',
         };
     }
 
@@ -297,6 +331,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const titleEl = document.createElement('div');
         titleEl.className = 'combo-selection-title';
         titleEl.textContent = data.title;
+        if (data.is_unique) {
+            const badge = document.createElement('span');
+            badge.className = 'combo-unique-chip ms-2';
+            badge.textContent = '★ Уникальное';
+            titleEl.appendChild(badge);
+        }
         const meta = document.createElement('div');
         meta.className = 'text-muted small';
         meta.textContent = label;
@@ -304,6 +344,30 @@ document.addEventListener('DOMContentLoaded', () => {
         desc.className = 'text-muted small text-truncate-2';
         desc.textContent = data.description || 'Описание появится позже';
         body.append(meta, titleEl, desc);
+        if (data.is_unique && parsePrice(data.price) > 0) {
+            const price = document.createElement('div');
+            price.className = 'combo-selection-price';
+            price.textContent = `${formatCurrency(data.price)} €`;
+            body.append(price);
+        }
+        wrapper.append(thumb, body);
+        return wrapper;
+    }
+
+    function renderNoSoupSummary() {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'combo-selection-item combo-selection-item--placeholder';
+        const thumb = document.createElement('div');
+        thumb.className = 'combo-selection-thumb';
+        thumb.textContent = '—';
+        const body = document.createElement('div');
+        const meta = document.createElement('div');
+        meta.className = 'text-muted small';
+        meta.textContent = 'Суп';
+        const title = document.createElement('div');
+        title.className = 'combo-selection-title';
+        title.textContent = 'Без супа';
+        body.append(meta, title);
         wrapper.append(thumb, body);
         return wrapper;
     }
@@ -344,6 +408,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const toast = new bootstrap.Toast(toastEl, { delay: 2400 });
         toast.show();
         toastEl.addEventListener('hidden.bs.toast', () => toastEl.remove());
+    }
+
+    function parsePrice(value) {
+        const numeric = parseFloat(value);
+        return Number.isFinite(numeric) ? numeric : 0;
+    }
+
+    function formatCurrency(value) {
+        return parsePrice(value).toFixed(2);
     }
 });
 </script>

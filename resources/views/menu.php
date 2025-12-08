@@ -96,7 +96,7 @@ $comboSoupCount = count($comboOptions['soup'] ?? []);
 <?php else: ?>
     <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-4">
         <?php foreach ($menuItems as $item): ?>
-            <?php $gallery = $item->galleryImages(); ?>
+            <?php $gallery = $item->galleryImages(); $isUnique = $item->isUnique(); ?>
             <div class="col">
                 <?php $role = $comboRoles[$item->id] ?? 'main'; ?>
                 <div class="card h-100 border-0 shadow-sm menu-card" data-item='<?= json_encode([
@@ -106,6 +106,8 @@ $comboSoupCount = count($comboOptions['soup'] ?? []);
                     'ingredients' => $item->ingredients ?? '',
                     'category' => $item->category,
                     'price' => number_format($item->price, 2, '.', ' '),
+                    'raw_price' => (float)$item->price,
+                    'is_unique' => $isUnique,
                     'gallery' => $gallery,
                 ], JSON_HEX_APOS | JSON_HEX_QUOT) ?>' data-combo-role="<?= htmlspecialchars($role) ?>">
                 <?php if (!empty($gallery[0])): ?>
@@ -116,10 +118,19 @@ $comboSoupCount = count($comboOptions['soup'] ?? []);
 
                     <div class="card-body d-flex flex-column">
                         <div class="small text-muted mb-2"><?= htmlspecialchars($item->category ?? 'Без категории') ?></div>
-                        <h5 class="card-title"><?= htmlspecialchars($item->title) ?></h5>
+                        <h5 class="card-title d-flex align-items-center gap-2">
+                            <?= htmlspecialchars($item->title) ?>
+                            <?php if ($isUnique): ?>
+                                <span class="unique-chip" title="Уникальное блюдо">★</span>
+                            <?php endif; ?>
+                        </h5>
                         <p class="card-text flex-grow-1 text-muted fst-italic">Нажмите, чтобы увидеть фото и описание</p>
                         <div class="d-flex justify-content-between align-items-center mt-2">
-                            <span class="fs-5 fw-bold text-success menu-price"><?= number_format($item->price, 2, '.', ' ') ?> €</span>
+                            <?php if ($isUnique): ?>
+                                <span class="fs-5 fw-bold text-info menu-price"><?= number_format($item->price, 2, '.', ' ') ?> €</span>
+                            <?php else: ?>
+                                <span class="menu-price menu-price--placeholder text-muted">Входит в комплекс</span>
+                            <?php endif; ?>
                             <button type="button" class="btn btn-outline-light combo-select-btn" data-id="<?= $item->id ?>" data-default-text="Добавить в комплекс" data-combo-role="<?= htmlspecialchars($role) ?>" onclick="event.stopPropagation();">Добавить в комплекс</button>
                         </div>
                     </div>
@@ -155,7 +166,7 @@ $comboSoupCount = count($comboOptions['soup'] ?? []);
                     <?php if (!empty($comboOptions['main'])): ?>
                         <div class="combo-option-grid" id="comboMainOptions">
                             <?php foreach ($comboOptions['main'] as $option): ?>
-                                <button type="button" class="combo-option-card" data-role="main" data-id="<?= $option['id'] ?>" data-title="<?= htmlspecialchars($option['title']) ?>" data-description="<?= htmlspecialchars($option['description'] ?? '') ?>" data-image="<?= htmlspecialchars($option['image'] ?? '') ?>">
+                                <button type="button" class="combo-option-card" data-role="main" data-id="<?= $option['id'] ?>" data-title="<?= htmlspecialchars($option['title']) ?>" data-description="<?= htmlspecialchars($option['description'] ?? '') ?>" data-image="<?= htmlspecialchars($option['image'] ?? '') ?>" data-price="<?= htmlspecialchars((string)($option['price'] ?? 0)) ?>" data-unique="<?= !empty($option['unique']) ? '1' : '0' ?>">
                                     <div class="combo-option-thumb">
                                         <?php if (!empty($option['image'])): ?>
                                             <img src="/assets/images/<?= htmlspecialchars($option['image']) ?>" alt="<?= htmlspecialchars($option['title']) ?>">
@@ -169,6 +180,13 @@ $comboSoupCount = count($comboOptions['soup'] ?? []);
                                             <?= htmlspecialchars($option['description'] ?? 'Описание появится позже') ?>
                                         </div>
                                         <span class="combo-option-tag">Горячее</span>
+                                        <div class="combo-option-extra">
+                                            <?php if (!empty($option['unique'])): ?>
+                                                <span class="combo-option-unique">★ <?= number_format((float)$option['price'], 2, '.', ' ') ?> €</span>
+                                            <?php else: ?>
+                                                <span class="combo-option-regular">Стандартное блюдо</span>
+                                            <?php endif; ?>
+                                        </div>
                                     </div>
                                     <span class="combo-option-check"></span>
                                 </button>
@@ -187,7 +205,7 @@ $comboSoupCount = count($comboOptions['soup'] ?? []);
                         </div>
                     </div>
                     <div class="combo-option-grid" id="comboSoupOptions">
-                        <button type="button" class="combo-option-card" data-role="soup" data-id="" data-title="Без супа" data-description="" data-image="">
+                        <button type="button" class="combo-option-card" data-role="soup" data-id="" data-title="Без супа" data-description="" data-image="" data-price="0" data-unique="0">
                             <div class="combo-option-thumb">
                                 <span>—</span>
                             </div>
@@ -200,7 +218,7 @@ $comboSoupCount = count($comboOptions['soup'] ?? []);
                         </button>
                         <?php if (!empty($comboOptions['soup'])): ?>
                             <?php foreach ($comboOptions['soup'] as $option): ?>
-                                <button type="button" class="combo-option-card" data-role="soup" data-id="<?= $option['id'] ?>" data-title="<?= htmlspecialchars($option['title']) ?>" data-description="<?= htmlspecialchars($option['description'] ?? '') ?>" data-image="<?= htmlspecialchars($option['image'] ?? '') ?>">
+                                <button type="button" class="combo-option-card" data-role="soup" data-id="<?= $option['id'] ?>" data-title="<?= htmlspecialchars($option['title']) ?>" data-description="<?= htmlspecialchars($option['description'] ?? '') ?>" data-image="<?= htmlspecialchars($option['image'] ?? '') ?>" data-price="<?= htmlspecialchars((string)($option['price'] ?? 0)) ?>" data-unique="<?= !empty($option['unique']) ? '1' : '0' ?>">
                                     <div class="combo-option-thumb">
                                         <?php if (!empty($option['image'])): ?>
                                             <img src="/assets/images/<?= htmlspecialchars($option['image']) ?>" alt="<?= htmlspecialchars($option['title']) ?>">
@@ -214,6 +232,13 @@ $comboSoupCount = count($comboOptions['soup'] ?? []);
                                             <?= htmlspecialchars($option['description'] ?? 'Описание появится позже') ?>
                                         </div>
                                         <span class="combo-option-tag">Суп</span>
+                                        <div class="combo-option-extra">
+                                            <?php if (!empty($option['unique'])): ?>
+                                                <span class="combo-option-unique">★ <?= number_format((float)$option['price'], 2, '.', ' ') ?> €</span>
+                                            <?php else: ?>
+                                                <span class="combo-option-regular">+0.50 € к сету</span>
+                                            <?php endif; ?>
+                                        </div>
                                     </div>
                                     <span class="combo-option-check"></span>
                                 </button>

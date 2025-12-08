@@ -78,6 +78,8 @@ class MenuController
             'role' => $role,
             'image' => $item->primaryImage(),
             'description' => $item->description ?? null,
+            'price' => $item->price,
+            'unique' => $item->isUnique(),
         ], $items));
     }
 

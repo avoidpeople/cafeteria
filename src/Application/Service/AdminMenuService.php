@@ -43,11 +43,15 @@ class AdminMenuService
         $errors = [];
         $title = trim($data['title'] ?? '');
         $price = (float)($data['price'] ?? 0);
+        $useManualPrice = !empty($data['use_manual_price']);
         if ($title === '') {
             $errors[] = 'Название обязательно.';
         }
-        if ($price <= 0) {
-            $errors[] = 'Цена должна быть больше нуля.';
+        if ($useManualPrice && $price <= 0) {
+            $errors[] = 'Укажите цену вручную для уникального блюда.';
+        }
+        if (!$useManualPrice) {
+            $price = 0.0;
         }
 
         $gallery = $this->processGallery($files, $data['existing_gallery'] ?? '');
@@ -72,6 +76,7 @@ class AdminMenuService
             'category' => trim($data['category'] ?? ''),
             'image_url' => $images[0] ?? null,
             'image_gallery' => $images,
+            'use_manual_price' => $useManualPrice,
         ];
 
         if (!empty($data['id'])) {

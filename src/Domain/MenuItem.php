@@ -10,11 +10,17 @@ class MenuItem
         public ?string $description,
         public ?string $ingredients,
         public float $price,
+        public bool $useManualPrice = false,
         public ?string $category,
         public ?string $imageUrl,
         public array $gallery = [],
         public bool $isToday = false,
     ) {
+    }
+
+    public function isUnique(): bool
+    {
+        return $this->useManualPrice;
     }
 
     public function galleryImages(): array

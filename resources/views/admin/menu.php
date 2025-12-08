@@ -40,8 +40,15 @@
                     </div>
 
                     <div>
-                        <label class="form-label">Цена (€)</label>
-                        <input type="number" step="0.01" class="form-control" name="price" id="edit_price" required>
+                        <div class="d-flex align-items-center justify-content-between gap-3">
+                            <label class="form-label mb-0">Цена (€)</label>
+                            <div class="form-check form-switch mb-0">
+                                <input class="form-check-input" type="checkbox" role="switch" id="edit_use_manual_price" name="use_manual_price" value="1">
+                                <label class="form-check-label" for="edit_use_manual_price">Указать цену вручную</label>
+                            </div>
+                        </div>
+                        <input type="number" step="0.01" class="form-control mt-2" name="price" id="edit_price" placeholder="Например: 4.20" disabled>
+                        <small class="text-muted" id="priceManualHint">Цена рассчитывается автоматически в составе комплексного обеда.</small>
                     </div>
 
                     <div>
@@ -101,7 +108,14 @@
                                             <?php endif; ?>
                                         </td>
                                         <td><?= htmlspecialchars($item->title) ?></td>
-                                        <td><?= number_format($item->price, 2, '.', ' ') ?> €</td>
+                                        <td>
+                                            <?php if ($item->isUnique()): ?>
+                                                <span class="fw-semibold text-info"><?= number_format($item->price, 2, '.', ' ') ?> €</span>
+                                                <span class="badge bg-info-subtle text-info-emphasis ms-2">Уникальное</span>
+                                            <?php else: ?>
+                                                <span class="text-muted">Стандартный сет</span>
+                                            <?php endif; ?>
+                                        </td>
                                         <td><?= htmlspecialchars($item->category ?? '') ?></td>
                                         <td>
                                             <div class="d-flex flex-column gap-2">
@@ -111,6 +125,7 @@
                                                     'description' => $item->description,
                                                     'ingredients' => $item->ingredients,
                                                     'price' => $item->price,
+                                                    'use_manual_price' => $item->isUnique(),
                                                     'category' => $item->category,
                                                     'image' => $item->primaryImage(),
                                                     'gallery' => $gallery,
@@ -150,7 +165,13 @@
                                     <div>
                                         <div class="fw-bold"><?= htmlspecialchars($item->title) ?></div>
                                         <div class="text-muted small"><?= htmlspecialchars($item->category ?? 'Без категории') ?></div>
-                                        <div class="text-success fw-semibold"><?= number_format($item->price, 2, '.', ' ') ?> €</div>
+                                        <div class="text-success fw-semibold">
+                                            <?php if ($item->isUnique()): ?>
+                                                <?= number_format($item->price, 2, '.', ' ') ?> €
+                                            <?php else: ?>
+                                                <span class="text-muted">Стандартный сет</span>
+                                            <?php endif; ?>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -165,15 +186,42 @@
 </div>
 
 <script>
+const manualPriceToggle = document.getElementById('edit_use_manual_price');
+const manualPriceInput = document.getElementById('edit_price');
+const priceManualHint = document.getElementById('priceManualHint');
+
+function syncManualPriceField(forceValue = null) {
+    if (!manualPriceToggle || !manualPriceInput) {
+        return;
+    }
+    const enabled = forceValue !== null ? Boolean(forceValue) : manualPriceToggle.checked;
+    manualPriceToggle.checked = enabled;
+    manualPriceInput.disabled = !enabled;
+    if (!enabled) {
+        manualPriceInput.value = '';
+    }
+    if (priceManualHint) {
+        priceManualHint.textContent = enabled
+            ? 'Укажите стоимость уникального блюда. Она заменит базовую цену комплекса.'
+            : 'Цена рассчитывается автоматически в составе комплексного обеда.';
+    }
+}
+
+manualPriceToggle?.addEventListener('change', () => syncManualPriceField());
+syncManualPriceField(false);
+
 function fillForm(data) {
     document.getElementById('edit_id').value = data.id || '';
     document.getElementById('edit_title').value = data.title || '';
     document.getElementById('edit_desc').value = data.description || '';
     document.getElementById('edit_ingr').value = data.ingredients || '';
-    document.getElementById('edit_price').value = data.price || '';
     document.getElementById('edit_category').value = data.category || '';
     document.getElementById('current_image').value = data.image || '';
     document.getElementById('existing_gallery').value = JSON.stringify(data.gallery || []);
+    syncManualPriceField(Boolean(data.use_manual_price));
+    if (manualPriceInput && data.use_manual_price) {
+        manualPriceInput.value = data.price || '';
+    }
     renderGalleryPreview(data.gallery || []);
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }

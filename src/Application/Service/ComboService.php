@@ -33,15 +33,19 @@ class ComboService
         $items = [$this->serializeItem($main, 'main')];
 
         $soupId = isset($selection['soup']) ? (int)$selection['soup'] : 0;
-        $hasSoup = false;
+        $soup = null;
         if ($soupId > 0) {
             $soup = $this->menuRepository->findById($soupId);
             $this->assertAvailable($soup, 'Суп недоступен сегодня');
             $items[] = $this->serializeItem($soup, 'soup');
-            $hasSoup = true;
         }
 
-        $price = self::BASE_PRICE + ($hasSoup ? self::SOUP_EXTRA : 0);
+        $price = $this->calculateComboPrice($main, $soup);
+        $hasSoup = $soup !== null;
+        $pricing = [
+            'base' => $this->isUnique($main) ? $this->normalizePrice($main->price) : self::BASE_PRICE,
+            'soup' => $soup ? ($this->isUnique($soup) ? $this->normalizePrice($soup->price) : self::SOUP_EXTRA) : 0.0,
+        ];
 
         return [
             'id' => $selection['id'] ?? $this->generateId(),
@@ -50,12 +54,14 @@ class ComboService
             'menu_id' => $this->comboMenuId(),
             'items' => $items,
             'has_soup' => $hasSoup,
+            'pricing' => $pricing,
             'created_at' => time(),
         ];
     }
 
     private function serializeItem(MenuItem $item, string $type): array
     {
+        $isUnique = $this->isUnique($item);
         return [
             'id' => $item->id,
             'title' => $item->title,
@@ -63,7 +69,25 @@ class ComboService
             'type' => $type,
             'image' => $item->primaryImage(),
             'description' => $item->description ?? null,
+            'is_unique' => $isUnique,
+            'price' => $isUnique ? $this->normalizePrice($item->price) : null,
         ];
+    }
+
+    public function isUnique(MenuItem $dish): bool
+    {
+        return $dish->isUnique();
+    }
+
+    public function calculateComboPrice(MenuItem $mainDish, ?MenuItem $soupDish = null): float
+    {
+        $price = $this->isUnique($mainDish) ? $this->normalizePrice($mainDish->price) : self::BASE_PRICE;
+        if ($soupDish) {
+            $price += $this->isUnique($soupDish)
+                ? $this->normalizePrice($soupDish->price)
+                : self::SOUP_EXTRA;
+        }
+        return round($price, 2);
     }
 
     private function assertAvailable(?MenuItem $item, string $message): void
@@ -71,6 +95,11 @@ class ComboService
         if (!$item || !$item->isToday) {
             throw new InvalidArgumentException($message);
         }
+    }
+
+    private function normalizePrice(float $value): float
+    {
+        return round(max(0, $value), 2);
     }
 
     private function generateId(): string

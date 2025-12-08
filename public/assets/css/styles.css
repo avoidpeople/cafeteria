@@ -98,6 +98,25 @@ body {
     color: #69dbff;
 }
 
+.menu-price--placeholder {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.unique-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.12);
+    color: #ffe066;
+    font-weight: 700;
+    font-size: 0.85rem;
+}
+
 .menu-card .combo-select-btn {
     border-radius: 999px;
 }
@@ -352,6 +371,17 @@ body {
     backdrop-filter: blur(6px);
 }
 
+.dish-unique-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.12);
+    color: #ffe066;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
 .combo-select-btn {
     border: 1px solid rgba(255,255,255,0.15);
     color: inherit;
@@ -443,6 +473,23 @@ body {
     font-size: 0.75rem;
 }
 
+.combo-option-extra {
+    margin-top: 6px;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.combo-option-unique {
+    color: #ffe066;
+    font-weight: 600;
+}
+
+.combo-option-regular {
+    color: var(--bs-secondary-color);
+}
+
 .combo-option-check {
     position: absolute;
     top: 12px;
@@ -508,6 +555,10 @@ body {
     align-items: flex-start;
 }
 
+.combo-selection-item--placeholder {
+    opacity: 0.75;
+}
+
 .combo-selection-thumb {
     width: 60px;
     height: 60px;
@@ -529,6 +580,19 @@ body {
 
 .combo-selection-title {
     font-weight: 600;
+}
+
+.combo-selection-title {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.combo-selection-price {
+    font-weight: 600;
+    color: #91e0ff;
+    font-size: 0.9rem;
 }
 
 .combo-price {
@@ -570,6 +634,18 @@ body.combo-mode .combo-select-btn {
     border-top: 1px solid rgba(255,255,255,0.08);
 }
 
+.combo-breakdown-placeholder {
+    opacity: 0.8;
+}
+
+.combo-breakdown-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
 .combo-breakdown-item:first-child {
     border-top: none;
 }
@@ -603,6 +679,25 @@ body.combo-mode .combo-select-btn {
 
 .combo-breakdown-missing .combo-breakdown-title {
     color: var(--bs-danger);
+}
+
+.combo-unique-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 10px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.08);
+    font-size: 0.75rem;
+    color: #ffe066;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.combo-item-price {
+    font-weight: 600;
+    color: #8be9ff;
+    font-size: 0.9rem;
 }
 
 .text-gradient {
