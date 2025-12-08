@@ -77,51 +77,6 @@ class OrderController
         exit;
     }
 
-    public function reorder(): void
-    {
-        $this->authService->requireLogin('Войдите или зарегистрируйтесь, чтобы повторять заказы');
-        $orderId = intval($_GET['id'] ?? 0);
-        if ($orderId <= 0) {
-            setToast('Некорректный заказ для повторного оформления', 'danger');
-            header('Location: /orders');
-            exit;
-        }
-
-        $order = $this->orderService->getOrder($orderId);
-        $userId = $this->session->get('user_id');
-        if (!$order || $order->userId !== $userId) {
-            setToast('Вы не можете повторить этот заказ', 'danger');
-            header('Location: /orders');
-            exit;
-        }
-
-        $itemsAdded = false;
-        $skipped = [];
-        foreach ($order->items as $item) {
-            if ($this->cartService->addItem($item->menuId, $item->quantity)) {
-                $itemsAdded = true;
-            } else {
-                $skipped[] = $item->title;
-            }
-        }
-
-        if ($itemsAdded) {
-            if ($skipped) {
-                $list = implode(', ', array_slice($skipped, 0, 3));
-                $suffix = count($skipped) > 3 ? '…' : '';
-                setToast("Заказ #{$orderId} частично добавлен. Недоступны: {$list}{$suffix}", 'warning');
-            } else {
-                setToast("Заказ #{$orderId} добавлен в корзину", 'success');
-            }
-            header('Location: /cart');
-            exit;
-        }
-
-        setToast('Не удалось повторить заказ — блюда недоступны в сегодняшнем меню', 'warning');
-        header('Location: /orders');
-        exit;
-    }
-
     public function place(): void
     {
         $this->authService->requireLogin('Авторизуйтесь, чтобы оформить заказ');

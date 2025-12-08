@@ -45,7 +45,6 @@ $router->get('/cart/combo/remove', [$cartController, 'removeCombo']);
 $router->get('/cart/clear', [$cartController, 'clear']);
 $router->get('/orders', [$orderController, 'history']);
 $router->get('/orders/view', [$orderController, 'view']);
-$router->get('/orders/reorder', [$orderController, 'reorder']);
 $router->post('/orders/place', [$orderController, 'place']);
 $router->get('/profile', [$profileController, 'index']);
 $router->post('/profile/password', [$profileController, 'updatePassword']);

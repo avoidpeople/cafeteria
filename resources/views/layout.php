@@ -11,7 +11,7 @@
     <script>
         (function() {
             const getCookie = (name) => document.cookie.split('; ').find(row => row.startsWith(name + '='))?.split('=')[1];
-            const storedTheme = localStorage.getItem('theme') || getCookie('theme') || 'light';
+            const storedTheme = localStorage.getItem('theme') || getCookie('theme') || 'dark';
             document.documentElement.setAttribute('data-bs-theme', storedTheme);
         })();
     </script>
@@ -33,7 +33,7 @@
                 themeToggle.innerText = theme === 'light' ? '🌙' : '☀️';
             }
         };
-        applyTheme(localStorage.getItem('theme') || document.cookie.split('; ').find(row => row.startsWith('theme='))?.split('=')[1] || document.documentElement.getAttribute('data-bs-theme') || 'light');
+        applyTheme(localStorage.getItem('theme') || document.cookie.split('; ').find(row => row.startsWith('theme='))?.split('=')[1] || document.documentElement.getAttribute('data-bs-theme') || 'dark');
         themeToggle?.addEventListener('click', () => {
             const current = document.documentElement.getAttribute('data-bs-theme');
             const next = current === 'light' ? 'dark' : 'light';

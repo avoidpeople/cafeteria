@@ -20,7 +20,6 @@
                     <th>Сумма</th>
                     <th>Адрес доставки</th>
                     <th>Подробнее</th>
-                    <th>Повторить</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -36,7 +35,6 @@
                         <td><?= number_format($order->totalPrice, 2, '.', ' ') ?> €</td>
                         <td><?= nl2br(htmlspecialchars($order->deliveryAddress ?? '—')) ?></td>
                         <td><a class="btn btn-primary btn-sm" href="/orders/view?id=<?= $order->id ?>">Открыть</a></td>
-                        <td><a class="btn btn-outline-primary btn-sm" href="/orders/reorder?id=<?= $order->id ?>">Повторить</a></td>
                     </tr>
                 <?php endforeach; ?>
                 </tbody>
