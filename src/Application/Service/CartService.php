@@ -2,7 +2,6 @@
 
 namespace App\Application\Service;
 
-use App\Domain\MenuItem;
 use App\Domain\MenuRepositoryInterface;
 use App\Infrastructure\SessionManager;
 
@@ -19,11 +18,40 @@ class CartService
 
     private function getCart(): array
     {
-        return $this->session->get(self::KEY, []);
+        $cart = $this->session->get(self::KEY, []);
+        if (!is_array($cart)) {
+            $cart = [];
+        }
+        $items = $cart['items'] ?? null;
+        $combos = $cart['combos'] ?? null;
+        if ($items === null && $combos === null) {
+            $items = $cart;
+            $combos = [];
+        }
+        if (!is_array($items)) {
+            $items = [];
+        }
+        if (!is_array($combos)) {
+            $combos = [];
+        }
+
+        $items = array_filter(
+            array_map(static fn ($qty) => (int)$qty, $items),
+            static fn ($qty) => $qty > 0
+        );
+
+        $combos = array_filter($combos, static fn ($combo) => is_array($combo) && isset($combo['id'], $combo['menu_id']));
+
+        return [
+            'items' => $items,
+            'combos' => $combos,
+        ];
     }
 
     private function saveCart(array $cart): void
     {
+        $cart['items'] = $cart['items'] ?? [];
+        $cart['combos'] = $cart['combos'] ?? [];
         $this->session->set(self::KEY, $cart);
     }
 
@@ -37,7 +65,7 @@ class CartService
             return false;
         }
         $cart = $this->getCart();
-        $cart[$id] = ($cart[$id] ?? 0) + max(1, $quantity);
+        $cart['items'][$id] = ($cart['items'][$id] ?? 0) + max(1, $quantity);
         $this->saveCart($cart);
         return true;
     }
@@ -45,10 +73,10 @@ class CartService
     public function decreaseItem(int $id): void
     {
         $cart = $this->getCart();
-        if (isset($cart[$id])) {
-            $cart[$id]--;
-            if ($cart[$id] <= 0) {
-                unset($cart[$id]);
+        if (isset($cart['items'][$id])) {
+            $cart['items'][$id]--;
+            if ($cart['items'][$id] <= 0) {
+                unset($cart['items'][$id]);
             }
             $this->saveCart($cart);
         }
@@ -57,36 +85,75 @@ class CartService
     public function removeItem(int $id): void
     {
         $cart = $this->getCart();
-        unset($cart[$id]);
+        unset($cart['items'][$id]);
+        $this->saveCart($cart);
+    }
+
+    public function addCombo(array $combo): void
+    {
+        if (empty($combo['id']) || empty($combo['menu_id'])) {
+            return;
+        }
+        $cart = $this->getCart();
+        $cart['combos'][$combo['id']] = $combo;
+        $this->saveCart($cart);
+    }
+
+    public function removeCombo(string $comboId): void
+    {
+        $cart = $this->getCart();
+        unset($cart['combos'][$comboId]);
         $this->saveCart($cart);
     }
 
     public function clear(): void
     {
-        $this->saveCart([]);
+        $this->saveCart([
+            'items' => [],
+            'combos' => [],
+        ]);
     }
 
     public function detailedItems(): array
     {
         $cart = $this->getCart();
-        if (!$cart) {
+        $itemsInCart = $cart['items'] ?? [];
+        $combos = $cart['combos'] ?? [];
+        if (empty($itemsInCart) && empty($combos)) {
             return [[], 0];
         }
-        $items = $this->menus->findByIds(array_keys($cart));
+        $items = $itemsInCart ? $this->menus->findByIds(array_keys($itemsInCart)) : [];
         $result = [];
         $total = 0;
         foreach ($items as $item) {
-            $qty = $cart[$item->id] ?? 0;
+            $qty = $itemsInCart[$item->id] ?? 0;
             if ($qty <= 0) {
                 continue;
             }
             $sum = $item->price * $qty;
             $result[] = [
+                'type' => 'item',
+                'id' => $item->id,
                 'item' => $item,
                 'quantity' => $qty,
                 'sum' => $sum,
             ];
             $total += $sum;
+        }
+
+        foreach ($combos as $combo) {
+            [$available, $missingItems] = $this->comboAvailability($combo);
+            $price = (float)($combo['price'] ?? 0);
+            $result[] = [
+                'type' => 'combo',
+                'id' => 'combo:' . $combo['id'],
+                'combo' => $combo,
+                'quantity' => 1,
+                'sum' => $price,
+                'available' => $available,
+                'missing' => $missingItems,
+            ];
+            $total += $price;
         }
         return [$result, $total];
     }
@@ -94,7 +161,7 @@ class CartService
     public function hasItem(int $id): bool
     {
         $cart = $this->getCart();
-        return isset($cart[$id]) && $cart[$id] > 0;
+        return isset($cart['items'][$id]) && $cart['items'][$id] > 0;
     }
 
     public function getQuantities(): array
@@ -106,8 +173,35 @@ class CartService
     {
         $cart = $this->getCart();
         foreach ($ids as $id) {
-            unset($cart[$id]);
+            if (is_string($id) && str_starts_with($id, 'combo:')) {
+                $comboId = substr($id, 6);
+                unset($cart['combos'][$comboId]);
+                continue;
+            }
+            $intId = (int)$id;
+            if ($intId > 0) {
+                unset($cart['items'][$intId]);
+            }
         }
         $this->saveCart($cart);
+    }
+
+    private function comboAvailability(array $combo): array
+    {
+        $missing = [];
+        foreach ($combo['items'] ?? [] as $item) {
+            $id = (int)($item['id'] ?? 0);
+            if ($id <= 0) {
+                continue;
+            }
+            $menuItem = $this->menus->findById($id);
+            if (!$menuItem || !$menuItem->isToday) {
+                $missing[] = [
+                    'id' => $id,
+                    'title' => $item['title'] ?? 'Блюдо',
+                ];
+            }
+        }
+        return [empty($missing), $missing];
     }
 }

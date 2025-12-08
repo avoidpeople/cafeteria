@@ -57,12 +57,30 @@ class OrderService
         }
 
         $cart = $cartService->getQuantities();
-        $validIds = array_values(array_intersect(array_map('intval', $selectedIds), array_keys($cart)));
-        if (empty($validIds)) {
-            return ['success' => false, 'message' => 'Выбранные блюда отсутствуют в корзине'];
+        $itemQuantities = $cart['items'] ?? [];
+        $comboEntries = $cart['combos'] ?? [];
+
+        $menuSelection = [];
+        $comboSelection = [];
+        foreach ($selectedIds as $value) {
+            if (is_string($value) && str_starts_with($value, 'combo:')) {
+                $comboSelection[] = substr($value, 6);
+                continue;
+            }
+            $intValue = (int)$value;
+            if ($intValue > 0) {
+                $menuSelection[] = $intValue;
+            }
         }
 
-        $menuItems = $menuRepository->findByIds($validIds);
+        $menuSelection = array_values(array_intersect($menuSelection, array_keys($itemQuantities)));
+        $comboSelection = array_values(array_intersect($comboSelection, array_keys($comboEntries)));
+
+        if (empty($menuSelection) && empty($comboSelection)) {
+            return ['success' => false, 'message' => 'Выбранные позиции отсутствуют в корзине'];
+        }
+
+        $menuItems = $menuSelection ? $menuRepository->findByIds($menuSelection) : [];
         $items = [];
         $total = 0;
         $usedIds = [];
@@ -82,6 +100,28 @@ class OrderService
             $usedIds[] = $menuItem->id;
         }
 
+        foreach ($comboSelection as $comboId) {
+            $combo = $comboEntries[$comboId] ?? null;
+            if (!$combo) {
+                continue;
+            }
+            $menuId = (int)($combo['menu_id'] ?? 0);
+            if ($menuId <= 0) {
+                continue;
+            }
+            $price = (float)($combo['price'] ?? ComboService::BASE_PRICE);
+            $items[] = [
+                'menu_id' => $menuId,
+                'quantity' => 1,
+                'price' => $price,
+                'title' => $combo['title'] ?? 'Комплексный обед',
+                'combo_details' => $combo,
+                'type' => 'combo',
+            ];
+            $total += $price;
+            $usedIds[] = 'combo:' . $comboId;
+        }
+
         if (empty($items)) {
             return ['success' => false, 'message' => 'Выбранные блюда недоступны в меню сегодня'];
         }
@@ -93,11 +133,13 @@ class OrderService
         return [
             'success' => true,
             'order_id' => $order->id,
-            'items' => array_map(fn ($item) => [
+            'items' => array_map(static fn ($item) => [
                 'title' => $item['title'],
                 'price' => $item['price'],
                 'quantity' => $item['quantity'],
                 'sum' => $item['price'] * $item['quantity'],
+                'details' => $item['combo_details'] ?? null,
+                'type' => $item['type'] ?? 'single',
             ], $items),
             'total' => $total,
             'delivery_address' => $deliveryAddress,

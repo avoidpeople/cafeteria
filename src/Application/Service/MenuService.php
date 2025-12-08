@@ -12,7 +12,8 @@ class MenuService
 
     public function categories(): array
     {
-        return $this->repository->getCategories();
+        $categories = $this->repository->getCategories();
+        return array_values(array_filter($categories, static fn ($category) => is_string($category) && !str_starts_with($category, '_')));
     }
 
     public function menuItems(string $search = '', string $category = ''): array

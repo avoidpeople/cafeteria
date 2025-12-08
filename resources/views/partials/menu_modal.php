@@ -26,7 +26,7 @@
             <p id="dishDescription" class="text-break"></p>
             <p id="dishIngridients" class="text-break"></p>
             <p class="fs-4 fw-bold text-success" id="dishPrice"></p>
-            <button class="btn btn-primary" id="modalAddToCart">Добавить в корзину</button>
+            <button class="btn btn-primary" id="modalAddToCart">Добавить в комплекс</button>
         </div>
       </div>
     </div>

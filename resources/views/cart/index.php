@@ -1,5 +1,5 @@
 <?php $title = 'Корзина'; ?>
-<div class="page-container">
+<div class="page-container page-container-wide">
 <div class="d-flex align-items-center justify-content-between mb-3">
     <h1 class="mb-0">Корзина</h1>
     <a class="btn btn-secondary" href="/menu">← Вернуться в меню</a>
@@ -25,8 +25,13 @@
                     </tr>
                     </thead>
                     <tbody id="cartTableBody">
-                    <?php foreach ($cartItems as $entry): $item = $entry['item']; $isAvailable = $item->isToday; ?>
-                        <tr class="cart-row <?= $isAvailable ? 'row-selected' : 'row-unavailable' ?>" data-id="<?= $item->id ?>" data-sum="<?= $entry['sum'] ?>" data-qty="<?= $entry['quantity'] ?>" data-available="<?= $isAvailable ? '1' : '0' ?>">
+                    <?php foreach ($cartItems as $entry): ?>
+                        <?php if (($entry['type'] ?? 'item') === 'combo'): ?>
+                            <?php $comboEntry = $entry; include __DIR__ . '/../combos/_combo_block.php'; ?>
+                            <?php continue; ?>
+                        <?php endif; ?>
+                        <?php $item = $entry['item']; $isAvailable = $item->isToday; ?>
+                        <tr class="cart-row <?= $isAvailable ? 'row-selected' : 'row-unavailable' ?>" data-id="<?= $entry['id'] ?? $item->id ?>" data-sum="<?= $entry['sum'] ?>" data-qty="<?= $entry['quantity'] ?>" data-available="<?= $isAvailable ? '1' : '0' ?>">
                             <td>
                                 <?php if ($isAvailable): ?>
                                     <label class="toggle-chip active w-100 justify-content-center">

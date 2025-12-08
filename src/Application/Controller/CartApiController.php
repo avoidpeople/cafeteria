@@ -4,6 +4,7 @@ namespace App\Application\Controller;
 
 use App\Application\Service\AuthService;
 use App\Application\Service\CartService;
+use App\Application\Service\ComboService;
 use App\Application\Service\MenuService;
 use App\Infrastructure\SessionManager;
 
@@ -13,6 +14,7 @@ class CartApiController
         private AuthService $authService,
         private CartService $cartService,
         private MenuService $menuService,
+        private ComboService $comboService,
         private SessionManager $session
     ) {
     }
@@ -39,5 +41,30 @@ class CartApiController
             return;
         }
         echo json_encode(['success' => true, 'message' => 'Блюдо добавлено в корзину']);
+    }
+
+    public function addCombo(): void
+    {
+        header('Content-Type: application/json');
+        if (!$this->session->get('user_id')) {
+            echo json_encode(['success' => false, 'message' => 'Авторизуйтесь, чтобы собирать комплексный обед']);
+            return;
+        }
+
+        $mainId = intval($_POST['main_id'] ?? 0);
+        $soupId = intval($_POST['soup_id'] ?? 0);
+
+        try {
+            $combo = $this->comboService->createCombo([
+                'main' => $mainId,
+                'soup' => $soupId,
+            ]);
+            $this->cartService->addCombo($combo);
+            echo json_encode(['success' => true, 'message' => 'Комплексный обед добавлен в корзину']);
+        } catch (\InvalidArgumentException $e) {
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        } catch (\Throwable $e) {
+            echo json_encode(['success' => false, 'message' => 'Не удалось собрать комплексный обед']);
+        }
     }
 }

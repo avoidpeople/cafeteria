@@ -41,6 +41,7 @@ $conn->exec("CREATE TABLE IF NOT EXISTS order_items (
     order_id INTEGER NOT NULL,
     menu_id INTEGER NOT NULL,
     quantity INTEGER NOT NULL,
+    combo_details TEXT,
     FOREIGN KEY (order_id) REFERENCES orders(id),
     FOREIGN KEY (menu_id) REFERENCES menu(id)
 )");

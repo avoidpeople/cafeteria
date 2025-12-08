@@ -53,6 +53,17 @@ class CartController
         });
     }
 
+    public function removeCombo(): void
+    {
+        $this->authService->requireLogin('Войдите или зарегистрируйтесь, чтобы управлять корзиной');
+        $comboId = trim($_GET['combo'] ?? '');
+        if ($comboId !== '') {
+            $this->cartService->removeCombo($comboId);
+        }
+        header('Location: /cart');
+        exit;
+    }
+
     public function clear(): void
     {
         $this->authService->requireLogin('Войдите или зарегистрируйтесь, чтобы управлять корзиной');

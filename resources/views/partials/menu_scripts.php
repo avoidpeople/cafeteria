@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const carouselPrev = document.getElementById('dishCarouselPrev');
     const carouselNext = document.getElementById('dishCarouselNext');
     const modalAddBtn = document.getElementById('modalAddToCart');
-    const modalInstance = bootstrap.Modal.getOrCreateInstance(modal);
+    const dishModal = bootstrap.Modal.getOrCreateInstance(modal);
     let carouselInstance = bootstrap.Carousel.getOrCreateInstance(carouselEl, { interval: false });
     carouselInstance.pause();
 
@@ -24,9 +24,13 @@ document.addEventListener('DOMContentLoaded', () => {
             modalIngr.textContent = item.ingredients ? `Состав: ${item.ingredients}` : '';
             modalCat.textContent = item.category ? `Категория: ${item.category}` : 'Без категории';
             modalPrice.textContent = `${item.price} €`;
-            let gallery = Array.isArray(item.gallery) && item.gallery.length
-                ? item.gallery
-                : (item.image ? [item.image] : []);
+            modalAddBtn.dataset.id = item.id;
+            modalAddBtn.dataset.comboRole = card.dataset.comboRole || 'main';
+
+            let gallery = Array.isArray(item.gallery) && item.gallery.length ? item.gallery : [];
+            if (!gallery.length && item.image) {
+                gallery = [item.image];
+            }
             if (!gallery.length) {
                 gallery = [''];
             }
@@ -50,8 +54,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     indicator.type = 'button';
                     indicator.setAttribute('data-bs-target', '#dishCarousel');
                     indicator.setAttribute('data-bs-slide-to', index);
-                    indicator.className = index === 0 ? 'active' : '';
-                    indicator.setAttribute('aria-label', 'Слайд ' + (index + 1));
+                    indicator.className = isActive;
+                    indicator.setAttribute('aria-label', `Слайд ${index + 1}`);
                     if (index === 0) {
                         indicator.setAttribute('aria-current', 'true');
                     }
@@ -59,59 +63,287 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
 
-            const controlsVisible = (gallery.length > 1);
+            const controlsVisible = gallery.length > 1;
             carouselPrev.style.display = controlsVisible ? '' : 'none';
             carouselNext.style.display = controlsVisible ? '' : 'none';
             carouselIndicators.style.display = controlsVisible ? '' : 'none';
             carouselInstance.dispose();
-            carouselInstance = new bootstrap.Carousel(carouselEl, { interval: false, ride: false, wrap: gallery.length > 1 });
+            carouselInstance = new bootstrap.Carousel(carouselEl, { interval: false, ride: false, wrap: controlsVisible });
             carouselInstance.to(0);
-            modalAddBtn.dataset.id = item.id;
-            modalInstance.show();
+            dishModal.show();
         });
     });
 
-    modalAddBtn.addEventListener('click', async () => {
-        const id = modalAddBtn.dataset.id;
-        if (!id) return;
-        await addToCart(id);
+    modalAddBtn.addEventListener('click', () => {
+        const role = modalAddBtn.dataset.comboRole || 'main';
+        openComboModal(role, modalAddBtn.dataset.id);
     });
 
-    document.querySelectorAll('.add-to-cart').forEach(btn => {
-        btn.addEventListener('click', async (event) => {
+    // Combo builder
+    const comboModalEl = document.getElementById('comboModal');
+    const comboModal = comboModalEl ? bootstrap.Modal.getOrCreateInstance(comboModalEl) : null;
+    const comboBuilderBtn = document.getElementById('comboBuilderButton');
+    const comboExitBtn = document.getElementById('comboBuilderReset');
+    const comboSummary = document.getElementById('comboSelectionPreview');
+    const comboSubmit = document.getElementById('comboSubmit');
+    const comboError = document.getElementById('comboError');
+    const comboPriceValue = document.getElementById('comboPriceValue');
+    const comboPriceHint = document.getElementById('comboPriceHint');
+    const comboButtons = Array.from(document.querySelectorAll('.combo-select-btn'));
+    const comboState = { main: null, soup: null };
+    const cardMap = new Map();
+    const COMBO_BASE_PRICE = 4.0;
+    const COMBO_SOUP_EXTRA = 0.5;
+
+    if (comboModalEl) {
+        comboModalEl.querySelectorAll('.combo-option-card').forEach(card => {
+            const role = card.dataset.role;
+            const id = card.dataset.id || '';
+            const key = `${role}:${id || 'none'}`;
+            cardMap.set(key, card);
+            card.addEventListener('click', () => {
+                setSelection(role, id);
+            });
+        });
+    }
+
+    comboButtons.forEach(btn => {
+        btn.addEventListener('click', event => {
             event.stopPropagation();
-            await addToCart(btn.dataset.id);
+            openComboModal(btn.dataset.comboRole || 'main', btn.dataset.id);
         });
     });
 
-    async function addToCart(id) {
+    comboBuilderBtn?.addEventListener('click', () => openComboModal());
+    comboExitBtn?.addEventListener('click', () => {
+        comboModal?.hide();
+        toggleComboMode(false);
+    });
+
+    comboModalEl?.addEventListener('shown.bs.modal', () => {
+        toggleComboMode(true);
+        ensureDefaults();
+        updateUI();
+    });
+
+    comboModalEl?.addEventListener('hidden.bs.modal', () => {
+        toggleComboMode(false);
+        if (comboError) {
+            comboError.classList.add('d-none');
+            comboError.textContent = '';
+        }
+    });
+
+    comboSubmit?.addEventListener('click', async () => {
+        if (!comboState.main) {
+            if (comboError) {
+                comboError.textContent = 'Выберите горячее блюдо';
+                comboError.classList.remove('d-none');
+            }
+            return;
+        }
+        comboError?.classList.add('d-none');
         const formData = new FormData();
-        formData.append('id', id);
+        formData.append('main_id', comboState.main);
+        if (comboState.soup) {
+            formData.append('soup_id', comboState.soup);
+        }
+        const originalText = comboSubmit.textContent;
+        comboSubmit.disabled = true;
+        comboSubmit.textContent = 'Добавляем...';
+        try {
+            const response = await fetch('/api/cart/combo', { method: 'POST', body: formData });
+            const data = await response.json();
+            showToast(data.message || 'Комплексный обед добавлен', data.success);
+            if (!data.success && comboError) {
+                comboError.textContent = data.message || 'Не удалось добавить комплексный обед';
+                comboError.classList.remove('d-none');
+            }
+            if (data.success) {
+                resetComboSelection();
+                comboModal?.hide();
+            }
+        } catch (error) {
+            showToast('Не удалось добавить комплексный обед', false);
+            if (comboError) {
+                comboError.textContent = 'Ошибка при сохранении комплекса';
+                comboError.classList.remove('d-none');
+            }
+        } finally {
+            comboSubmit.disabled = false;
+            comboSubmit.textContent = originalText;
+        }
+    });
 
-        const response = await fetch('/api/cart/add', {
-            method: 'POST',
-            body: formData
+    function setSelection(role, id) {
+        if (role === 'main') {
+            comboState.main = id;
+        } else if (role === 'soup') {
+            comboState.soup = id || null;
+        }
+        updateUI();
+    }
+
+    function ensureDefaults() {
+        if (!comboState.main) {
+            const firstMain = comboModalEl?.querySelector('#comboMainOptions .combo-option-card');
+            if (firstMain) {
+                comboState.main = firstMain.dataset.id;
+            }
+        }
+        if (comboState.soup === null) {
+            const skipSoup = comboModalEl?.querySelector('#comboSoupOptions .combo-option-card[data-id=\"\"]');
+            if (skipSoup) {
+                comboState.soup = null;
+            }
+        }
+    }
+
+    function updateUI() {
+        updateModalCards();
+        updateSummary();
+        updateMenuButtons();
+        updatePrice();
+    }
+
+    function updateModalCards() {
+        cardMap.forEach((card, key) => {
+            const [role, identifier] = key.split(':');
+            const selectedId = role === 'soup' ? (comboState.soup ?? 'none') : comboState.main;
+            const normalized = identifier === 'none' ? null : identifier;
+            const isActive = role === 'soup'
+                ? ((comboState.soup ?? null) === (normalized ?? null))
+                : (comboState.main === normalized);
+            card.classList.toggle('active', Boolean(isActive));
         });
-        const data = await response.json();
+        if (comboSubmit) {
+            comboSubmit.disabled = !comboState.main;
+        }
+    }
 
+    function updateMenuButtons() {
+        comboButtons.forEach(btn => {
+            const role = btn.dataset.comboRole || 'main';
+            const id = btn.dataset.id || '';
+            const isActive = role === 'soup'
+                ? comboState.soup === id
+                : comboState.main === id;
+            btn.classList.toggle('selected', Boolean(isActive));
+            btn.textContent = isActive ? 'Выбрано' : (btn.dataset.defaultText || 'Добавить в комплекс');
+        });
+    }
+
+    function updateSummary() {
+        if (!comboSummary) return;
+        comboSummary.innerHTML = '';
+        const mainData = getCardData('main', comboState.main);
+        const soupData = comboState.soup ? getCardData('soup', comboState.soup) : null;
+        if (mainData) {
+            comboSummary.appendChild(renderSummaryItem(mainData, 'Горячее'));
+        } else {
+            const placeholder = document.createElement('div');
+            placeholder.className = 'text-muted';
+            placeholder.textContent = 'Выберите горячее блюдо';
+            comboSummary.appendChild(placeholder);
+        }
+        if (soupData) {
+            comboSummary.appendChild(renderSummaryItem(soupData, 'Суп'));
+        }
+    }
+
+    function updatePrice() {
+        if (!comboPriceValue) return;
+        const hasSoup = Boolean(comboState.soup);
+        const price = (COMBO_BASE_PRICE + (hasSoup ? COMBO_SOUP_EXTRA : 0)).toFixed(2);
+        comboPriceValue.textContent = `${price} €`;
+        if (comboPriceHint) {
+            comboPriceHint.textContent = hasSoup ? 'Суп включён в стоимость набора' : 'Добавьте суп — цена будет 4.50 €';
+        }
+    }
+
+    function getCardData(role, id) {
+        if (!id && role === 'soup') {
+            const card = cardMap.get('soup:none');
+            if (!card) return null;
+            return extractCardData(card);
+        }
+        const card = cardMap.get(`${role}:${id}`);
+        return card ? extractCardData(card) : null;
+    }
+
+    function extractCardData(card) {
+        return {
+            role: card.dataset.role,
+            title: card.dataset.title || 'Блюдо',
+            description: card.dataset.description || '',
+            image: card.dataset.image || '',
+        };
+    }
+
+    function renderSummaryItem(data, label) {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'combo-selection-item';
+        const thumb = document.createElement('div');
+        thumb.className = 'combo-selection-thumb';
+        if (data.image) {
+            const img = document.createElement('img');
+            img.src = `/assets/images/${data.image}`;
+            img.alt = data.title;
+            thumb.appendChild(img);
+        } else {
+            thumb.textContent = 'Нет фото';
+        }
+        const body = document.createElement('div');
+        const titleEl = document.createElement('div');
+        titleEl.className = 'combo-selection-title';
+        titleEl.textContent = data.title;
+        const meta = document.createElement('div');
+        meta.className = 'text-muted small';
+        meta.textContent = label;
+        const desc = document.createElement('div');
+        desc.className = 'text-muted small text-truncate-2';
+        desc.textContent = data.description || 'Описание появится позже';
+        body.append(meta, titleEl, desc);
+        wrapper.append(thumb, body);
+        return wrapper;
+    }
+
+    function openComboModal(role = null, id = null) {
+        if (!comboModal) return;
+        if (role && id) {
+            setSelection(role, id);
+        } else {
+            ensureDefaults();
+            updateUI();
+        }
+        comboModal.show();
+    }
+
+    function resetComboSelection() {
+        comboState.main = null;
+        comboState.soup = null;
+        updateUI();
+    }
+
+    function toggleComboMode(active) {
+        document.body.classList.toggle('combo-mode', active);
+        comboExitBtn && (comboExitBtn.hidden = !active);
+    }
+
+    function showToast(message, success = true) {
         const toastEl = document.createElement('div');
-        const toastClass = data.success ? 'text-bg-success' : 'text-bg-danger';
-        toastEl.className = `toast align-items-center ${toastClass} border-0 position-fixed top-50 start-50 translate-middle`;
+        toastEl.className = `toast align-items-center ${success ? 'text-bg-success' : 'text-bg-danger'} border-0 position-fixed top-50 start-50 translate-middle`;
         toastEl.style.zIndex = 1080;
         toastEl.innerHTML = `
             <div class="d-flex">
-                <div class="toast-body">
-                    ${data.message || 'Товар добавлен'}
-                </div>
+                <div class="toast-body">${message}</div>
                 <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
             </div>
         `;
         document.body.appendChild(toastEl);
-        const toast = new bootstrap.Toast(toastEl, { delay: 2000 });
+        const toast = new bootstrap.Toast(toastEl, { delay: 2400 });
         toast.show();
-        toastEl.addEventListener('hidden.bs.toast', () => {
-            toastEl.remove();
-        });
+        toastEl.addEventListener('hidden.bs.toast', () => toastEl.remove());
     }
 });
 </script>

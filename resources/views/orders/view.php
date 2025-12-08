@@ -35,6 +35,55 @@
         <th>Сумма</th>
     </tr>
     <?php foreach ($order->items as $item): ?>
+        <?php if ($item->isCombo()): ?>
+            <?php $combo = $item->comboDetails; $comboItems = $combo['items'] ?? []; ?>
+            <tr class="combo-order-row">
+                <td colspan="5">
+                    <div class="combo-order-card">
+                        <div class="combo-order-header">
+                            <div>
+                                <p class="text-uppercase text-muted small mb-1">Комплексный обед</p>
+                                <h5 class="mb-0"><?= htmlspecialchars($combo['title'] ?? $item->title) ?></h5>
+                            </div>
+                            <div class="text-end">
+                                <div class="fw-semibold">
+                                    <?= number_format($item->price, 2, '.', ' ') ?> € × <?= $item->quantity ?>
+                                </div>
+                                <div class="text-muted">Сумма: <?= number_format($item->sum(), 2, '.', ' ') ?> €</div>
+                                <div class="badge bg-dark-subtle mt-2">
+                                    <?= !empty($combo['has_soup']) ? 'Суп включен' : 'Без супа' ?>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="combo-breakdown">
+                            <?php foreach ($comboItems as $comboItem): ?>
+                                <div class="combo-breakdown-item">
+                                    <div class="combo-breakdown-thumb">
+                                        <?php if (!empty($comboItem['image'])): ?>
+                                            <img src="/assets/images/<?= htmlspecialchars($comboItem['image']) ?>" alt="<?= htmlspecialchars($comboItem['title']) ?>">
+                                        <?php else: ?>
+                                            <span>Нет фото</span>
+                                        <?php endif; ?>
+                                    </div>
+                                    <div>
+                                        <div class="combo-breakdown-title">
+                                            <span class="text-muted text-uppercase small me-2"><?= ($comboItem['type'] ?? '') === 'soup' ? 'Суп' : 'Горячее' ?></span>
+                                            <?= htmlspecialchars($comboItem['title']) ?>
+                                        </div>
+                                        <?php if (!empty($comboItem['description'])): ?>
+                                            <div class="text-muted small text-truncate-2"><?= htmlspecialchars($comboItem['description']) ?></div>
+                                        <?php else: ?>
+                                            <div class="text-muted small fst-italic">Описание недоступно</div>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            <?php continue; ?>
+        <?php endif; ?>
         <tr>
             <td>
                 <?php if (!empty($item->imageUrl)): ?>

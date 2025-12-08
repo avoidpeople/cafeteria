@@ -132,8 +132,8 @@ class OrderController
             exit;
         }
 
-        $selectedIds = isset($_POST['items']) ? array_unique(array_map('intval', $_POST['items'])) : [];
-        $selectedIds = array_filter($selectedIds, fn($id) => $id > 0);
+        $selectedIds = isset($_POST['items']) ? array_unique(array_map('strval', $_POST['items'])) : [];
+        $selectedIds = array_values(array_filter($selectedIds, fn($value) => $value !== ''));
         $deliveryAddress = trim($_POST['delivery_address'] ?? '');
 
         if ($deliveryAddress === '') {

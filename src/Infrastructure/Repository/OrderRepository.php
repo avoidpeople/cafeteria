@@ -10,6 +10,8 @@ use SQLite3Stmt;
 
 class OrderRepository implements OrderRepositoryInterface
 {
+    private bool $comboColumnChecked = false;
+
     public function __construct(private SQLite3 $db)
     {
     }
@@ -99,6 +101,7 @@ class OrderRepository implements OrderRepositoryInterface
 
     public function create(int $userId, string $deliveryAddress, array $items, float $total, string $status = 'pending'): Order
     {
+        $this->ensureComboColumn();
         $this->db->exec('BEGIN');
         try {
             $stmt = $this->prepare("INSERT INTO orders (user_id, total_price, delivery_address, status) VALUES (:uid, :total, :address, :status)");
@@ -110,10 +113,12 @@ class OrderRepository implements OrderRepositoryInterface
             $orderId = (int)$this->db->lastInsertRowID();
 
             foreach ($items as $item) {
-                $stmt = $this->prepare("INSERT INTO order_items (order_id, menu_id, quantity) VALUES (:oid, :mid, :qty)");
+                $stmt = $this->prepare("INSERT INTO order_items (order_id, menu_id, quantity, combo_details) VALUES (:oid, :mid, :qty, :combo)");
                 $stmt->bindValue(':oid', $orderId, SQLITE3_INTEGER);
                 $stmt->bindValue(':mid', $item['menu_id'], SQLITE3_INTEGER);
                 $stmt->bindValue(':qty', $item['quantity'], SQLITE3_INTEGER);
+                $comboPayload = $item['combo_details'] ?? null;
+                $stmt->bindValue(':combo', $comboPayload ? json_encode($comboPayload, JSON_UNESCAPED_UNICODE) : null, SQLITE3_TEXT);
                 $stmt->execute();
             }
 
@@ -186,12 +191,26 @@ class OrderRepository implements OrderRepositoryInterface
         $result = $stmt->execute();
         $items = [];
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $comboDetails = null;
+            if (!empty($row['combo_details'])) {
+                $decoded = json_decode($row['combo_details'], true);
+                if (is_array($decoded)) {
+                    $comboDetails = $decoded;
+                }
+            }
+
+            $price = (float)($row['menu_price'] ?? 0);
+            if ($comboDetails && isset($comboDetails['price'])) {
+                $price = (float)$comboDetails['price'];
+            }
+
             $items[] = new OrderItem(
                 menuId: (int)$row['menu_id'],
                 title: $row['title'] ?? 'Блюдо',
-                price: (float)($row['menu_price'] ?? 0),
+                price: $price,
                 quantity: (int)$row['quantity'],
-                imageUrl: $row['image_url'] ?? null
+                imageUrl: $row['image_url'] ?? null,
+                comboDetails: $comboDetails
             );
         }
         return $items;
@@ -224,5 +243,24 @@ class OrderRepository implements OrderRepositoryInterface
     private function prepare(string $sql): SQLite3Stmt
     {
         return $this->db->prepare($sql);
+    }
+
+    private function ensureComboColumn(): void
+    {
+        if ($this->comboColumnChecked) {
+            return;
+        }
+        $this->comboColumnChecked = true;
+        $result = $this->db->query("PRAGMA table_info('order_items')");
+        $hasColumn = false;
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            if (($row['name'] ?? '') === 'combo_details') {
+                $hasColumn = true;
+                break;
+            }
+        }
+        if (!$hasColumn) {
+            $this->db->exec("ALTER TABLE order_items ADD COLUMN combo_details TEXT");
+        }
     }
 }
