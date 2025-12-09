@@ -54,7 +54,8 @@
                     <div>
                         <label class="form-label"><?= htmlspecialchars(translate('admin.menu.form.category')) ?></label>
                         <select class="form-select form-select-dark" name="category_type" id="edit_category_type">
-                            <option value="hot"><?= htmlspecialchars(translate('category.hot')) ?></option>
+                            <option value="main"><?= htmlspecialchars(translate('category.hot')) ?></option>
+                            <option value="garnish"><?= htmlspecialchars(translate('category.garnish')) ?></option>
                             <option value="soup"><?= htmlspecialchars(translate('category.soup')) ?></option>
                             <option value="custom"><?= htmlspecialchars(translate('category.custom')) ?></option>
                         </select>
@@ -139,6 +140,7 @@
                                                     'use_manual_price' => $item->isUnique(),
                                                     'category' => $item->category,
                                                     'category_original' => $item->categoryOriginal ?? $item->category,
+                                                    'category_role' => $item->categoryRole ?? 'main',
                                                     'image' => $item->primaryImage(),
                                                     'gallery' => $gallery,
                                                 ], JSON_HEX_APOS | JSON_HEX_QUOT) ?>)'><?= htmlspecialchars(translate('admin.menu.actions.edit')) ?></button>
@@ -197,12 +199,6 @@
 
 </div>
 
-<?php
-$categoryHotBase = translate('category.hot', [], 'ru');
-$categorySoupBase = translate('category.soup', [], 'ru');
-$categoryHotNormalized = function_exists('mb_strtolower') ? mb_strtolower($categoryHotBase, 'UTF-8') : strtolower($categoryHotBase);
-$categorySoupNormalized = function_exists('mb_strtolower') ? mb_strtolower($categorySoupBase, 'UTF-8') : strtolower($categorySoupBase);
-?>
 <script>
 const manualPriceToggle = document.getElementById('edit_use_manual_price');
 const manualPriceInput = document.getElementById('edit_price');
@@ -212,10 +208,6 @@ const manualHintAuto = <?= json_encode(translate('admin.menu.form.price_hint'), 
 const categorySelect = document.getElementById('edit_category_type');
 const categoryCustomWrapper = document.getElementById('categoryCustomWrapper');
 const categoryCustomInput = document.getElementById('edit_category_custom');
-const categoryDictionary = {
-    hot: <?= json_encode($categoryHotNormalized, JSON_UNESCAPED_UNICODE) ?>,
-    soup: <?= json_encode($categorySoupNormalized, JSON_UNESCAPED_UNICODE) ?>
-};
 
 function syncManualPriceField(forceValue = null) {
     if (!manualPriceToggle || !manualPriceInput) {
@@ -251,22 +243,8 @@ function syncCategoryFields(type = null, customValue = null) {
     }
 }
 
-function detectCategoryType(originalValue) {
-    const normalized = (originalValue ?? '').toString().trim().toLowerCase();
-    if (!normalized) {
-        return 'hot';
-    }
-    if (normalized === categoryDictionary.hot) {
-        return 'hot';
-    }
-    if (normalized === categoryDictionary.soup) {
-        return 'soup';
-    }
-    return 'custom';
-}
-
 categorySelect?.addEventListener('change', () => syncCategoryFields());
-syncCategoryFields(categorySelect?.value || 'hot', '');
+syncCategoryFields(categorySelect?.value || 'main', '');
 
 function fillForm(data) {
     document.getElementById('edit_id').value = data.id || '';
@@ -280,8 +258,8 @@ function fillForm(data) {
         manualPriceInput.value = data.price || '';
     }
     const categoryOriginal = data.category_original || data.category || '';
-    const type = detectCategoryType(categoryOriginal);
-    syncCategoryFields(type, type === 'custom' ? categoryOriginal : '');
+    const role = data.category_role || 'main';
+    syncCategoryFields(role, role === 'custom' ? categoryOriginal : '');
     renderGalleryPreview(data.gallery || []);
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }

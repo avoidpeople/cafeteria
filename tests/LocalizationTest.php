@@ -53,6 +53,8 @@ function createAdminService(): array
         category_original TEXT,
         category_ru TEXT,
         category_lv TEXT,
+        category_role TEXT,
+        category_key TEXT,
         ingredients_original TEXT,
         ingredients_ru TEXT,
         ingredients_lv TEXT

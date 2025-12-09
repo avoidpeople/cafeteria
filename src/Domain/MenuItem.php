@@ -8,7 +8,6 @@ class MenuItem
     public ?string $description = null;
     public ?string $category = null;
     public ?string $ingredients = null;
-
     private ?string $legacyTitle;
     private ?string $legacyDescription;
     private ?string $legacyCategory;
@@ -30,6 +29,8 @@ class MenuItem
         public ?string $categoryOriginal = null,
         public ?string $categoryRu = null,
         public ?string $categoryLv = null,
+        public ?string $categoryRole = 'main',
+        public ?string $categoryKey = null,
         public ?string $imageUrl = null,
         public array $gallery = [],
         public bool $isToday = false,
@@ -44,6 +45,8 @@ class MenuItem
         $this->legacyIngredients = $legacyIngredients;
         $this->title = $this->getNameAttribute();
         $this->description = $this->getDescriptionAttribute();
+        $this->categoryRole = $categoryRole ?? 'main';
+        $this->categoryKey = $categoryKey;
         $this->category = $this->getCategoryAttribute();
         $this->ingredients = $this->getIngredientsAttribute();
     }

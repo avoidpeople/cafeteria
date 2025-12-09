@@ -105,6 +105,8 @@ class AdminMenuService
             'category_original' => $categoryFields['category_original'] ?? null,
             'category_ru' => $categoryFields['category_ru'] ?? null,
             'category_lv' => $categoryFields['category_lv'] ?? null,
+            'category_role' => $categoryFields['category_role'] ?? 'main',
+            'category_key' => $categoryFields['category_key'] ?? null,
         ];
 
         if (!empty($data['id'])) {
@@ -156,26 +158,48 @@ class AdminMenuService
 
     private function resolveCategoryFields(string $selection, string $customValue): array
     {
-        $selection = in_array($selection, ['hot', 'soup', 'custom'], true) ? $selection : 'hot';
+        $selection = in_array($selection, ['main', 'garnish', 'soup', 'custom'], true) ? $selection : 'main';
         if ($selection === 'custom') {
             $value = trim($customValue);
             if ($value === '') {
                 return ['errors' => [translate('admin.menu.errors.custom_category_required')]];
             }
+            $slug = $this->slugifyCategory($value);
             return [
                 'category_original' => $value,
                 'category_ru' => $this->translateText($value, 'ru'),
                 'category_lv' => $this->translateText($value, 'lv'),
+                'category_role' => 'custom',
+                'category_key' => $slug,
             ];
         }
 
-        $ru = translate('category.' . $selection, [], 'ru');
-        $lv = translate('category.' . $selection, [], 'lv');
+        $keyMap = [
+            'main' => 'hot',
+            'garnish' => 'garnish',
+            'soup' => 'soup',
+        ];
+        $categoryKey = $keyMap[$selection] ?? 'hot';
+        $ru = translate('category.' . $categoryKey, [], 'ru');
+        $lv = translate('category.' . $categoryKey, [], 'lv');
 
         return [
             'category_original' => $ru,
             'category_ru' => $ru,
             'category_lv' => $lv,
+            'category_role' => $selection,
+            'category_key' => $selection,
         ];
+    }
+
+    private function slugifyCategory(string $value): string
+    {
+        $value = strtolower(trim($value));
+        if (function_exists('transliterator_transliterate')) {
+            $value = transliterator_transliterate('Any-Latin; Latin-ASCII', $value);
+        }
+        $value = preg_replace('/[^a-z0-9]+/u', '-', $value);
+        $value = trim((string)$value, '-');
+        return $value ?: bin2hex(random_bytes(3));
     }
 }

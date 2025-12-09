@@ -87,8 +87,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     modalAddBtn.addEventListener('click', () => {
-        const role = modalAddBtn.dataset.comboRole || 'main';
-        openComboModal(role, modalAddBtn.dataset.id);
+        const role = modalAddBtn.dataset.comboRole;
+        if (role) {
+            selectCategory(role, modalAddBtn.dataset.id || null);
+        }
+        openComboModal();
         dishModal.hide();
     });
 
@@ -103,19 +106,30 @@ document.addEventListener('DOMContentLoaded', () => {
     const comboPriceValue = document.getElementById('comboPriceValue');
     const comboPriceHint = document.getElementById('comboPriceHint');
     const comboButtons = Array.from(document.querySelectorAll('.combo-select-btn'));
-    const comboState = { main: null, soup: null };
+    const comboConfigEl = document.getElementById('comboConfig');
+    const comboConfig = comboConfigEl ? JSON.parse(comboConfigEl.textContent) : {};
+    const comboCategories = Array.isArray(comboConfig.categories) ? comboConfig.categories : [];
+    const categoryMap = {};
+    comboCategories.forEach(cat => {
+        categoryMap[cat.key] = cat;
+    });
+    const requiredKeys = comboCategories.filter(cat => cat.required).map(cat => cat.key);
+    const comboState = {};
+    comboCategories.forEach(cat => {
+        comboState[cat.key] = null;
+    });
     const cardMap = new Map();
-    const COMBO_BASE_PRICE = 4.0;
-    const COMBO_SOUP_EXTRA = 0.5;
+    const COMBO_BASE_PRICE = parseFloat(comboConfig.base_price ?? 4) || 4;
 
     if (comboModalEl) {
         comboModalEl.querySelectorAll('.combo-option-card').forEach(card => {
-            const role = card.dataset.role;
+            const category = card.dataset.category;
             const id = card.dataset.id || '';
-            const key = `${role}:${id || 'none'}`;
+            const key = `${category}:${id || 'none'}`;
             cardMap.set(key, card);
             card.addEventListener('click', () => {
-                setSelection(role, id);
+                selectCategory(category, id);
+                updateUI();
             });
         });
     }
@@ -123,7 +137,11 @@ document.addEventListener('DOMContentLoaded', () => {
     comboButtons.forEach(btn => {
         btn.addEventListener('click', event => {
             event.stopPropagation();
-            openComboModal(btn.dataset.comboRole || 'main', btn.dataset.id);
+            const role = btn.dataset.comboRole;
+            if (role) {
+                selectCategory(role, btn.dataset.id || null);
+            }
+            openComboModal();
         });
     });
 
@@ -135,7 +153,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     comboModalEl?.addEventListener('shown.bs.modal', () => {
         toggleComboMode(true);
-        ensureDefaults();
         updateUI();
     });
 
@@ -148,19 +165,31 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     comboSubmit?.addEventListener('click', async () => {
-        if (!comboState.main) {
-            if (comboError) {
-                comboError.textContent = t('summary_pick_main', 'Select a main dish');
-                comboError.classList.remove('d-none');
-            }
+        const missingRequired = requiredKeys.filter(key => !comboState[key]);
+        if (missingRequired.length > 0) {
+            comboError?.classList.remove('d-none');
+            comboError && (comboError.textContent = t('summary_pick_main', 'Select required dishes'));
             return;
         }
         comboError?.classList.add('d-none');
         const formData = new FormData();
-        formData.append('main_id', comboState.main);
+        if (comboState.main) {
+            formData.append('main_id', comboState.main);
+        }
+        if (comboState.garnish) {
+            formData.append('garnish_id', comboState.garnish);
+        }
         if (comboState.soup) {
             formData.append('soup_id', comboState.soup);
         }
+        Object.entries(comboState).forEach(([key, value]) => {
+            if (['main', 'garnish', 'soup'].includes(key)) {
+                return;
+            }
+            if (value) {
+                formData.append(`extras[${key}]`, value);
+            }
+        });
         const originalText = comboSubmit.textContent;
         comboSubmit.disabled = true;
         comboSubmit.textContent = t('adding', 'Adding...');
@@ -188,59 +217,29 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    function setSelection(role, id) {
-        if (role === 'main') {
-            comboState.main = id;
-        } else if (role === 'soup') {
-            comboState.soup = id || null;
-        }
-        updateUI();
-    }
-
-    function ensureDefaults() {
-        if (!comboState.main) {
-            const firstMain = comboModalEl?.querySelector('#comboMainOptions .combo-option-card');
-            if (firstMain) {
-                comboState.main = firstMain.dataset.id;
-            }
-        }
-        if (comboState.soup === null) {
-            const skipSoup = comboModalEl?.querySelector('#comboSoupOptions .combo-option-card[data-id=\"\"]');
-            if (skipSoup) {
-                comboState.soup = null;
-            }
-        }
-    }
-
     function updateUI() {
         updateModalCards();
         updateSummary();
         updateMenuButtons();
         updatePrice();
+        comboSubmit && (comboSubmit.disabled = requiredKeys.some(key => !comboState[key]));
     }
 
     function updateModalCards() {
         cardMap.forEach((card, key) => {
-            const [role, identifier] = key.split(':');
-            const selectedId = role === 'soup' ? (comboState.soup ?? 'none') : comboState.main;
+            const [category, identifier] = key.split(':');
             const normalized = identifier === 'none' ? null : identifier;
-            const isActive = role === 'soup'
-                ? ((comboState.soup ?? null) === (normalized ?? null))
-                : (comboState.main === normalized);
+            const current = comboState[category] ?? null;
+            const isActive = (current ?? null) === (normalized ?? null);
             card.classList.toggle('active', Boolean(isActive));
         });
-        if (comboSubmit) {
-            comboSubmit.disabled = !comboState.main;
-        }
     }
 
     function updateMenuButtons() {
         comboButtons.forEach(btn => {
             const role = btn.dataset.comboRole || 'main';
             const id = btn.dataset.id || '';
-            const isActive = role === 'soup'
-                ? comboState.soup === id
-                : comboState.main === id;
+            const isActive = comboState[role] === id;
             btn.classList.toggle('selected', Boolean(isActive));
             btn.textContent = isActive ? t('button_selected', 'Selected') : (btn.dataset.defaultText || t('button_add', 'Add to combo'));
         });
@@ -249,62 +248,53 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateSummary() {
         if (!comboSummary) return;
         comboSummary.innerHTML = '';
-        const mainData = getCardData('main', comboState.main);
-        const soupData = comboState.soup ? getCardData('soup', comboState.soup) : null;
-        if (mainData) {
-            comboSummary.appendChild(renderSummaryItem(mainData, t('label_main', 'Main dish')));
-        } else {
-            const placeholder = document.createElement('div');
-            placeholder.className = 'text-muted';
-            placeholder.textContent = t('summary_pick_main', 'Select a main dish');
-            comboSummary.appendChild(placeholder);
-        }
-        if (soupData) {
-            comboSummary.appendChild(renderSummaryItem(soupData, t('label_soup', 'Soup')));
-        } else if (comboState.soup === null) {
-            comboSummary.appendChild(renderNoSoupSummary());
-        }
+        comboCategories.forEach(category => {
+            const selection = comboState[category.key];
+            if (selection) {
+                const data = getCardData(category.key, selection);
+                if (data) {
+                    comboSummary.appendChild(renderSummaryItem(data, category.label));
+                }
+            } else if (category.required) {
+                const placeholder = document.createElement('div');
+                placeholder.className = 'text-muted';
+                placeholder.textContent = category.label + ': ' + t('summary_pick_main', 'Select required dish');
+                comboSummary.appendChild(placeholder);
+            } else if (category.key === 'soup') {
+                comboSummary.appendChild(renderNoSoupSummary());
+            }
+        });
     }
 
     function updatePrice() {
         if (!comboPriceValue) return;
-        const mainData = comboState.main ? getCardData('main', comboState.main) : null;
-        const soupData = comboState.soup ? getCardData('soup', comboState.soup) : null;
-        if (!mainData) {
+        let total = COMBO_BASE_PRICE;
+        const hintParts = [];
+        const hasRequired = requiredKeys.every(key => comboState[key]);
+        if (!hasRequired) {
             comboPriceValue.textContent = `${COMBO_BASE_PRICE.toFixed(2)} €`;
-            comboPriceHint && (comboPriceHint.textContent = t('summary_pick_main', 'Select a main dish'));
+            comboPriceHint && (comboPriceHint.textContent = t('summary_pick_main', 'Select required dish'));
             return;
         }
-        let total = mainData.is_unique ? parsePrice(mainData.price) : COMBO_BASE_PRICE;
-        const hintParts = [];
-        if (mainData.is_unique) {
-            hintParts.push(t('hint_main_unique', 'Main: :price €').replace(':price', formatCurrency(mainData.price)));
-        } else {
-            hintParts.push(t('hint_main_standard', 'Standard set :price €').replace(':price', COMBO_BASE_PRICE.toFixed(2)));
-        }
-        if (soupData) {
-            if (soupData.is_unique) {
-                const soupPrice = parsePrice(soupData.price);
-                total += soupPrice;
-                hintParts.push(t('hint_soup_unique', 'Soup: :price €').replace(':price', formatCurrency(soupPrice)));
-            } else {
-                total += COMBO_SOUP_EXTRA;
-                hintParts.push(t('hint_soup_standard', 'Soup: +0.50 €'));
+        comboCategories.forEach(category => {
+            if (!comboState[category.key] || category.required) {
+                return;
             }
-        }
+            const data = getCardData(category.key, comboState[category.key]);
+            if (data && parsePrice(data.price) > 0) {
+                const price = parsePrice(data.price);
+                total += price;
+                hintParts.push(`${category.label}: +${formatCurrency(price)} €`);
+            }
+        });
         comboPriceValue.textContent = `${total.toFixed(2)} €`;
         if (comboPriceHint) {
             comboPriceHint.textContent = hintParts.join(' · ');
         }
     }
 
-    function getCardData(role, id) {
-        if (!id && role === 'soup') {
-            const card = cardMap.get('soup:none');
-            if (!card) return null;
-            return extractCardData(card);
-        }
-        const card = cardMap.get(`${role}:${id}`);
+    function getCardData(category, id) {
+        const card = cardMap.get(`${category}:${id}`);
         return card ? extractCardData(card) : null;
     }
 
@@ -349,7 +339,7 @@ document.addEventListener('DOMContentLoaded', () => {
         desc.className = 'text-muted small text-truncate-2';
         desc.textContent = data.description || t('description_pending', 'Description coming soon');
         body.append(meta, titleEl, desc);
-        if (data.is_unique && parsePrice(data.price) > 0) {
+        if (parsePrice(data.price) > 0) {
             const price = document.createElement('div');
             price.className = 'combo-selection-price';
             price.textContent = `${formatCurrency(data.price)} €`;
@@ -377,21 +367,24 @@ document.addEventListener('DOMContentLoaded', () => {
         return wrapper;
     }
 
-    function openComboModal(role = null, id = null) {
+    function openComboModal() {
         if (!comboModal) return;
-        if (role && id) {
-            setSelection(role, id);
-        } else {
-            ensureDefaults();
-            updateUI();
-        }
+        updateUI();
         comboModal.show();
     }
 
     function resetComboSelection() {
-        comboState.main = null;
-        comboState.soup = null;
+        Object.keys(comboState).forEach(key => {
+            comboState[key] = null;
+        });
         updateUI();
+    }
+
+    function selectCategory(category, id) {
+        if (!(category in comboState)) {
+            return;
+        }
+        comboState[category] = id || null;
     }
 
     function toggleComboMode(active) {

@@ -7,14 +7,14 @@ $priceEach = (float)($combo['price'] ?? $comboEntry['sum']);
 $sum = (float)$comboEntry['sum'];
 $priceFormatted = number_format($priceEach, 2, '.', ' ');
 $sumFormatted = number_format($sum, 2, '.', ' ');
-$hasSoup = !empty($combo['has_soup']);
+$selection = $combo['selection'] ?? [];
+$hasSoup = !empty($selection['soup']);
 $items = $combo['items'] ?? [];
 $isAvailable = $comboEntry['available'] ?? true;
 $missingList = $comboEntry['missing'] ?? [];
 $missingIds = array_map(static fn ($item) => (int)($item['id'] ?? 0), $missingList);
 $rowClass = $isAvailable ? 'row-selected' : 'row-unavailable';
 $availableAttr = $isAvailable ? '1' : '0';
-$soupExtraText = number_format(\App\Application\Service\ComboService::SOUP_EXTRA, 2, '.', ' ');
 ?>
 <tr class="cart-row combo-row <?= $rowClass ?>" data-id="<?= htmlspecialchars($comboId) ?>" data-sum="<?= htmlspecialchars((string)$sum) ?>" data-qty="<?= $quantity ?>" data-available="<?= $availableAttr ?>">
     <td>
@@ -50,9 +50,8 @@ $soupExtraText = number_format(\App\Application\Service\ComboService::SOUP_EXTRA
                 <?php
                 $itemId = (int)($item['id'] ?? 0);
                 $missing = in_array($itemId, $missingIds, true);
-                $isUniqueItem = !empty($item['is_unique']);
-                $itemRole = ($item['type'] ?? '') === 'soup' ? translate('combo.role.soup') : translate('combo.role.main');
-                $itemPrice = $isUniqueItem ? (float)($item['price'] ?? 0) : null;
+                $itemLabel = $item['category'] ?? translate('combo.category.extra');
+                $itemPrice = isset($item['price']) ? (float)$item['price'] : 0.0;
                 ?>
                 <div class="combo-breakdown-item <?= $missing ? 'combo-breakdown-missing' : '' ?>">
                     <div class="combo-breakdown-thumb">
@@ -65,13 +64,10 @@ $soupExtraText = number_format(\App\Application\Service\ComboService::SOUP_EXTRA
                     <div>
                         <div class="combo-breakdown-title">
                             <div>
-                                <span class="text-muted text-uppercase small me-2"><?= htmlspecialchars($itemRole) ?></span>
+                                <span class="text-muted text-uppercase small me-2"><?= htmlspecialchars($itemLabel) ?></span>
                                 <?= htmlspecialchars($item['title']) ?>
-                                <?php if ($isUniqueItem): ?>
-                                    <span class="combo-unique-chip ms-2"><?= htmlspecialchars(translate('combo.unique')) ?></span>
-                                <?php endif; ?>
                             </div>
-                            <?php if ($itemPrice): ?>
+                            <?php if ($itemPrice > 0): ?>
                                 <div class="combo-item-price"><?= number_format($itemPrice, 2, '.', ' ') ?> €</div>
                             <?php endif; ?>
                         </div>
@@ -86,18 +82,6 @@ $soupExtraText = number_format(\App\Application\Service\ComboService::SOUP_EXTRA
                     </div>
                 </div>
             <?php endforeach; ?>
-            <?php if (!$hasSoup): ?>
-                <div class="combo-breakdown-item combo-breakdown-placeholder">
-                    <div class="combo-breakdown-thumb">—</div>
-                    <div>
-                        <div class="combo-breakdown-title">
-                            <span class="text-muted text-uppercase small me-2"><?= htmlspecialchars(translate('combo.role.soup')) ?></span>
-                            <span><?= htmlspecialchars(translate('combo.badge.without_soup')) ?></span>
-                        </div>
-                        <div class="text-muted small"><?= htmlspecialchars(translate('combo.placeholder_no_soup', ['price' => $soupExtraText])) ?></div>
-                    </div>
-                </div>
-            <?php endif; ?>
             <?php if (!$isAvailable && empty($items)): ?>
                 <div class="text-muted small"><?= htmlspecialchars(translate('combo.unavailable')) ?></div>
             <?php endif; ?>

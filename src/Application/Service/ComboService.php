@@ -10,7 +10,6 @@ use function translate;
 class ComboService
 {
     public const BASE_PRICE = 4.0;
-    public const SOUP_EXTRA = 0.5;
     private const COMBO_CATEGORY = '_combo';
     private ?int $comboMenuId = null;
 
@@ -19,76 +18,133 @@ class ComboService
     }
 
     /**
-     * @param array{main?: int|string, soup?: int|string} $selection
+     * @param array{main?: int|string, garnish?: int|string, soup?: int|string, extras?: array<string,int>} $selection
      */
     public function createCombo(array $selection): array
     {
-        $mainId = isset($selection['main']) ? (int)$selection['main'] : 0;
-        if ($mainId <= 0) {
-            throw new InvalidArgumentException(translate('combo.errors.select_main'));
+        $main = $this->loadRequiredDish((int)($selection['main'] ?? 0), 'main', translate('combo.errors.main_unavailable'));
+        $garnish = $this->loadRequiredDish((int)($selection['garnish'] ?? 0), 'garnish', translate('combo.errors.garnish_unavailable'));
+        $soup = $this->loadOptionalDish((int)($selection['soup'] ?? 0), 'soup', translate('combo.errors.soup_unavailable'));
+
+        $extraSelections = [];
+        if (!empty($selection['extras']) && is_array($selection['extras'])) {
+            foreach ($selection['extras'] as $key => $id) {
+                if (!is_string($key) || $key === '') {
+                    continue;
+                }
+                $dish = $this->loadOptionalDish((int)$id, $key, translate('combo.errors.item_unavailable'), true);
+                if ($dish) {
+                    $extraSelections[$key] = $dish;
+                }
+            }
         }
 
-        $main = $this->menuRepository->findById($mainId);
-        $this->assertAvailable($main, translate('combo.errors.main_unavailable'));
-
-        $items = [$this->serializeItem($main, 'main')];
-
-        $soupId = isset($selection['soup']) ? (int)$selection['soup'] : 0;
-        $soup = null;
-        if ($soupId > 0) {
-            $soup = $this->menuRepository->findById($soupId);
-            $this->assertAvailable($soup, translate('combo.errors.soup_unavailable'));
-            $items[] = $this->serializeItem($soup, 'soup');
-        }
-
-        $price = $this->calculateComboPrice($main, $soup);
-        $hasSoup = $soup !== null;
-        $pricing = [
-            'base' => $this->isUnique($main) ? $this->normalizePrice($main->price) : self::BASE_PRICE,
-            'soup' => $soup ? ($this->isUnique($soup) ? $this->normalizePrice($soup->price) : self::SOUP_EXTRA) : 0.0,
+        $items = [
+            $this->serializeItem($main, 'main', $main->category ?? translate('combo.category.main'), true),
+            $this->serializeItem($garnish, 'garnish', $garnish->category ?? translate('combo.category.garnish'), true),
         ];
+
+        if ($soup) {
+            $items[] = $this->serializeItem($soup, 'soup', $soup->category ?? translate('combo.category.soup'), false);
+        }
+
+        foreach ($extraSelections as $key => $dish) {
+            $items[] = $this->serializeItem($dish, $key, $dish->category ?? translate('combo.category.extra'), false);
+        }
+
+        $total = self::BASE_PRICE;
+        $pricingExtras = [];
+        if ($soup && $this->hasComboPrice($soup)) {
+            $price = $this->normalizePrice($soup->price);
+            $pricingExtras['soup'] = $price;
+            $total += $price;
+        }
+        foreach ($extraSelections as $key => $dish) {
+            if (!$this->hasComboPrice($dish)) {
+                continue;
+            }
+            $price = $this->normalizePrice($dish->price);
+            $pricingExtras[$key] = $price;
+            $total += $price;
+        }
+
+        $extraSelectionIds = [];
+        foreach ($extraSelections as $key => $dish) {
+            $extraSelectionIds[$key] = $dish->id;
+        }
 
         return [
             'id' => $selection['id'] ?? $this->generateId(),
             'title' => translate('combo.title'),
-            'price' => $price,
+            'price' => round($total, 2),
             'menu_id' => $this->comboMenuId(),
             'items' => $items,
-            'has_soup' => $hasSoup,
-            'pricing' => $pricing,
+            'selection' => [
+                'main' => $main->id,
+                'garnish' => $garnish->id,
+                'soup' => $soup?->id,
+                'extra' => $extraSelectionIds,
+            ],
+            'pricing' => [
+                'base' => self::BASE_PRICE,
+                'extras' => $pricingExtras,
+            ],
             'created_at' => time(),
         ];
     }
 
-    private function serializeItem(MenuItem $item, string $type): array
+    private function loadRequiredDish(int $id, string $expectedKey, string $errorMessage): MenuItem
     {
-        $isUnique = $this->isUnique($item);
+        $dish = $this->loadDish($id, $expectedKey, $errorMessage, false, true);
+        if (!$dish) {
+            throw new InvalidArgumentException($errorMessage);
+        }
+        return $dish;
+    }
+
+    private function loadOptionalDish(int $id, string $expectedKey, string $errorMessage, bool $strictKey = false): ?MenuItem
+    {
+        return $this->loadDish($id, $expectedKey, $errorMessage, true, $strictKey);
+    }
+
+    private function loadDish(int $id, string $expectedKey, string $message, bool $optional, bool $strictKey): ?MenuItem
+    {
+        if ($id <= 0) {
+            if ($optional) {
+                return null;
+            }
+            throw new InvalidArgumentException($message);
+        }
+        $dish = $this->menuRepository->findById($id);
+        $this->assertAvailable($dish, $message);
+        $actualKey = $this->resolveCategoryKey($dish);
+        if ($strictKey && $actualKey !== $expectedKey) {
+            throw new InvalidArgumentException($message);
+        }
+        if (!$strictKey && $expectedKey !== $actualKey) {
+            throw new InvalidArgumentException($message);
+        }
+        return $dish;
+    }
+
+    private function serializeItem(MenuItem $item, string $key, string $label, bool $required): array
+    {
+        $price = (!$required && $this->hasComboPrice($item)) ? $this->normalizePrice($item->price) : 0.0;
         return [
             'id' => $item->id,
             'title' => $item->title,
-            'category' => $item->category ?? translate('menu.card.no_category'),
-            'type' => $type,
+            'category' => $label,
+            'category_key' => $key,
             'image' => $item->primaryImage(),
             'description' => $item->description ?? null,
-            'is_unique' => $isUnique,
-            'price' => $isUnique ? $this->normalizePrice($item->price) : null,
+            'price' => $price,
+            'required' => $required,
         ];
     }
 
-    public function isUnique(MenuItem $dish): bool
+    private function hasComboPrice(MenuItem $dish): bool
     {
-        return $dish->isUnique();
-    }
-
-    public function calculateComboPrice(MenuItem $mainDish, ?MenuItem $soupDish = null): float
-    {
-        $price = $this->isUnique($mainDish) ? $this->normalizePrice($mainDish->price) : self::BASE_PRICE;
-        if ($soupDish) {
-            $price += $this->isUnique($soupDish)
-                ? $this->normalizePrice($soupDish->price)
-                : self::SOUP_EXTRA;
-        }
-        return round($price, 2);
+        return $this->normalizePrice($dish->price) > 0;
     }
 
     private function assertAvailable(?MenuItem $item, string $message): void
@@ -101,6 +157,16 @@ class ComboService
     private function normalizePrice(float $value): float
     {
         return round(max(0, $value), 2);
+    }
+
+    private function resolveCategoryKey(MenuItem $item): string
+    {
+        $role = $item->categoryRole ?? 'main';
+        if ($role === 'custom') {
+            $slug = $item->categoryKey ?: ('extra-' . $item->id);
+            return 'extra:' . $slug;
+        }
+        return $role;
     }
 
     private function generateId(): string
@@ -124,7 +190,7 @@ class ComboService
             'title' => translate('combo.title'),
             'description' => translate('combo.system.description'),
             'ingredients' => translate('combo.system.ingredients'),
-            'price' => self::BASE_PRICE + self::SOUP_EXTRA,
+            'price' => self::BASE_PRICE,
             'category' => self::COMBO_CATEGORY,
             'image_url' => null,
             'image_gallery' => [],

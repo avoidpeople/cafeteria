@@ -33,6 +33,8 @@ $conn->exec("CREATE TABLE IF NOT EXISTS menu (
     category_original TEXT,
     category_ru TEXT,
     category_lv TEXT,
+    category_role TEXT DEFAULT 'main',
+    category_key TEXT,
     ingredients_original TEXT,
     ingredients_ru TEXT,
     ingredients_lv TEXT

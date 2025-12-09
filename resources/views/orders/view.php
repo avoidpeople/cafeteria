@@ -33,7 +33,7 @@
     </tr>
     <?php foreach ($order->items as $item): ?>
         <?php if ($item->isCombo()): ?>
-            <?php $combo = $item->comboDetails; $comboItems = $combo['items'] ?? []; $soupExtraText = number_format(\App\Application\Service\ComboService::SOUP_EXTRA, 2, '.', ' '); ?>
+            <?php $combo = $item->comboDetails; $comboItems = $combo['items'] ?? []; $selection = $combo['selection'] ?? []; ?>
             <tr class="combo-order-row">
                 <td colspan="5">
                     <div class="combo-order-card">
@@ -48,16 +48,15 @@
                                 </div>
                                 <div class="text-muted"><?= htmlspecialchars(translate('orders.view.combo_sum', ['sum' => number_format($item->sum(), 2, '.', ' ')])) ?></div>
                                 <div class="badge bg-dark-subtle mt-2">
-                                    <?= !empty($combo['has_soup']) ? htmlspecialchars(translate('orders.view.badge_with_soup')) : htmlspecialchars(translate('orders.view.badge_without_soup')) ?>
+                                    <?= !empty($selection['soup']) ? htmlspecialchars(translate('orders.view.badge_with_soup')) : htmlspecialchars(translate('orders.view.badge_without_soup')) ?>
                                 </div>
                             </div>
                         </div>
                         <div class="combo-breakdown">
                             <?php foreach ($comboItems as $comboItem): ?>
                                 <?php
-                                $isUniqueItem = !empty($comboItem['is_unique']);
-                                $itemRole = ($comboItem['type'] ?? '') === 'soup' ? translate('combo.role.soup') : translate('combo.role.main');
-                                $itemPrice = $isUniqueItem ? (float)($comboItem['price'] ?? 0) : null;
+                                $itemLabel = $comboItem['category'] ?? translate('combo.category.extra');
+                                $itemPrice = isset($comboItem['price']) ? (float)$comboItem['price'] : 0.0;
                                 ?>
                                 <div class="combo-breakdown-item">
                                     <div class="combo-breakdown-thumb">
@@ -70,13 +69,10 @@
                                     <div>
                                         <div class="combo-breakdown-title">
                                             <div>
-                                                <span class="text-muted text-uppercase small me-2"><?= htmlspecialchars($itemRole) ?></span>
+                                                <span class="text-muted text-uppercase small me-2"><?= htmlspecialchars($itemLabel) ?></span>
                                                 <?= htmlspecialchars($comboItem['title']) ?>
-                                                <?php if ($isUniqueItem): ?>
-                                                    <span class="combo-unique-chip ms-2"><?= htmlspecialchars(translate('combo.unique')) ?></span>
-                                                <?php endif; ?>
                                             </div>
-                                            <?php if ($itemPrice): ?>
+                                            <?php if ($itemPrice > 0): ?>
                                                 <div class="combo-item-price"><?= number_format($itemPrice, 2, '.', ' ') ?> €</div>
                                             <?php endif; ?>
                                         </div>
@@ -88,18 +84,6 @@
                                     </div>
                                 </div>
                             <?php endforeach; ?>
-                            <?php if (empty(array_filter($comboItems, static fn ($ci) => ($ci['type'] ?? '') === 'soup'))): ?>
-                                <div class="combo-breakdown-item combo-breakdown-placeholder">
-                                    <div class="combo-breakdown-thumb">—</div>
-                                    <div>
-                                        <div class="combo-breakdown-title">
-                                            <span class="text-muted text-uppercase small me-2"><?= htmlspecialchars(translate('combo.role.soup')) ?></span>
-                                            <span><?= htmlspecialchars(translate('combo.badge.without_soup')) ?></span>
-                                        </div>
-                                        <div class="text-muted small"><?= htmlspecialchars(translate('orders.view.combo_hint', ['price' => $soupExtraText])) ?></div>
-                                    </div>
-                                </div>
-                            <?php endif; ?>
                         </div>
                     </div>
                 </td>

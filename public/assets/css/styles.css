@@ -479,6 +479,20 @@ body {
     backdrop-filter: blur(4px);
 }
 
+.combo-option-card--skip {
+    border-style: dashed;
+    color: var(--combo-muted);
+}
+
+.combo-option-card--skip .combo-option-thumb {
+    background: transparent;
+    color: var(--combo-muted);
+}
+
+.combo-option-card--skip .combo-option-body {
+    opacity: 0.85;
+}
+
 .combo-option-card:hover {
     border-color: rgba(13,110,253,0.45);
 }

@@ -57,6 +57,8 @@ $localizedColumns = [
     'category_original' => 'TEXT',
     'category_ru' => 'TEXT',
     'category_lv' => 'TEXT',
+    'category_role' => "TEXT DEFAULT 'main'",
+    'category_key' => 'TEXT',
     'ingredients_original' => 'TEXT',
     'ingredients_ru' => 'TEXT',
     'ingredients_lv' => 'TEXT',
@@ -92,6 +94,14 @@ foreach ($localizedColumns as $column => $type) {
                 break;
             case 'category_lv':
                 $conn->exec("UPDATE menu SET category_lv = category WHERE (category_lv IS NULL OR category_lv = '') AND category IS NOT NULL");
+                break;
+            case 'category_role':
+                $conn->exec("UPDATE menu SET category_role = 'garnish' WHERE LOWER(category) LIKE '%гарнир%' OR LOWER(category) LIKE '%garnish%' OR LOWER(category) LIKE '%гарн%' OR LOWER(category) LIKE '%side%'");
+                $conn->exec("UPDATE menu SET category_role = 'soup' WHERE LOWER(category) LIKE '%суп%' OR LOWER(category) LIKE '%soup%'");
+                $conn->exec("UPDATE menu SET category_role = 'main' WHERE category_role IS NULL OR TRIM(category_role) = ''");
+                break;
+            case 'category_key':
+                $conn->exec("UPDATE menu SET category_key = NULL");
                 break;
             case 'ingredients_original':
                 $conn->exec("UPDATE menu SET ingredients_original = ingredients WHERE (ingredients_original IS NULL OR ingredients_original = '') AND ingredients IS NOT NULL");

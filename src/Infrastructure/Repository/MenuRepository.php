@@ -102,10 +102,10 @@ class MenuRepository implements MenuRepositoryInterface
         }
         $stmt = $this->prepare("INSERT INTO menu (title, description, ingredients, price, category, image_url, image_gallery, is_today, use_manual_price,
             name_original, name_ru, name_lv, description_original, description_ru, description_lv, category_original, category_ru, category_lv,
-            ingredients_original, ingredients_ru, ingredients_lv)
+            category_role, category_key, ingredients_original, ingredients_ru, ingredients_lv)
             VALUES (:title, :description, :ingredients, :price, :category, :image_url, :image_gallery, :is_today, :use_manual_price,
             :name_original, :name_ru, :name_lv, :description_original, :description_ru, :description_lv, :category_original, :category_ru, :category_lv,
-            :ingredients_original, :ingredients_ru, :ingredients_lv)");
+            :category_role, :category_key, :ingredients_original, :ingredients_ru, :ingredients_lv)");
         $this->bindCommonFields($stmt, $data);
         $stmt->execute();
         $data['id'] = (int)$this->db->lastInsertRowID();
@@ -123,6 +123,7 @@ class MenuRepository implements MenuRepositoryInterface
             use_manual_price = :use_manual_price, name_original = :name_original, name_ru = :name_ru, name_lv = :name_lv,
             description_original = :description_original, description_ru = :description_ru, description_lv = :description_lv,
             category_original = :category_original, category_ru = :category_ru, category_lv = :category_lv,
+            category_role = :category_role, category_key = :category_key,
             ingredients_original = :ingredients_original, ingredients_ru = :ingredients_ru, ingredients_lv = :ingredients_lv WHERE id = :id");
         $stmt->bindValue(':id', $id, SQLITE3_INTEGER);
         $this->bindCommonFields($stmt, $data);
@@ -163,6 +164,8 @@ class MenuRepository implements MenuRepositoryInterface
         $stmt->bindValue(':category_original', $data['category_original'] ?? $category, SQLITE3_TEXT);
         $stmt->bindValue(':category_ru', $data['category_ru'] ?? null, SQLITE3_TEXT);
         $stmt->bindValue(':category_lv', $data['category_lv'] ?? null, SQLITE3_TEXT);
+        $stmt->bindValue(':category_role', $data['category_role'] ?? 'main', SQLITE3_TEXT);
+        $stmt->bindValue(':category_key', $data['category_key'] ?? null, SQLITE3_TEXT);
         $stmt->bindValue(':ingredients_original', $data['ingredients_original'] ?? $ingredients, SQLITE3_TEXT);
         $stmt->bindValue(':ingredients_ru', $data['ingredients_ru'] ?? null, SQLITE3_TEXT);
         $stmt->bindValue(':ingredients_lv', $data['ingredients_lv'] ?? null, SQLITE3_TEXT);
@@ -197,6 +200,8 @@ class MenuRepository implements MenuRepositoryInterface
             categoryOriginal: $row['category_original'] ?? null,
             categoryRu: $row['category_ru'] ?? null,
             categoryLv: $row['category_lv'] ?? null,
+            categoryRole: $row['category_role'] ?? 'main',
+            categoryKey: $row['category_key'] ?? null,
             imageUrl: $row['image_url'] ?? null,
             gallery: $gallery,
             isToday: !empty($row['is_today']),
