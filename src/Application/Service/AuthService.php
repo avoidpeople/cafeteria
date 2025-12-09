@@ -5,6 +5,7 @@ namespace App\Application\Service;
 use App\Domain\User;
 use App\Domain\UserRepositoryInterface;
 use App\Infrastructure\SessionManager;
+use function translate;
 
 class AuthService
 {
@@ -18,7 +19,7 @@ class AuthService
     {
         $user = $this->users->findByUsername($username);
         if (!$user || !password_verify($password, $user->passwordHash)) {
-            return ['success' => false, 'error' => 'Неверный логин или пароль'];
+            return ['success' => false, 'error' => translate('auth.errors.invalid_credentials')];
         }
 
         $this->session->set('user_id', $user->id);
@@ -42,22 +43,22 @@ class AuthService
         $phone = trim($data['phone'] ?? '');
 
         if ($username === '' || $password === '' || $confirm === '' || $first === '' || $last === '' || $phone === '') {
-            $errors[] = 'Заполните все поля.';
+            $errors[] = translate('auth.errors.fields_required');
         }
         if (strlen($username) < 3) {
-            $errors[] = 'Логин должен быть не короче 3 символов.';
+            $errors[] = translate('auth.errors.username_short');
         }
         if ($password !== $confirm) {
-            $errors[] = 'Пароли не совпадают.';
+            $errors[] = translate('auth.errors.password_mismatch');
         }
         if (strlen($password) < 5) {
-            $errors[] = 'Пароль должен быть не короче 5 символов.';
+            $errors[] = translate('auth.errors.password_short');
         }
         if ($phone !== '' && !preg_match('/^[\d\s+\-()]{6,}$/u', $phone)) {
-            $errors[] = 'Введите корректный номер телефона.';
+            $errors[] = translate('auth.errors.phone_invalid');
         }
         if ($this->users->usernameExists($username)) {
-            $errors[] = 'Такой логин уже занят.';
+            $errors[] = translate('auth.errors.username_taken');
         }
 
         if ($errors) {
@@ -82,10 +83,10 @@ class AuthService
         $this->session->destroy(['theme']);
     }
 
-    public function requireLogin(string $message = 'Необходима авторизация', string $redirect = '/login'): void
+    public function requireLogin(?string $message = null, string $redirect = '/login'): void
     {
         if (!$this->session->get('user_id')) {
-            $this->session->set('toast', ['message' => $message, 'type' => 'warning']);
+            $this->session->set('toast', ['message' => $message ?? translate('auth.require.default'), 'type' => 'warning']);
             header("Location: $redirect");
             exit;
         }

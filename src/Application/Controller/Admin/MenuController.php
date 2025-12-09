@@ -7,6 +7,7 @@ use App\Application\Service\AuthService;
 use App\Infrastructure\SessionManager;
 use App\Infrastructure\ViewRenderer;
 use function setToast;
+use function translate;
 
 class MenuController
 {
@@ -35,7 +36,7 @@ class MenuController
         $errors = $this->session->get('admin_menu_errors', []);
         $this->session->unset('admin_menu_errors');
         return $this->view->render('admin/menu', [
-            'title' => 'Doctor Gorilka — Управление меню',
+            'title' => 'Doctor Gorilka — ' . translate('admin.menu.title'),
             'items' => $items,
             'errors' => $errors,
             'todayItems' => $todayItems,
@@ -50,7 +51,7 @@ class MenuController
         if (!$result['success']) {
             $this->session->set('admin_menu_errors', $result['errors']);
         } else {
-            setToast('Блюдо сохранено', 'success');
+            setToast(translate('admin.menu.toast.saved'), 'success');
         }
         header('Location: /admin/menu');
         exit;
@@ -62,7 +63,7 @@ class MenuController
         $id = intval($_GET['id'] ?? 0);
         if ($id > 0) {
             $this->menuService->delete($id);
-            setToast("Блюдо #{$id} удалено", 'warning');
+            setToast(translate('admin.menu.toast.deleted', ['id' => $id]), 'warning');
         }
         header('Location: /admin/menu');
         exit;
@@ -76,7 +77,7 @@ class MenuController
             $ids = [];
         }
         $this->menuService->updateTodaySelection($ids);
-        setToast('Меню на сегодня обновлено', 'success');
+        setToast(translate('admin.menu.toast.today_updated'), 'success');
         header('Location: /admin/menu');
         exit;
     }

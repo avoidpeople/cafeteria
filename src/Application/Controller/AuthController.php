@@ -6,6 +6,7 @@ use App\Application\Service\AuthService;
 use App\Infrastructure\SessionManager;
 use App\Infrastructure\ViewRenderer;
 use function setToast;
+use function translate;
 
 class AuthController
 {
@@ -41,12 +42,12 @@ class AuthController
         $password = trim($_POST['password'] ?? '');
         $result = $this->authService->login($username, $password);
         if ($result['success']) {
-            setToast('Добро пожаловать, ' . $result['display_name'] . '!');
+            setToast(translate('auth.toast.login', ['name' => $result['display_name']]));
             header('Location: /');
             exit;
         }
 
-        $this->session->set('login_error', $result['error'] ?? 'Ошибка авторизации');
+        $this->session->set('login_error', $result['error'] ?? translate('auth.errors.invalid_credentials'));
         $this->session->set('login_username', $username);
         header('Location: /login');
         exit;
@@ -76,12 +77,12 @@ class AuthController
 
         $result = $this->authService->register($_POST);
         if ($result['success']) {
-            setToast('Регистрация успешна! Добро пожаловать, ' . $result['display_name'] . '!');
+            setToast(translate('auth.toast.register', ['name' => $result['display_name']]));
             header('Location: /');
             exit;
         }
 
-        $this->session->set('register_errors', $result['errors'] ?? ['Не удалось зарегистрироваться']);
+        $this->session->set('register_errors', $result['errors'] ?? [translate('auth.errors.register_failed')]);
         $this->session->set('register_inputs', [
             'first_name' => trim($_POST['first_name'] ?? ''),
             'last_name' => trim($_POST['last_name'] ?? ''),
@@ -95,7 +96,7 @@ class AuthController
     public function logout(): void
     {
         $this->authService->logout();
-        setToast('Вы вышли из аккаунта', 'info');
+        setToast(translate('auth.toast.logout'), 'info');
         header('Location: /login');
         exit;
     }

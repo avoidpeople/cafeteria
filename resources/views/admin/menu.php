@@ -1,8 +1,8 @@
-<?php $title = 'Doctor Gorilka — Управление меню'; ?>
+<?php $title = 'Doctor Gorilka — ' . translate('admin.menu.title'); ?>
 <div class="page-container">
 <div class="d-flex align-items-center justify-content-between mb-3">
-    <h1 class="mb-0">Управление меню</h1>
-    <a class="btn btn-secondary" href="/menu">← К списку блюд</a>
+    <h1 class="mb-0"><?= htmlspecialchars(translate('admin.menu.title')) ?></h1>
+    <a class="btn btn-secondary" href="/menu"><?= htmlspecialchars(translate('admin.menu.back')) ?></a>
 </div>
 
 <?php if (!empty($errors)): ?>
@@ -18,52 +18,52 @@
     <div class="admin-column admin-form-block">
         <div class="card border-0 shadow-sm h-100">
             <div class="card-body">
-                <h4 class="card-title mb-3">Добавить / Редактировать блюдо</h4>
+                <h4 class="card-title mb-3"><?= htmlspecialchars(translate('admin.menu.form.title')) ?></h4>
                 <form method="POST" action="/admin/menu" enctype="multipart/form-data" class="d-flex flex-column gap-3" id="menuForm">
                     <input type="hidden" name="id" id="edit_id">
                     <input type="hidden" name="existing_gallery" id="existing_gallery">
                     <input type="hidden" name="current_image" id="current_image">
 
                     <div>
-                        <label class="form-label">Название</label>
+                        <label class="form-label"><?= htmlspecialchars(translate('admin.menu.form.name')) ?></label>
                         <input type="text" class="form-control" name="title" id="edit_title" required>
                     </div>
 
                     <div>
-                        <label class="form-label">Описание</label>
+                        <label class="form-label"><?= htmlspecialchars(translate('admin.menu.form.description')) ?></label>
                         <textarea name="description" class="form-control" id="edit_desc"></textarea>
                     </div>
 
                     <div>
-                        <label class="form-label">Состав</label>
+                        <label class="form-label"><?= htmlspecialchars(translate('admin.menu.form.ingredients')) ?></label>
                         <input type="text" name="ingredients" class="form-control" id="edit_ingr">
                     </div>
 
                     <div>
                         <div class="d-flex align-items-center justify-content-between gap-3">
-                            <label class="form-label mb-0">Цена (€)</label>
+                            <label class="form-label mb-0"><?= htmlspecialchars(translate('admin.menu.form.price_label')) ?></label>
                             <div class="form-check form-switch mb-0">
                                 <input class="form-check-input" type="checkbox" role="switch" id="edit_use_manual_price" name="use_manual_price" value="1">
-                                <label class="form-check-label" for="edit_use_manual_price">Указать цену вручную</label>
+                                <label class="form-check-label" for="edit_use_manual_price"><?= htmlspecialchars(translate('admin.menu.form.manual_price')) ?></label>
                             </div>
                         </div>
-                        <input type="number" step="0.01" class="form-control mt-2" name="price" id="edit_price" placeholder="Например: 4.20" disabled>
-                        <small class="text-muted" id="priceManualHint">Цена рассчитывается автоматически в составе комплексного обеда.</small>
+                        <input type="number" step="0.01" class="form-control mt-2" name="price" id="edit_price" placeholder="<?= htmlspecialchars(translate('admin.menu.form.price_placeholder')) ?>" disabled>
+                        <small class="text-muted" id="priceManualHint"><?= htmlspecialchars(translate('admin.menu.form.price_hint')) ?></small>
                     </div>
 
                     <div>
-                        <label class="form-label">Категория</label>
+                        <label class="form-label"><?= htmlspecialchars(translate('admin.menu.form.category')) ?></label>
                         <input type="text" class="form-control" name="category" id="edit_category">
                     </div>
 
                     <div>
-                        <label class="form-label">Фото блюда</label>
+                        <label class="form-label"><?= htmlspecialchars(translate('admin.menu.form.photos')) ?></label>
                         <input type="file" class="form-control" name="image[]" accept="image/*" multiple>
-                        <small class="text-muted d-block mt-1">Можно выбрать несколько файлов.</small>
+                        <small class="text-muted d-block mt-1"><?= htmlspecialchars(translate('admin.menu.form.photos_hint')) ?></small>
                     </div>
                     <div id="galleryPreview" class="d-flex flex-wrap gap-2"></div>
 
-                    <button type="submit" class="btn btn-success">Сохранить</button>
+                    <button type="submit" class="btn btn-success"><?= htmlspecialchars(translate('admin.menu.form.submit')) ?></button>
                 </form>
             </div>
         </div>
@@ -73,19 +73,19 @@
         <form method="POST" action="/admin/menu/today" class="h-100 d-flex flex-column">
             <div class="card border-0 shadow-sm flex-grow-1">
                 <div class="card-body">
-                    <h4 class="card-title mb-3">Все блюда</h4>
-                    <p class="text-muted mb-3">Отметьте позиции, которые должны отображаться в пользовательском меню сегодня, и нажмите «Сохранить».</p>
+                    <h4 class="card-title mb-3"><?= htmlspecialchars(translate('admin.menu.table.title')) ?></h4>
+                    <p class="text-muted mb-3"><?= htmlspecialchars(translate('admin.menu.table.subtitle')) ?></p>
                     <div class="table-responsive">
                         <table class="table table-menu">
                             <thead>
                                 <tr>
-                                    <th class="today-column">Меню</th>
+                                    <th class="today-column"><?= htmlspecialchars(translate('admin.menu.table.menu')) ?></th>
                                     <th>ID</th>
-                                    <th>Фото</th>
-                                    <th>Название</th>
-                                    <th>Цена</th>
-                                    <th>Категория</th>
-                                    <th>Действия</th>
+                                    <th><?= htmlspecialchars(translate('admin.menu.table.photo')) ?></th>
+                                    <th><?= htmlspecialchars(translate('admin.menu.table.name')) ?></th>
+                                    <th><?= htmlspecialchars(translate('admin.menu.table.price')) ?></th>
+                                    <th><?= htmlspecialchars(translate('admin.menu.table.category')) ?></th>
+                                    <th><?= htmlspecialchars(translate('admin.menu.table.actions')) ?></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -96,7 +96,7 @@
                                             <label class="today-flag">
                                                 <input type="checkbox" class="today-checkbox" name="today_ids[]" value="<?= $item->id ?>" <?= in_array($item->id, $selectedToday, true) ? 'checked' : '' ?>>
                                                 <span class="today-indicator"></span>
-                                                <span class="today-label">Сегодня</span>
+                                                <span class="today-label"><?= htmlspecialchars(translate('admin.menu.today.flag')) ?></span>
                                             </label>
                                         </td>
                                         <td><?= $item->id ?></td>
@@ -104,16 +104,16 @@
                                             <?php if ($item->primaryImage()): ?>
                                                 <img src="/assets/images/<?= htmlspecialchars($item->primaryImage()) ?>" alt="" class="menu-thumb">
                                             <?php else: ?>
-                                                <span class="text-muted">Нет фото</span>
+                                                <span class="text-muted"><?= htmlspecialchars(translate('common.no_photo')) ?></span>
                                             <?php endif; ?>
                                         </td>
                                         <td><?= htmlspecialchars($item->title) ?></td>
                                         <td>
                                             <?php if ($item->isUnique()): ?>
                                                 <span class="fw-semibold text-info"><?= number_format($item->price, 2, '.', ' ') ?> €</span>
-                                                <span class="badge bg-info-subtle text-info-emphasis ms-2">Уникальное</span>
+                                                <span class="badge bg-info-subtle text-info-emphasis ms-2"><?= htmlspecialchars(translate('admin.menu.price.unique')) ?></span>
                                             <?php else: ?>
-                                                <span class="text-muted">Стандартный сет</span>
+                                                <span class="text-muted"><?= htmlspecialchars(translate('admin.menu.price.standard')) ?></span>
                                             <?php endif; ?>
                                         </td>
                                         <td><?= htmlspecialchars($item->category ?? '') ?></td>
@@ -129,8 +129,8 @@
                                                     'category' => $item->category,
                                                     'image' => $item->primaryImage(),
                                                     'gallery' => $gallery,
-                                                ], JSON_HEX_APOS | JSON_HEX_QUOT) ?>)'>Редактировать</button>
-                                                <a class="btn btn-sm btn-outline-danger" href="/admin/menu/delete?id=<?= $item->id ?>" onclick="return confirm('Удалить блюдо?');">Удалить</a>
+                                                ], JSON_HEX_APOS | JSON_HEX_QUOT) ?>)'><?= htmlspecialchars(translate('admin.menu.actions.edit')) ?></button>
+                                                <a class="btn btn-sm btn-outline-danger" href="/admin/menu/delete?id=<?= $item->id ?>" onclick="return confirm('<?= htmlspecialchars(translate('admin.menu.actions.confirm_delete')) ?>');"><?= htmlspecialchars(translate('combo.remove')) ?></a>
                                             </div>
                                         </td>
                                     </tr>
@@ -141,16 +141,16 @@
                 </div>
             </div>
             <div class="text-end mt-3">
-                <button type="submit" class="btn btn-outline-primary">Сохранить «меню на сегодня»</button>
+                <button type="submit" class="btn btn-outline-primary"><?= htmlspecialchars(translate('admin.menu.today.save')) ?></button>
             </div>
         </form>
     </div>
     <div class="admin-column admin-today-block">
         <div class="card border-0 shadow-sm admin-today-card h-100">
             <div class="card-body">
-                <h4 class="card-title mb-3">Меню на сегодня (<?= count($todayItems ?? []) ?>)</h4>
+                <h4 class="card-title mb-3"><?= htmlspecialchars(translate('admin.menu.today.title', ['count' => count($todayItems ?? [])])) ?></h4>
                 <?php if (empty($todayItems)): ?>
-                    <div class="text-muted">Вы ещё не выбрали блюда на сегодня.</div>
+                    <div class="text-muted"><?= htmlspecialchars(translate('admin.menu.today.empty')) ?></div>
                 <?php else: ?>
                     <div class="d-flex flex-column gap-3">
                         <?php foreach ($todayItems as $item): ?>
@@ -160,16 +160,16 @@
                                     <?php if ($img): ?>
                                         <img src="/assets/images/<?= htmlspecialchars($img) ?>" alt="" style="width:60px;height:60px;object-fit:cover;" class="rounded">
                                     <?php else: ?>
-                                        <span class="text-muted small">Нет фото</span>
+                                        <span class="text-muted small"><?= htmlspecialchars(translate('common.no_photo')) ?></span>
                                     <?php endif; ?>
                                     <div>
                                         <div class="fw-bold"><?= htmlspecialchars($item->title) ?></div>
-                                        <div class="text-muted small"><?= htmlspecialchars($item->category ?? 'Без категории') ?></div>
+                                        <div class="text-muted small"><?= htmlspecialchars($item->category ?? translate('menu.card.no_category')) ?></div>
                                         <div class="text-success fw-semibold">
                                             <?php if ($item->isUnique()): ?>
                                                 <?= number_format($item->price, 2, '.', ' ') ?> €
                                             <?php else: ?>
-                                                <span class="text-muted">Стандартный сет</span>
+                                                <span class="text-muted"><?= htmlspecialchars(translate('admin.menu.price.standard')) ?></span>
                                             <?php endif; ?>
                                         </div>
                                     </div>
@@ -189,6 +189,8 @@
 const manualPriceToggle = document.getElementById('edit_use_manual_price');
 const manualPriceInput = document.getElementById('edit_price');
 const priceManualHint = document.getElementById('priceManualHint');
+const manualHintManual = <?= json_encode(translate('admin.menu.form.price_hint_manual'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
+const manualHintAuto = <?= json_encode(translate('admin.menu.form.price_hint'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
 
 function syncManualPriceField(forceValue = null) {
     if (!manualPriceToggle || !manualPriceInput) {
@@ -201,9 +203,7 @@ function syncManualPriceField(forceValue = null) {
         manualPriceInput.value = '';
     }
     if (priceManualHint) {
-        priceManualHint.textContent = enabled
-            ? 'Укажите стоимость уникального блюда. Она заменит базовую цену комплекса.'
-            : 'Цена рассчитывается автоматически в составе комплексного обеда.';
+        priceManualHint.textContent = enabled ? manualHintManual : manualHintAuto;
     }
 }
 

@@ -5,6 +5,22 @@
         return;
     }
 
+    const texts = {
+        empty: container.dataset.emptyText || 'No new orders',
+        order: container.dataset.orderLabel || 'Order #:id',
+        customer: container.dataset.customerLabel || 'Customer:',
+        customerPlaceholder: container.dataset.customerPlaceholder || 'User',
+        address: container.dataset.addressLabel || 'Address:',
+        addressPlaceholder: container.dataset.addressPlaceholder || 'Not provided',
+        itemsLabel: container.dataset.itemsLabel || 'Items:',
+        itemsPlaceholder: container.dataset.itemsPlaceholder || 'Details pending',
+        sumLabel: container.dataset.sumLabel || 'Total:',
+        accept: container.dataset.acceptLabel || 'Accept',
+        decline: container.dataset.declineLabel || 'Decline',
+        confirmDecline: container.dataset.confirmDecline || 'Decline order? This action cannot be undone.',
+    };
+    const locale = document.documentElement.getAttribute('lang') || 'ru';
+
     const escapeHtml = (str) => String(str ?? '')
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
@@ -28,7 +44,7 @@
             }
 
             if (!orders.length) {
-                container.innerHTML = `<div class="text-muted">Новых заказов нет</div>`;
+                container.innerHTML = `<div class="text-muted">${texts.empty}</div>`;
                 return;
             }
 
@@ -39,22 +55,23 @@
                 card.dataset.link = order.link;
                 const itemsList = (order.items || []).map((item) => `
                     <li>${escapeHtml(item.quantity)} × ${escapeHtml(item.title)}</li>
-                `).join('') || '<li class="text-muted">Состав уточняется</li>';
+                `).join('') || `<li class="text-muted">${texts.itemsPlaceholder}</li>`;
+                const orderTitle = texts.order.replace(':id', escapeHtml(order.id));
                 card.innerHTML = `
                     <div class="pending-card__header">
-                        <strong>Заказ #${order.id}</strong>
-                        <small>${order.created_at ? new Date(order.created_at).toLocaleString('ru-RU', {hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit'}) : ''}</small>
+                        <strong>${orderTitle}</strong>
+                        <small>${order.created_at ? new Date(order.created_at).toLocaleString(locale, {hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit'}) : ''}</small>
                     </div>
-                    <p><b>Клиент:</b> ${order.user || 'Пользователь'}</p>
-                    <p><b>Адрес:</b> ${order.address || 'Не указан'}</p>
+                    <p><b>${texts.customer}</b> ${order.user || texts.customerPlaceholder}</p>
+                    <p><b>${texts.address}</b> ${order.address || texts.addressPlaceholder}</p>
                     <div class="pending-card__items-wrapper">
-                        <div class="text-muted small mb-1">В заказе:</div>
+                        <div class="text-muted small mb-1">${texts.itemsLabel}</div>
                         <ul class="pending-card__items">${itemsList}</ul>
                     </div>
-                    <p class="pending-card__sum">Сумма: ${Number(order.total ?? 0).toFixed(2)} €</p>
+                    <p class="pending-card__sum">${texts.sumLabel} ${Number(order.total ?? 0).toFixed(2)} €</p>
                     <div class="d-flex gap-2">
-                        <button class="btn btn-success btn-sm" data-action="accept" data-id="${order.id}">Принять</button>
-                        <button class="btn btn-outline-danger btn-sm" data-action="decline" data-id="${order.id}">Отклонить</button>
+                        <button class="btn btn-success btn-sm" data-action="accept" data-id="${order.id}">${texts.accept}</button>
+                        <button class="btn btn-outline-danger btn-sm" data-action="decline" data-id="${order.id}">${texts.decline}</button>
                     </div>
                 `;
                 container.appendChild(card);
@@ -66,7 +83,7 @@
 
     const handleAction = async (id, action) => {
         if (action === 'decline') {
-            const confirmed = window.confirm('Отклонить заказ? Эта операция необратима.');
+            const confirmed = window.confirm(texts.confirmDecline);
             if (!confirmed) {
                 return;
             }

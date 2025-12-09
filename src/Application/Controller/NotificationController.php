@@ -5,6 +5,7 @@ namespace App\Application\Controller;
 use App\Application\Service\AuthService;
 use App\Application\Service\NotificationService;
 use App\Infrastructure\SessionManager;
+use function translate;
 
 class NotificationController
 {
@@ -21,22 +22,28 @@ class NotificationController
         if (!$userId) {
             $this->json([
                 'authenticated' => false,
-                'message' => 'Войдите, чтобы получать уведомления о заказах',
+                'message' => translate('notifications.login_prompt'),
                 'items' => [],
                 'count' => 0,
             ]);
+            return;
         }
 
         $list = $this->notifications->latest($userId);
         $items = [];
         $active = 0;
         foreach ($list as $notification) {
+            $messageKey = 'notifications.status.' . $notification->status;
+            $message = translate($messageKey);
+            if ($message === $messageKey) {
+                $message = $notification->message ?: translate('notifications.status.default');
+            }
             $items[] = [
                 'id' => $notification->id,
                 'order_id' => $notification->orderId,
                 'status' => $notification->status,
-                'title' => "Заказ #{$notification->orderId}",
-                'message' => $notification->message,
+                'title' => translate('notifications.order_title', ['id' => $notification->orderId]),
+                'message' => $message,
                 'created_at' => $notification->createdAt,
                 'amount' => $notification->amount,
                 'link' => "/orders/view?id={$notification->orderId}",

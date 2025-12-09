@@ -1,6 +1,10 @@
 <?php if (!empty($cartItems)): ?>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
+    const translationsEl = document.getElementById('cartTranslations');
+    const cartTexts = translationsEl ? JSON.parse(translationsEl.textContent) : {};
+    const t = (key, fallback) => cartTexts[key] ?? fallback;
+
     const rows = Array.from(document.querySelectorAll('.cart-row'));
     const selectedTotalEl = document.getElementById('selectedTotal');
     const selectedCountEl = document.getElementById('selectedCount');
@@ -53,7 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const chip = checkbox.closest('.toggle-chip');
         const textEl = chip.querySelector('.chip-text');
         if (textEl) {
-            textEl.textContent = checkbox.checked ? 'В заказе' : 'Не выбрано';
+            textEl.textContent = checkbox.checked ? t('in_order', 'In order') : t('not_selected', 'Not selected');
         }
         chip.classList.toggle('active', checkbox.checked);
     }
@@ -77,7 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 chip.classList.add('disabled');
                 const textEl = chip.querySelector('.chip-text');
                 if (textEl) {
-                    textEl.textContent = 'Нет в меню';
+                    textEl.textContent = t('not_in_menu', 'Not in menu');
                 }
             }
             return;

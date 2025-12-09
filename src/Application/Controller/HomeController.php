@@ -4,6 +4,7 @@ namespace App\Application\Controller;
 
 use App\Application\Service\MenuService;
 use App\Infrastructure\ViewRenderer;
+use function translate;
 
 class HomeController
 {
@@ -15,7 +16,7 @@ class HomeController
     {
         $menuCount = $this->menuService->todayCount();
         return $this->view->render('home', [
-            'title' => 'Doctor Gorilka — Главная',
+            'title' => 'Doctor Gorilka — ' . translate('home.title'),
             'menuCount' => $menuCount,
         ]);
     }

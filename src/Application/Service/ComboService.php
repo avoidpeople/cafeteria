@@ -5,6 +5,7 @@ namespace App\Application\Service;
 use App\Domain\MenuItem;
 use App\Domain\MenuRepositoryInterface;
 use InvalidArgumentException;
+use function translate;
 
 class ComboService
 {
@@ -24,11 +25,11 @@ class ComboService
     {
         $mainId = isset($selection['main']) ? (int)$selection['main'] : 0;
         if ($mainId <= 0) {
-            throw new InvalidArgumentException('Выберите горячее блюдо для комплекса');
+            throw new InvalidArgumentException(translate('combo.errors.select_main'));
         }
 
         $main = $this->menuRepository->findById($mainId);
-        $this->assertAvailable($main, 'Горячее блюдо недоступно для комплексного обеда');
+        $this->assertAvailable($main, translate('combo.errors.main_unavailable'));
 
         $items = [$this->serializeItem($main, 'main')];
 
@@ -36,7 +37,7 @@ class ComboService
         $soup = null;
         if ($soupId > 0) {
             $soup = $this->menuRepository->findById($soupId);
-            $this->assertAvailable($soup, 'Суп недоступен сегодня');
+            $this->assertAvailable($soup, translate('combo.errors.soup_unavailable'));
             $items[] = $this->serializeItem($soup, 'soup');
         }
 
@@ -49,7 +50,7 @@ class ComboService
 
         return [
             'id' => $selection['id'] ?? $this->generateId(),
-            'title' => 'Комплексный обед',
+            'title' => translate('combo.title'),
             'price' => $price,
             'menu_id' => $this->comboMenuId(),
             'items' => $items,
@@ -65,7 +66,7 @@ class ComboService
         return [
             'id' => $item->id,
             'title' => $item->title,
-            'category' => $item->category ?? 'Без категории',
+            'category' => $item->category ?? translate('menu.card.no_category'),
             'type' => $type,
             'image' => $item->primaryImage(),
             'description' => $item->description ?? null,
@@ -120,9 +121,9 @@ class ComboService
         }
 
         $placeholder = $this->menuRepository->create([
-            'title' => 'Комплексный обед',
-            'description' => 'Системная позиция для комплексных обедов',
-            'ingredients' => 'Автоматический комплект',
+            'title' => translate('combo.title'),
+            'description' => translate('combo.system.description'),
+            'ingredients' => translate('combo.system.ingredients'),
             'price' => self::BASE_PRICE + self::SOUP_EXTRA,
             'category' => self::COMBO_CATEGORY,
             'image_url' => null,

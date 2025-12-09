@@ -3,7 +3,7 @@
 /** @var string $title */
 ?>
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="<?= htmlspecialchars(currentLocale()) ?>">
 <head>
     <meta charset="UTF-8">
     <title><?= htmlspecialchars($title ?? 'Doctor Gorilka') ?></title>

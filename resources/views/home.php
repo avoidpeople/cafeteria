@@ -2,43 +2,43 @@
     <section class="hero-card mb-5">
         <div class="hero-grid">
             <div>
-                <p class="hero-pill">Doctor Gorilka</p>
-                <h1>Свежие блюда, онлайн‑заказы и полный контроль в одном месте</h1>
+                <p class="hero-pill"><?= htmlspecialchars(translate('hero.tagline')) ?></p>
+                <h1><?= htmlspecialchars(translate('hero.title')) ?></h1>
                 <p class="lead">
                     <?php if (isset($_SESSION['user_id'])): ?>
-                        <?php echo 'Добро пожаловать! Продолжайте заказы, отслеживайте статусы, повторяйте любимые блюда.'; ?>
+                        <?= htmlspecialchars(translate('hero.authenticated')) ?>
                     <?php else: ?>
-                        <?php echo 'Создайте профиль за минуту, добавляйте позиции в корзину и отслеживайте статус приготовления в реальном времени.'; ?>
+                        <?= htmlspecialchars(translate('hero.guest')) ?>
                     <?php endif; ?>
                 </p>
                 <div class="hero-stats">
                     <div>
                         <span><?= $menuCount ?></span>
-                        <p>позиций доступно сегодня</p>
+                        <p><?= htmlspecialchars(translate('hero.stats_caption')) ?></p>
                     </div>
                 </div>
                  <div class="hero-actions">
-                    <a href="/menu" class="btn btn-light btn-lg text-primary fw-semibold px-4">Открыть меню</a>
+                    <a href="/menu" class="btn btn-light btn-lg text-primary fw-semibold px-4"><?= htmlspecialchars(translate('hero.cta_menu')) ?></a>
                     <?php if (!isset($_SESSION['user_id'])): ?>
-                        <a href="/register" class="btn btn-outline-light btn-lg px-4">Создать профиль</a>
+                        <a href="/register" class="btn btn-outline-light btn-lg px-4"><?= htmlspecialchars(translate('hero.cta_register')) ?></a>
                     <?php endif; ?>
                 </div>
             </div>
             <div class="hero-panel shadow-sm">
-                <h3>Мы рядом</h3>
+                <h3><?= htmlspecialchars(translate('contact.title')) ?></h3>
                 <ul class="list-unstyled mb-4">
-                    <li><strong>Адрес:</strong> Višķu iela 24, Daugavpils, LV-5410</li>
-                    <li><strong>Телефон:</strong> +371 20 173 444</li>
-                    <li><strong>Email:</strong> doctor.gorilka@example.com</li>
+                    <li><strong><?= htmlspecialchars(translate('contact.address')) ?>:</strong> Višķu iela 24, Daugavpils, LV-5410</li>
+                    <li><strong><?= htmlspecialchars(translate('contact.phone')) ?>:</strong> +371 20 173 444</li>
+                    <li><strong><?= htmlspecialchars(translate('contact.email')) ?>:</strong> doctor.gorilka@example.com</li>
                 </ul>
                 <div class="schedule">
                     <div>
-                        <span>Понедельник‑Пятница</span><br>
+                        <span><?= htmlspecialchars(translate('contact.weekday')) ?></span><br>
                         <strong>10:00 – 17:00</strong>
                     </div>
                     <div>
-                        <span>Суббота-Воскресенье</span><br>
-                        <strong>Выходной</strong>
+                        <span><?= htmlspecialchars(translate('contact.weekend')) ?></span><br>
+                        <strong><?= htmlspecialchars(translate('contact.weekend_off')) ?></strong>
                     </div>
                 </div>
             </div>
@@ -47,24 +47,24 @@
 
     <section class="info-grid mb-5">
         <div class="info-card shadow-sm">
-            <h3>Цифровое меню</h3>
-            <p>Подробные карточки с галереей фотографий, описанием, составом и актуальной ценой.</p>
+            <h3><?= htmlspecialchars(translate('info.menu_title')) ?></h3>
+            <p><?= htmlspecialchars(translate('info.menu_text')) ?></p>
         </div>
         <div class="info-card shadow-sm">
-            <h3>История и статусы</h3>
-            <p>Каждый заказ сохраняется с адресом доставки, временем, статусом и возможностью повторить его.</p>
+            <h3><?= htmlspecialchars(translate('info.history_title')) ?></h3>
+            <p><?= htmlspecialchars(translate('info.history_text')) ?></p>
         </div>
         <div class="info-card shadow-sm">
-            <h3>Умная корзина</h3>
-            <p>Отмечайте блюда, которые попадут в заказ, сортируйте список и оформляйте одним кликом.</p>
+            <h3><?= htmlspecialchars(translate('info.cart_title')) ?></h3>
+            <p><?= htmlspecialchars(translate('info.cart_text')) ?></p>
         </div>
     </section>
 
     <section class="gallery-strip mt-5">
         <div class="gallery-title">
-            <p class="hero-pill text-uppercase">Визуальная лента</p>
-            <h3>Немного атмосферы кухни</h3>
-            <p>Фотографии обновляются вместе с меню — можно увидеть, как будут выглядеть блюда до оформления заказа.</p>
+            <p class="hero-pill text-uppercase"><?= htmlspecialchars(translate('gallery.tagline')) ?></p>
+            <h3><?= htmlspecialchars(translate('gallery.title')) ?></h3>
+            <p><?= htmlspecialchars(translate('gallery.text')) ?></p>
         </div>
         <div class="gallery-grid">
             <div class="gallery-item" style="background-image:url('https://images.unsplash.com/photo-1496417263034-38ec4f0b665a?auto=format&fit=crop&w=600&q=60');"></div>
@@ -75,53 +75,53 @@
     </section>
 
     <section class="steps-card shadow-sm mt-5">
-        <h3 class="mb-4">Как всё работает</h3>
+        <h3 class="mb-4"><?= htmlspecialchars(translate('steps.title')) ?></h3>
         <div class="steps-grid">
             <div class="step-item">
                 <span class="badge bg-primary rounded-pill">1</span>
-                <h4>Выбираете блюдо</h4>
-                <p>Используйте фильтры по категории и поиску. Карточка раскрывается в модальном окне с галереей.</p>
+                <h4><?= htmlspecialchars(translate('steps.1.title')) ?></h4>
+                <p><?= htmlspecialchars(translate('steps.1.text')) ?></p>
             </div>
             <div class="step-item">
                 <span class="badge bg-primary rounded-pill">2</span>
-                <h4>Собираете корзину</h4>
-                <p>Добавляйте позиции, меняйте количество, отмечайте, что войдет в заказ, и следите за итоговой суммой.</p>
+                <h4><?= htmlspecialchars(translate('steps.2.title')) ?></h4>
+                <p><?= htmlspecialchars(translate('steps.2.text')) ?></p>
             </div>
             <div class="step-item">
                 <span class="badge bg-primary rounded-pill">3</span>
-                <h4>Оформляете и ждёте</h4>
-                <p>Укажите адрес доставки или точку выдачи — система сообщит о готовности и обновит историю заказов.</p>
+                <h4><?= htmlspecialchars(translate('steps.3.title')) ?></h4>
+                <p><?= htmlspecialchars(translate('steps.3.text')) ?></p>
             </div>
         </div>
     </section>
 
     <section class="testimonials mt-5">
-        <h3 class="mb-4">Отзывы посетителей</h3>
+        <h3 class="mb-4"><?= htmlspecialchars(translate('testimonials.title')) ?></h3>
         <div class="testimonials-grid">
             <article class="testimonial">
-                <p>«Очень удобно оформлять заказ прямо с пары: за пять минут до перерыва отмечаю блюда и сразу вижу статус. Понравились push‑подсказки про готовность.»</p>
-                <span>— Анастасия, студентка 3 курса</span>
+                <p><?= htmlspecialchars(translate('testimonials.1')) ?></p>
+                <span><?= htmlspecialchars(translate('testimonials.1.author')) ?></span>
             </article>
             <article class="testimonial">
-                <p>«Как преподаватель, ценю экономию времени. Вхожу, открываю историю и повторяю «любимый завтрак». Ещё бы и кофе подписками сделали!»</p>
-                <span>— Владимир Иванович</span>
+                <p><?= htmlspecialchars(translate('testimonials.2')) ?></p>
+                <span><?= htmlspecialchars(translate('testimonials.2.author')) ?></span>
             </article>
             <article class="testimonial">
-                <p>«Работаю в столовой, и новая система здорово разгрузила кассу — меньше очередей и меньше ошибок в заказах.»</p>
-                <span>— Ольга, администратор</span>
+                <p><?= htmlspecialchars(translate('testimonials.3')) ?></p>
+                <span><?= htmlspecialchars(translate('testimonials.3.author')) ?></span>
             </article>
         </div>
     </section>
 
     <section class="cta-panel shadow-sm mt-5">
         <div>
-            <h3>Готовы сделать первый заказ?</h3>
-            <p>Войдите или зарегистрируйтесь, чтобы собрать корзину и оформить доставку прямо сейчас.</p>
+            <h3><?= htmlspecialchars(translate('cta.title')) ?></h3>
+            <p><?= htmlspecialchars(translate('cta.text')) ?></p>
         </div>
         <div class="cta-actions">
-            <a href="/menu" class="btn btn-primary btn-lg">Посмотреть меню</a>
+            <a href="/menu" class="btn btn-primary btn-lg"><?= htmlspecialchars(translate('cta.menu')) ?></a>
             <?php if (!isset($_SESSION['user_id'])): ?>
-                <a href="/register" class="btn btn-outline-primary btn-lg">Зарегистрироваться</a>
+                <a href="/register" class="btn btn-outline-primary btn-lg"><?= htmlspecialchars(translate('cta.register')) ?></a>
             <?php endif; ?>
         </div>
     </section>

@@ -7,6 +7,7 @@ use App\Domain\OrderItem;
 use App\Domain\OrderRepositoryInterface;
 use SQLite3;
 use SQLite3Stmt;
+use function translate;
 
 class OrderRepository implements OrderRepositoryInterface
 {
@@ -206,7 +207,7 @@ class OrderRepository implements OrderRepositoryInterface
 
             $items[] = new OrderItem(
                 menuId: (int)$row['menu_id'],
-                title: $row['title'] ?? 'Блюдо',
+                title: $row['title'] ?? translate('common.dish'),
                 price: $price,
                 quantity: (int)$row['quantity'],
                 imageUrl: $row['image_url'] ?? null,
@@ -227,7 +228,7 @@ class OrderRepository implements OrderRepositoryInterface
         $orders = [];
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
             $order = $this->mapOrder($row);
-            $order->customerName = trim(($row['first_name'] ?? '') . ' ' . ($row['last_name'] ?? '')) ?: ($row['username'] ?? 'Пользователь');
+            $order->customerName = trim(($row['first_name'] ?? '') . ' ' . ($row['last_name'] ?? '')) ?: ($row['username'] ?? translate('orders.view.customer_unknown'));
             $order->customerPhone = $row['phone'] ?? null;
             $orders[] = $order;
         }

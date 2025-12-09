@@ -21,17 +21,17 @@ $soupExtraText = number_format(\App\Application\Service\ComboService::SOUP_EXTRA
         <?php if ($isAvailable): ?>
             <label class="toggle-chip active w-100 justify-content-center">
                 <span class="indicator"></span>
-                <span class="chip-text">В заказе</span>
+                <span class="chip-text"><?= htmlspecialchars(translate('cart.toggle.included')) ?></span>
                 <input type="checkbox" class="toggle-item" name="items[]" value="<?= htmlspecialchars($comboId) ?>" checked hidden>
             </label>
         <?php else: ?>
             <div class="toggle-chip disabled w-100 justify-content-center">
                 <span class="indicator"></span>
-                <span class="chip-text">Нет в меню сегодня</span>
+                <span class="chip-text"><?= htmlspecialchars(translate('cart.toggle.unavailable')) ?></span>
             </div>
             <input type="checkbox" class="toggle-item" value="<?= htmlspecialchars($comboId) ?>" hidden disabled>
             <?php if (!empty($missingList)): ?>
-                <small class="text-muted d-block mt-1">Недоступно: <?= htmlspecialchars(implode(', ', array_column($missingList, 'title'))) ?></small>
+                <small class="text-muted d-block mt-1"><?= htmlspecialchars(translate('combo.missing')) ?>: <?= htmlspecialchars(implode(', ', array_column($missingList, 'title'))) ?></small>
             <?php endif; ?>
         <?php endif; ?>
     </td>
@@ -40,9 +40,9 @@ $soupExtraText = number_format(\App\Application\Service\ComboService::SOUP_EXTRA
     </td>
     <td>
         <div class="fw-semibold mb-2 d-flex align-items-center gap-2">
-            <?= htmlspecialchars($combo['title'] ?? 'Комплексный обед') ?>
+            <?= htmlspecialchars($combo['title'] ?? translate('combo.title')) ?>
             <span class="badge bg-dark-subtle text-uppercase small">
-                <?= $hasSoup ? 'Суп включен' : 'Без супа' ?>
+                <?= $hasSoup ? htmlspecialchars(translate('combo.badge.with_soup')) : htmlspecialchars(translate('combo.badge.without_soup')) ?>
             </span>
         </div>
         <div class="combo-breakdown">
@@ -51,7 +51,7 @@ $soupExtraText = number_format(\App\Application\Service\ComboService::SOUP_EXTRA
                 $itemId = (int)($item['id'] ?? 0);
                 $missing = in_array($itemId, $missingIds, true);
                 $isUniqueItem = !empty($item['is_unique']);
-                $itemRole = ($item['type'] ?? '') === 'soup' ? 'Суп' : 'Основное';
+                $itemRole = ($item['type'] ?? '') === 'soup' ? translate('combo.role.soup') : translate('combo.role.main');
                 $itemPrice = $isUniqueItem ? (float)($item['price'] ?? 0) : null;
                 ?>
                 <div class="combo-breakdown-item <?= $missing ? 'combo-breakdown-missing' : '' ?>">
@@ -59,16 +59,16 @@ $soupExtraText = number_format(\App\Application\Service\ComboService::SOUP_EXTRA
                         <?php if (!empty($item['image'])): ?>
                             <img src="/assets/images/<?= htmlspecialchars($item['image']) ?>" alt="<?= htmlspecialchars($item['title']) ?>">
                         <?php else: ?>
-                            <span>Нет фото</span>
+                            <span><?= htmlspecialchars(translate('common.no_photo')) ?></span>
                         <?php endif; ?>
                     </div>
                     <div>
                         <div class="combo-breakdown-title">
                             <div>
-                                <span class="text-muted text-uppercase small me-2"><?= $itemRole ?></span>
+                                <span class="text-muted text-uppercase small me-2"><?= htmlspecialchars($itemRole) ?></span>
                                 <?= htmlspecialchars($item['title']) ?>
                                 <?php if ($isUniqueItem): ?>
-                                    <span class="combo-unique-chip ms-2">★ Уникальное</span>
+                                    <span class="combo-unique-chip ms-2"><?= htmlspecialchars(translate('combo.unique')) ?></span>
                                 <?php endif; ?>
                             </div>
                             <?php if ($itemPrice): ?>
@@ -78,10 +78,10 @@ $soupExtraText = number_format(\App\Application\Service\ComboService::SOUP_EXTRA
                         <?php if (!empty($item['description'])): ?>
                             <div class="text-muted small text-truncate-2"><?= htmlspecialchars($item['description']) ?></div>
                         <?php else: ?>
-                            <div class="text-muted small fst-italic">Описание недоступно</div>
+                            <div class="text-muted small fst-italic"><?= htmlspecialchars(translate('combo.placeholder_desc')) ?></div>
                         <?php endif; ?>
                         <?php if ($missing): ?>
-                            <div class="text-danger small">Позиция недоступна сегодня</div>
+                            <div class="text-danger small"><?= htmlspecialchars(translate('combo.missing')) ?></div>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -91,22 +91,22 @@ $soupExtraText = number_format(\App\Application\Service\ComboService::SOUP_EXTRA
                     <div class="combo-breakdown-thumb">—</div>
                     <div>
                         <div class="combo-breakdown-title">
-                            <span class="text-muted text-uppercase small me-2">Суп</span>
-                            <span>Без супа</span>
+                            <span class="text-muted text-uppercase small me-2"><?= htmlspecialchars(translate('combo.role.soup')) ?></span>
+                            <span><?= htmlspecialchars(translate('combo.badge.without_soup')) ?></span>
                         </div>
-                        <div class="text-muted small">Добавление обычного супа увеличит стоимость на <?= $soupExtraText ?> €.</div>
+                        <div class="text-muted small"><?= htmlspecialchars(translate('combo.placeholder_no_soup', ['price' => $soupExtraText])) ?></div>
                     </div>
                 </div>
             <?php endif; ?>
             <?php if (!$isAvailable && empty($items)): ?>
-                <div class="text-muted small">Состав комплекса недоступен</div>
+                <div class="text-muted small"><?= htmlspecialchars(translate('combo.unavailable')) ?></div>
             <?php endif; ?>
         </div>
     </td>
     <td><?= $priceFormatted ?>€</td>
-    <td class="no-row-toggle">× <?= $quantity ?></td>
+    <td class="no-row-toggle"><?= htmlspecialchars(translate('cart.qty.times', ['qty' => $quantity])) ?></td>
     <td><?= $sumFormatted ?>€</td>
     <td class="no-row-toggle">
-        <a class="btn btn-sm btn-outline-danger" href="/cart/combo/remove?combo=<?= urlencode($combo['id']) ?>">Удалить</a>
+        <a class="btn btn-sm btn-outline-danger" href="/cart/combo/remove?combo=<?= urlencode($combo['id']) ?>"><?= htmlspecialchars(translate('combo.remove')) ?></a>
     </td>
 </tr>

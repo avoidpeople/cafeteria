@@ -1,35 +1,35 @@
-<?php $title = 'Doctor Gorilka — Заказ #' . $orderId; ?>
+<?php $title = 'Doctor Gorilka — ' . translate('orders.view.title', ['id' => $orderId]); ?>
 <div class="page-container">
 <?php $backUrl = $isAdmin ? '/admin/orders' : '/orders'; ?>
 <div class="actions mt-20 mb-15">
-    <a class="btn btn-secondary" href="<?= $backUrl ?>">← Вернуться к заказам</a>
+    <a class="btn btn-secondary" href="<?= $backUrl ?>"><?= htmlspecialchars(translate('common.back_to_orders')) ?></a>
     <?php if (!$isAdmin && ($order->status === 'new' || $order->status === 'cooking')): ?>
-        <a class="btn btn-danger" href="/orders/view?id=<?= $orderId ?>&cancel=1" onclick="return confirm('Отменить заказ?');">Отменить заказ</a>
+        <a class="btn btn-danger" href="/orders/view?id=<?= $orderId ?>&cancel=1" onclick="return confirm('<?= htmlspecialchars(translate('common.confirm_cancel')) ?>');"><?= htmlspecialchars(translate('orders.view.cancel')) ?></a>
     <?php endif; ?>
 </div>
 
 <div class="card-panel summary-card">
-    <h2>Заказ №<?= $orderId ?></h2>
-    <p><b>Дата:</b> <?= $order->createdAt ?></p>
-    <p><b>Статус:</b>
-        <span class="status status-<?= htmlspecialchars($order->status) ?>"><?= htmlspecialchars($order->status) ?></span>
+    <h2><?= htmlspecialchars(translate('orders.view.title', ['id' => $orderId])) ?></h2>
+    <p><b><?= htmlspecialchars(translate('orders.view.date')) ?></b> <?= $order->createdAt ?></p>
+    <p><b><?= htmlspecialchars(translate('orders.view.status')) ?></b>
+        <span class="status status-<?= htmlspecialchars($order->status) ?>"><?= htmlspecialchars(translateStatus($order->status)) ?></span>
     </p>
-    <p><b>Сумма:</b> <?= number_format($order->totalPrice, 2, '.', ' ') ?> €</p>
-    <p><b>Адрес доставки:</b> <?= nl2br(htmlspecialchars($order->deliveryAddress ?? '—')) ?></p>
+    <p><b><?= htmlspecialchars(translate('orders.view.total')) ?></b> <?= number_format($order->totalPrice, 2, '.', ' ') ?> €</p>
+    <p><b><?= htmlspecialchars(translate('orders.view.address')) ?></b> <?= nl2br(htmlspecialchars($order->deliveryAddress ?? '—')) ?></p>
     <?php if ($isAdmin): ?>
-        <p><b>Клиент:</b> <?= htmlspecialchars($order->customerName ?? 'Неизвестно') ?></p>
-        <p><b>Телефон:</b> <?= htmlspecialchars($order->customerPhone ?? 'Не указан') ?></p>
+        <p><b><?= htmlspecialchars(translate('orders.view.customer')) ?></b> <?= htmlspecialchars($order->customerName ?? translate('orders.view.user_placeholder', ['id' => $order->userId])) ?></p>
+        <p><b><?= htmlspecialchars(translate('orders.view.phone')) ?></b> <?= htmlspecialchars($order->customerPhone ?? translate('orders.view.phone_unknown')) ?></p>
     <?php endif; ?>
 </div>
 
-<h3>Блюда в заказе</h3>
+<h3><?= htmlspecialchars(translate('orders.view.dishes')) ?></h3>
 <table class="table">
     <tr>
-        <th>Фото</th>
-        <th>Название</th>
-        <th>Цена</th>
-        <th>Кол-во</th>
-        <th>Сумма</th>
+        <th><?= htmlspecialchars(translate('cart.table.photo')) ?></th>
+        <th><?= htmlspecialchars(translate('cart.table.name')) ?></th>
+        <th><?= htmlspecialchars(translate('cart.table.price')) ?></th>
+        <th><?= htmlspecialchars(translate('cart.table.quantity')) ?></th>
+        <th><?= htmlspecialchars(translate('cart.table.sum')) ?></th>
     </tr>
     <?php foreach ($order->items as $item): ?>
         <?php if ($item->isCombo()): ?>
@@ -39,16 +39,16 @@
                     <div class="combo-order-card">
                         <div class="combo-order-header">
                             <div>
-                                <p class="text-uppercase text-muted small mb-1">Комплексный обед</p>
+                                <p class="text-uppercase text-muted small mb-1"><?= htmlspecialchars(translate('orders.view.combo_title')) ?></p>
                                 <h5 class="mb-0"><?= htmlspecialchars($combo['title'] ?? $item->title) ?></h5>
                             </div>
                             <div class="text-end">
                                 <div class="fw-semibold">
                                     <?= number_format($item->price, 2, '.', ' ') ?> € × <?= $item->quantity ?>
                                 </div>
-                                <div class="text-muted">Сумма: <?= number_format($item->sum(), 2, '.', ' ') ?> €</div>
+                                <div class="text-muted"><?= htmlspecialchars(translate('orders.view.combo_sum', ['sum' => number_format($item->sum(), 2, '.', ' ')])) ?></div>
                                 <div class="badge bg-dark-subtle mt-2">
-                                    <?= !empty($combo['has_soup']) ? 'Суп включен' : 'Без супа' ?>
+                                    <?= !empty($combo['has_soup']) ? htmlspecialchars(translate('orders.view.badge_with_soup')) : htmlspecialchars(translate('orders.view.badge_without_soup')) ?>
                                 </div>
                             </div>
                         </div>
@@ -56,7 +56,7 @@
                             <?php foreach ($comboItems as $comboItem): ?>
                                 <?php
                                 $isUniqueItem = !empty($comboItem['is_unique']);
-                                $itemRole = ($comboItem['type'] ?? '') === 'soup' ? 'Суп' : 'Основное';
+                                $itemRole = ($comboItem['type'] ?? '') === 'soup' ? translate('combo.role.soup') : translate('combo.role.main');
                                 $itemPrice = $isUniqueItem ? (float)($comboItem['price'] ?? 0) : null;
                                 ?>
                                 <div class="combo-breakdown-item">
@@ -64,16 +64,16 @@
                                         <?php if (!empty($comboItem['image'])): ?>
                                             <img src="/assets/images/<?= htmlspecialchars($comboItem['image']) ?>" alt="<?= htmlspecialchars($comboItem['title']) ?>">
                                         <?php else: ?>
-                                            <span>Нет фото</span>
+                                            <span><?= htmlspecialchars(translate('common.no_photo')) ?></span>
                                         <?php endif; ?>
                                     </div>
                                     <div>
                                         <div class="combo-breakdown-title">
                                             <div>
-                                                <span class="text-muted text-uppercase small me-2"><?= $itemRole ?></span>
+                                                <span class="text-muted text-uppercase small me-2"><?= htmlspecialchars($itemRole) ?></span>
                                                 <?= htmlspecialchars($comboItem['title']) ?>
                                                 <?php if ($isUniqueItem): ?>
-                                                    <span class="combo-unique-chip ms-2">★ Уникальное</span>
+                                                    <span class="combo-unique-chip ms-2"><?= htmlspecialchars(translate('combo.unique')) ?></span>
                                                 <?php endif; ?>
                                             </div>
                                             <?php if ($itemPrice): ?>
@@ -83,7 +83,7 @@
                                         <?php if (!empty($comboItem['description'])): ?>
                                             <div class="text-muted small text-truncate-2"><?= htmlspecialchars($comboItem['description']) ?></div>
                                         <?php else: ?>
-                                            <div class="text-muted small fst-italic">Описание недоступно</div>
+                                            <div class="text-muted small fst-italic"><?= htmlspecialchars(translate('combo.placeholder_desc')) ?></div>
                                         <?php endif; ?>
                                     </div>
                                 </div>
@@ -93,10 +93,10 @@
                                     <div class="combo-breakdown-thumb">—</div>
                                     <div>
                                         <div class="combo-breakdown-title">
-                                            <span class="text-muted text-uppercase small me-2">Суп</span>
-                                            <span>Без супа</span>
+                                            <span class="text-muted text-uppercase small me-2"><?= htmlspecialchars(translate('combo.role.soup')) ?></span>
+                                            <span><?= htmlspecialchars(translate('combo.badge.without_soup')) ?></span>
                                         </div>
-                                        <div class="text-muted small">Добавление обычного супа увеличивает стоимость на <?= $soupExtraText ?> €.</div>
+                                        <div class="text-muted small"><?= htmlspecialchars(translate('orders.view.combo_hint', ['price' => $soupExtraText])) ?></div>
                                     </div>
                                 </div>
                             <?php endif; ?>
@@ -111,7 +111,7 @@
                 <?php if (!empty($item->imageUrl)): ?>
                     <img class="thumb" src="/assets/images/<?= htmlspecialchars($item->imageUrl) ?>" alt="">
                 <?php else: ?>
-                    <img class="thumb" src="https://via.placeholder.com/80" alt="Нет фото">
+                    <img class="thumb" src="https://via.placeholder.com/80" alt="<?= htmlspecialchars(translate('common.no_photo')) ?>">
                 <?php endif; ?>
             </td>
             <td><?= htmlspecialchars($item->title) ?></td>

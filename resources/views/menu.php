@@ -3,57 +3,58 @@ $comboOptions = $comboOptions ?? ['main' => [], 'soup' => [], 'roles' => []];
 $comboRoles = $comboOptions['roles'] ?? [];
 $comboMainCount = count($comboOptions['main'] ?? []);
 $comboSoupCount = count($comboOptions['soup'] ?? []);
+$title = 'Doctor Gorilka — ' . translate('nav.menu');
 ?>
 <div class="page-container menu-page">
 <div class="hero-card mb-4">
     <div class="row g-3 align-items-center">
         <div class="col-md-8">
-            <h1 class="display-5 fw-bold">Свежие блюда каждый день</h1>
-            <p class="lead mb-4">Выбирайте любимые позиции, оформляйте заказы онлайн и отслеживайте их статус в личном кабинете.</p>
+            <h1 class="display-5 fw-bold"><?= htmlspecialchars(translate('menu.hero.title')) ?></h1>
+            <p class="lead mb-4"><?= htmlspecialchars(translate('menu.hero.subtitle')) ?></p>
             <div class="d-flex flex-wrap gap-2">
-                <a href="/orders" class="btn btn-light btn-lg text-primary">Мои заказы</a>
-                <a href="/cart" class="btn btn-outline-light btn-lg text-white border-white">Перейти в корзину</a>
+                <a href="/orders" class="btn btn-light btn-lg text-primary"><?= htmlspecialchars(translate('menu.hero.orders_btn')) ?></a>
+                <a href="/cart" class="btn btn-outline-light btn-lg text-white border-white"><?= htmlspecialchars(translate('menu.hero.cart_btn')) ?></a>
             </div>
             <div class="menu-hero-meta mt-4">
                 <div class="menu-hero-metric">
-                    <span class="label">Блюд сегодня</span>
+                    <span class="label"><?= htmlspecialchars(translate('menu.hero.metric_today')) ?></span>
                     <span class="value"><?= count($menuItems) ?></span>
                 </div>
                 <div class="menu-hero-metric">
-                    <span class="label">Горячих</span>
+                    <span class="label"><?= htmlspecialchars(translate('menu.hero.metric_hot')) ?></span>
                     <span class="value"><?= $comboMainCount ?></span>
                 </div>
                 <div class="menu-hero-metric">
-                    <span class="label">Супов</span>
+                    <span class="label"><?= htmlspecialchars(translate('menu.hero.metric_soups')) ?></span>
                     <span class="value"><?= $comboSoupCount ?></span>
                 </div>
             </div>
         </div>
         <div class="col-md-4 text-md-end">
-            <div class="badge bg-light text-dark fs-6">Сегодня доступно: <?= count($menuItems) ?> блюд(а)</div>
+            <div class="badge bg-light text-dark fs-6"><?= htmlspecialchars(translate('menu.hero.available_badge', ['count' => count($menuItems)])) ?></div>
         </div>
     </div>
 </div>
 
 <div class="combo-hero mb-4">
     <div class="combo-hero__content">
-        <p class="text-uppercase text-muted small mb-2">Комплексный обед</p>
-        <h2 class="mb-2">Соберите Комплексный обед от 4 €</h2>
-        <p class="mb-3 text-muted">Выберите горячее и при желании суп. Мы зафиксируем цену и добавим весь набор в корзину одной позицией.</p>
+        <p class="text-uppercase text-muted small mb-2"><?= htmlspecialchars(translate('menu.combo.tagline')) ?></p>
+        <h2 class="mb-2"><?= htmlspecialchars(translate('menu.combo.title')) ?></h2>
+        <p class="mb-3 text-muted"><?= htmlspecialchars(translate('menu.combo.description')) ?></p>
         <div class="combo-hero__badges mb-3">
-            <span class="combo-hero__badge">1. Горячее блюдо</span>
-            <span class="combo-hero__badge">2. Суп по желанию</span>
-            <span class="combo-hero__badge">3. Одна позиция в корзине</span>
+            <span class="combo-hero__badge"><?= htmlspecialchars(translate('menu.combo.badge_main')) ?></span>
+            <span class="combo-hero__badge"><?= htmlspecialchars(translate('menu.combo.badge_soup')) ?></span>
+            <span class="combo-hero__badge"><?= htmlspecialchars(translate('menu.combo.badge_cart')) ?></span>
         </div>
         <div class="d-flex flex-column flex-sm-row gap-2">
-            <button class="btn btn-gradient btn-lg" id="comboBuilderButton" type="button">Создать комплекс</button>
-            <button class="btn btn-outline-light btn-lg" type="button" id="comboBuilderReset" hidden>Выйти из режима</button>
+            <button class="btn btn-gradient btn-lg" id="comboBuilderButton" type="button"><?= htmlspecialchars(translate('menu.combo.create_btn')) ?></button>
+            <button class="btn btn-outline-light btn-lg" type="button" id="comboBuilderReset" hidden><?= htmlspecialchars(translate('menu.combo.exit_btn')) ?></button>
         </div>
-        <div class="combo-hero__note text-muted">Режим конструктора можно выключить в любой момент — корзина сохранит текущий набор.</div>
+        <div class="combo-hero__note text-muted"><?= htmlspecialchars(translate('menu.combo.note')) ?></div>
     </div>
     <div class="combo-hero__price">
-        <div class="combo-price-pill">4 € без супа</span></div>
-        <div class="combo-price-pill">4.5 € с супом</span></div>
+        <div class="combo-price-pill"><?= htmlspecialchars(translate('menu.combo.price_no_soup')) ?></div>
+        <div class="combo-price-pill"><?= htmlspecialchars(translate('menu.combo.price_with_soup')) ?></div>
     </div>
 </div>
 
@@ -61,14 +62,14 @@ $comboSoupCount = count($comboOptions['soup'] ?? []);
     <div class="card-body">
         <form class="row g-2 align-items-center" method="GET">
             <div class="col-sm-6 col-md-5">
-                <label class="form-label text-muted mb-1">Поиск</label>
-                <input type="text" class="form-control" name="search" placeholder="Название или описание" value="<?= htmlspecialchars($search) ?>">
+                <label class="form-label text-muted mb-1"><?= htmlspecialchars(translate('menu.filters.search_label')) ?></label>
+                <input type="text" class="form-control" name="search" placeholder="<?= htmlspecialchars(translate('menu.filters.search_placeholder')) ?>" value="<?= htmlspecialchars($search) ?>">
             </div>
 
             <div class="col-sm-6 col-md-3">
-                <label class="form-label text-muted mb-1">Категория</label>
+                <label class="form-label text-muted mb-1"><?= htmlspecialchars(translate('menu.filters.category_label')) ?></label>
                 <select name="category" class="form-select">
-                    <option value="">Все категории</option>
+                    <option value=""><?= htmlspecialchars(translate('menu.filters.category_all')) ?></option>
                     <?php foreach ($categories as $category): ?>
                         <option value="<?= htmlspecialchars($category) ?>" <?= $selectedCategory === $category ? 'selected' : '' ?>>
                             <?= htmlspecialchars($category) ?>
@@ -78,8 +79,8 @@ $comboSoupCount = count($comboOptions['soup'] ?? []);
             </div>
 
             <div class="col-md-3 d-flex gap-2 mt-3 mt-md-4">
-                <button type="submit" class="btn btn-primary flex-grow-1">Применить</button>
-                <a href="/menu" class="btn btn-outline-secondary flex-grow-1">Сбросить</a>
+                <button type="submit" class="btn btn-primary flex-grow-1"><?= htmlspecialchars(translate('menu.filters.submit')) ?></button>
+                <a href="/menu" class="btn btn-outline-secondary flex-grow-1"><?= htmlspecialchars(translate('menu.filters.reset')) ?></a>
             </div>
         </form>
     </div>
@@ -88,9 +89,9 @@ $comboSoupCount = count($comboOptions['soup'] ?? []);
 <?php if (empty($menuItems)): ?>
     <div class="empty-state">
         <?php if ($search !== '' || $selectedCategory !== ''): ?>
-            По вашему запросу ничего не найдено. Попробуйте изменить фильтры.
+            <?= htmlspecialchars(translate('menu.empty.filtered')) ?>
         <?php else: ?>
-            Меню на сегодня пока не сформировано. Загляните позже.
+            <?= htmlspecialchars(translate('menu.empty.default')) ?>
         <?php endif; ?>
     </div>
 <?php else: ?>
@@ -113,25 +114,25 @@ $comboSoupCount = count($comboOptions['soup'] ?? []);
                 <?php if (!empty($gallery[0])): ?>
                     <img src="/assets/images/<?= $gallery[0] ?>" class="card-img-top" alt="<?= htmlspecialchars($item->title) ?>">
                 <?php else: ?>
-                    <img src="https://via.placeholder.com/400x220?text=Нет+фото" class="card-img-top" alt="no image">
+                    <img src="https://via.placeholder.com/400x220?text=<?= urlencode(translate('common.no_photo')) ?>" class="card-img-top" alt="<?= htmlspecialchars(translate('common.no_photo')) ?>">
                 <?php endif; ?>
 
                     <div class="card-body d-flex flex-column">
-                        <div class="small text-muted mb-2"><?= htmlspecialchars($item->category ?? 'Без категории') ?></div>
+                        <div class="small text-muted mb-2"><?= htmlspecialchars($item->category ?? translate('menu.card.no_category')) ?></div>
                         <h5 class="card-title d-flex align-items-center gap-2">
                             <?= htmlspecialchars($item->title) ?>
                             <?php if ($isUnique): ?>
-                                <span class="unique-chip" title="Уникальное блюдо">★</span>
+                                <span class="unique-chip" title="<?= htmlspecialchars(translate('menu.card.unique_badge')) ?>">★</span>
                             <?php endif; ?>
                         </h5>
-                        <p class="card-text flex-grow-1 text-muted fst-italic">Нажмите, чтобы увидеть фото и описание</p>
+                        <p class="card-text flex-grow-1 text-muted fst-italic"><?= htmlspecialchars(translate('menu.card.click_hint')) ?></p>
                         <div class="d-flex justify-content-between align-items-center mt-2">
                             <?php if ($isUnique): ?>
                                 <span class="fs-5 fw-bold text-info menu-price"><?= number_format($item->price, 2, '.', ' ') ?> €</span>
                             <?php else: ?>
-                                <span class="menu-price menu-price--placeholder text-muted">Входит в комплекс</span>
+                                <span class="menu-price menu-price--placeholder text-muted"><?= htmlspecialchars(translate('menu.card.price_included')) ?></span>
                             <?php endif; ?>
-                            <button type="button" class="btn btn-outline-light combo-select-btn" data-id="<?= $item->id ?>" data-default-text="Добавить в комплекс" data-combo-role="<?= htmlspecialchars($role) ?>" onclick="event.stopPropagation();">Добавить в комплекс</button>
+                            <button type="button" class="btn btn-outline-light combo-select-btn" data-id="<?= $item->id ?>" data-default-text="<?= htmlspecialchars(translate('menu.card.button_default')) ?>" data-combo-role="<?= htmlspecialchars($role) ?>" onclick="event.stopPropagation();"><?= htmlspecialchars(translate('menu.card.button_default')) ?></button>
                         </div>
                     </div>
                 </div>
@@ -148,8 +149,8 @@ $comboSoupCount = count($comboOptions['soup'] ?? []);
     <div class="modal-content">
       <div class="modal-header">
         <div>
-            <p class="text-uppercase text-muted small mb-1">Комплексный обед · 4.5 €</p>
-            <h5 class="modal-title">Соберите персональный набор</h5>
+            <p class="text-uppercase text-muted small mb-1"><?= htmlspecialchars(translate('menu.combo_modal.tagline')) ?></p>
+            <h5 class="modal-title"><?= htmlspecialchars(translate('menu.combo_modal.title')) ?></h5>
         </div>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
@@ -159,8 +160,8 @@ $comboSoupCount = count($comboOptions['soup'] ?? []);
                 <div class="combo-step">
                     <div class="combo-step-head">
                         <div>
-                            <h6 class="mb-0">1. Горячее <span class="text-danger">*</span></h6>
-                            <small class="text-muted">Выберите одно блюдо</small>
+                            <h6 class="mb-0"><?= htmlspecialchars(translate('menu.combo_modal.main_heading')) ?></h6>
+                            <small class="text-muted"><?= htmlspecialchars(translate('menu.combo_modal.main_hint')) ?></small>
                         </div>
                     </div>
                     <?php if (!empty($comboOptions['main'])): ?>
@@ -171,20 +172,20 @@ $comboSoupCount = count($comboOptions['soup'] ?? []);
                                         <?php if (!empty($option['image'])): ?>
                                             <img src="/assets/images/<?= htmlspecialchars($option['image']) ?>" alt="<?= htmlspecialchars($option['title']) ?>">
                                         <?php else: ?>
-                                            <span>Нет фото</span>
+                                            <span><?= htmlspecialchars(translate('common.no_photo')) ?></span>
                                         <?php endif; ?>
                                     </div>
                                     <div class="combo-option-body">
                                         <div class="combo-option-title"><?= htmlspecialchars($option['title']) ?></div>
                                         <div class="combo-option-desc text-truncate-2">
-                                            <?= htmlspecialchars($option['description'] ?? 'Описание появится позже') ?>
+                                            <?= htmlspecialchars($option['description'] ?? translate('menu.combo_modal.description_pending')) ?>
                                         </div>
-                                        <span class="combo-option-tag">Горячее</span>
+                                        <span class="combo-option-tag"><?= htmlspecialchars(translate('menu.combo_modal.main_tag')) ?></span>
                                         <div class="combo-option-extra">
                                             <?php if (!empty($option['unique'])): ?>
                                                 <span class="combo-option-unique">★ <?= number_format((float)$option['price'], 2, '.', ' ') ?> €</span>
                                             <?php else: ?>
-                                                <span class="combo-option-regular">Стандартное блюдо</span>
+                                                <span class="combo-option-regular"><?= htmlspecialchars(translate('menu.combo_modal.main_regular')) ?></span>
                                             <?php endif; ?>
                                         </div>
                                     </div>
@@ -193,26 +194,26 @@ $comboSoupCount = count($comboOptions['soup'] ?? []);
                             <?php endforeach; ?>
                         </div>
                     <?php else: ?>
-                        <p class="text-muted">Пока нет горячих блюд в меню.</p>
+                        <p class="text-muted"><?= htmlspecialchars(translate('menu.combo_modal.main_empty')) ?></p>
                     <?php endif; ?>
                 </div>
 
                 <div class="combo-step mt-4">
                     <div class="combo-step-head">
                         <div>
-                            <h6 class="mb-0">2. Суп <span class="text-muted">(опционально)</span></h6>
-                            <small class="text-muted">Можно пропустить</small>
+                            <h6 class="mb-0"><?= htmlspecialchars(translate('menu.combo_modal.soup_heading')) ?></h6>
+                            <small class="text-muted"><?= htmlspecialchars(translate('menu.combo_modal.soup_hint')) ?></small>
                         </div>
                     </div>
                     <div class="combo-option-grid" id="comboSoupOptions">
-                        <button type="button" class="combo-option-card" data-role="soup" data-id="" data-title="Без супа" data-description="" data-image="" data-price="0" data-unique="0">
+                        <button type="button" class="combo-option-card" data-role="soup" data-id="" data-title="<?= htmlspecialchars(translate('menu.combo_modal.soup_skip')) ?>" data-description="" data-image="" data-price="0" data-unique="0">
                             <div class="combo-option-thumb">
                                 <span>—</span>
                             </div>
                             <div class="combo-option-body">
-                                <div class="combo-option-title">Без супа</div>
-                                <div class="combo-option-desc">Добавить только горячее блюдо</div>
-                                <span class="combo-option-tag">Пропустить</span>
+                                <div class="combo-option-title"><?= htmlspecialchars(translate('menu.combo_modal.soup_skip')) ?></div>
+                                <div class="combo-option-desc"><?= htmlspecialchars(translate('menu.combo_modal.soup_skip_desc')) ?></div>
+                                <span class="combo-option-tag"><?= htmlspecialchars(translate('menu.combo_modal.soup_skip_tag')) ?></span>
                             </div>
                             <span class="combo-option-check"></span>
                         </button>
@@ -223,20 +224,20 @@ $comboSoupCount = count($comboOptions['soup'] ?? []);
                                         <?php if (!empty($option['image'])): ?>
                                             <img src="/assets/images/<?= htmlspecialchars($option['image']) ?>" alt="<?= htmlspecialchars($option['title']) ?>">
                                         <?php else: ?>
-                                            <span>Нет фото</span>
+                                            <span><?= htmlspecialchars(translate('common.no_photo')) ?></span>
                                         <?php endif; ?>
                                     </div>
                                     <div class="combo-option-body">
                                         <div class="combo-option-title"><?= htmlspecialchars($option['title']) ?></div>
                                         <div class="combo-option-desc text-truncate-2">
-                                            <?= htmlspecialchars($option['description'] ?? 'Описание появится позже') ?>
+                                            <?= htmlspecialchars($option['description'] ?? translate('menu.combo_modal.description_pending')) ?>
                                         </div>
-                                        <span class="combo-option-tag">Суп</span>
+                                        <span class="combo-option-tag"><?= htmlspecialchars(translate('menu.combo_modal.soup_tag')) ?></span>
                                         <div class="combo-option-extra">
                                             <?php if (!empty($option['unique'])): ?>
                                                 <span class="combo-option-unique">★ <?= number_format((float)$option['price'], 2, '.', ' ') ?> €</span>
                                             <?php else: ?>
-                                                <span class="combo-option-regular">+0.50 € к сету</span>
+                                                <span class="combo-option-regular"><?= htmlspecialchars(translate('menu.combo_modal.soup_regular')) ?></span>
                                             <?php endif; ?>
                                         </div>
                                     </div>
@@ -244,25 +245,25 @@ $comboSoupCount = count($comboOptions['soup'] ?? []);
                                 </button>
                             <?php endforeach; ?>
                         <?php else: ?>
-                            <div class="text-muted small">Супы недоступны сегодня</div>
+                            <div class="text-muted small"><?= htmlspecialchars(translate('menu.combo_modal.soup_empty')) ?></div>
                         <?php endif; ?>
                     </div>
                 </div>
             </div>
             <div class="col-lg-5">
                 <div class="combo-summary">
-                    <h6 class="text-uppercase text-muted mb-3">Итог набора</h6>
+                    <h6 class="text-uppercase text-muted mb-3"><?= htmlspecialchars(translate('menu.combo_modal.summary_title')) ?></h6>
                     <div class="combo-selection-list" id="comboSelectionPreview">
-                        <div class="text-muted">Выберите горячее блюдо, чтобы начать</div>
+                        <div class="text-muted"><?= htmlspecialchars(translate('menu.combo_modal.summary_placeholder')) ?></div>
                     </div>
                     <div class="d-flex justify-content-between align-items-center mt-4">
                         <div>
-                            <div class="text-muted small">Стоимость</div>
+                            <div class="text-muted small"><?= htmlspecialchars(translate('menu.combo_modal.summary_cost_label')) ?></div>
                             <div class="combo-price" id="comboPriceValue">4.00 €</div>
                         </div>
-                        <div class="text-end text-muted small" id="comboPriceHint">Суп добавит 0.5 €</div>
+                        <div class="text-end text-muted small" id="comboPriceHint"><?= htmlspecialchars(translate('menu.combo_modal.summary_hint')) ?></div>
                     </div>
-                    <button type="button" class="btn btn-gradient w-100 mt-3" id="comboSubmit" disabled>Добавить комплексный обед</button>
+                    <button type="button" class="btn btn-gradient w-100 mt-3" id="comboSubmit" disabled><?= htmlspecialchars(translate('menu.combo_modal.submit')) ?></button>
                     <div class="text-danger small mt-2 d-none" id="comboError"></div>
                 </div>
             </div>
@@ -271,4 +272,30 @@ $comboSoupCount = count($comboOptions['soup'] ?? []);
     </div>
   </div>
 </div>
+<script type="application/json" id="menuTranslations"><?= json_encode([
+    'description_missing' => translate('menu.js.description_missing'),
+    'ingredients_prefix' => translate('menu.js.ingredients_prefix'),
+    'category_prefix' => translate('menu.js.category_prefix'),
+    'category_none' => translate('menu.js.category_none'),
+    'included_price' => translate('menu.js.included_price'),
+    'no_photo' => translate('menu.js.no_photo'),
+    'slide_label' => translate('menu.js.slide_label'),
+    'summary_pick_main' => translate('menu.js.summary_pick_main'),
+    'adding' => translate('menu.js.adding'),
+    'toast_added' => translate('menu.js.toast_added'),
+    'error_add_combo' => translate('menu.js.error_add_combo'),
+    'toast_failed' => translate('menu.js.toast_failed'),
+    'error_save' => translate('menu.js.error_save'),
+    'button_selected' => translate('menu.js.button_selected'),
+    'button_add' => translate('menu.js.button_add'),
+    'label_main' => translate('menu.js.label_main'),
+    'label_soup' => translate('menu.js.label_soup'),
+    'label_no_soup' => translate('menu.js.label_no_soup'),
+    'hint_main_unique' => translate('menu.js.hint_main_unique'),
+    'hint_main_standard' => translate('menu.js.hint_main_standard'),
+    'hint_soup_unique' => translate('menu.js.hint_soup_unique'),
+    'hint_soup_standard' => translate('menu.js.hint_soup_standard'),
+    'default_dish' => translate('menu.js.default_dish'),
+    'description_pending' => translate('menu.js.description_pending'),
+], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?></script>
 <?php include __DIR__ . '/partials/menu_scripts.php'; ?>

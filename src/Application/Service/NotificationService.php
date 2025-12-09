@@ -3,6 +3,7 @@
 namespace App\Application\Service;
 
 use App\Domain\NotificationRepositoryInterface;
+use function translate;
 
 class NotificationService
 {
@@ -12,15 +13,17 @@ class NotificationService
 
     public function record(int $userId, int $orderId, string $status, float $amount, ?string $customMessage = null): void
     {
-        $message = $customMessage ?? match ($status) {
-            'pending' => 'Заказ оформлен, ожидает подтверждения',
-            'new' => 'Заказ принят в работу',
-            'cooking' => 'Заказ готовится',
-            'ready' => 'Заказ готов к выдаче',
-            'delivered' => 'Заказ выдан',
-            'cancelled' => 'Заказ отменён',
-            default => 'Статус заказа обновлён',
+        $default = match ($status) {
+            'pending' => 'notifications.status.pending',
+            'new' => 'notifications.status.new',
+            'cooking' => 'notifications.status.cooking',
+            'ready' => 'notifications.status.ready',
+            'delivered' => 'notifications.status.delivered',
+            'cancelled' => 'notifications.status.cancelled',
+            default => 'notifications.status.default',
         };
+        $translation = translate($default);
+        $message = $customMessage ?? ($translation === $default ? translate('notifications.status.default') : $translation);
 
         $this->notifications->add($userId, $orderId, $status, $message, $amount);
     }

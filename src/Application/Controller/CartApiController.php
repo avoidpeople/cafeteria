@@ -5,15 +5,14 @@ namespace App\Application\Controller;
 use App\Application\Service\AuthService;
 use App\Application\Service\CartService;
 use App\Application\Service\ComboService;
-use App\Application\Service\MenuService;
 use App\Infrastructure\SessionManager;
+use function translate;
 
 class CartApiController
 {
     public function __construct(
         private AuthService $authService,
         private CartService $cartService,
-        private MenuService $menuService,
         private ComboService $comboService,
         private SessionManager $session
     ) {
@@ -23,17 +22,17 @@ class CartApiController
     {
         header('Content-Type: application/json');
         if (!$this->session->get('user_id')) {
-            echo json_encode(['success' => false, 'message' => 'Авторизуйтесь, чтобы добавлять в корзину']);
+            echo json_encode(['success' => false, 'message' => translate('cart.api.login_required')]);
             return;
         }
-        echo json_encode(['success' => false, 'message' => 'Отдельные блюда добавляются только через комплексный обед.']);
+        echo json_encode(['success' => false, 'message' => translate('cart.api.combo_only')]);
     }
 
     public function addCombo(): void
     {
         header('Content-Type: application/json');
         if (!$this->session->get('user_id')) {
-            echo json_encode(['success' => false, 'message' => 'Авторизуйтесь, чтобы собирать комплексный обед']);
+            echo json_encode(['success' => false, 'message' => translate('cart.api.combo_login')]);
             return;
         }
 
@@ -46,11 +45,11 @@ class CartApiController
                 'soup' => $soupId,
             ]);
             $this->cartService->addCombo($combo);
-            echo json_encode(['success' => true, 'message' => 'Комплексный обед добавлен в корзину']);
+            echo json_encode(['success' => true, 'message' => translate('cart.api.combo_added')]);
         } catch (\InvalidArgumentException $e) {
             echo json_encode(['success' => false, 'message' => $e->getMessage()]);
         } catch (\Throwable $e) {
-            echo json_encode(['success' => false, 'message' => 'Не удалось собрать комплексный обед']);
+            echo json_encode(['success' => false, 'message' => translate('cart.api.combo_failed')]);
         }
     }
 }

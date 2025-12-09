@@ -9,6 +9,7 @@ use App\Application\Controller\OrderController;
 use App\Application\Controller\CartController;
 use App\Application\Controller\CartApiController;
 use App\Application\Controller\ProfileController;
+use App\Application\Controller\LanguageController;
 use App\Application\Controller\NotificationController;
 use App\Application\Controller\Admin\MenuController as AdminMenuController;
 use App\Application\Controller\Admin\OrderController as AdminOrderController;
@@ -24,7 +25,8 @@ $authController = new AuthController($authService, $view, $sessionManager);
 $cartController = new CartController($authService, $cartService, $view, $sessionManager);
 $orderController = new OrderController($authService, $orderService, $cartService, $menuRepository, $view, $sessionManager);
 $profileController = new ProfileController($authService, $userRepository, $orderService, $view, $sessionManager);
-$cartApiController = new CartApiController($authService, $cartService, $menuService, $comboService, $sessionManager);
+$languageController = new LanguageController();
+$cartApiController = new CartApiController($authService, $cartService, $comboService, $sessionManager);
 $adminMenuController = new AdminMenuController($authService, $adminMenuService, $view, $sessionManager);
 $adminOrderController = new AdminOrderController($authService, $orderService, $view, $sessionManager);
 $notificationController = new NotificationController($authService, $notificationService, $sessionManager);
@@ -61,6 +63,7 @@ $router->post('/admin/orders/status', [$adminOrderController, 'updateStatus']);
 $router->post('/admin/orders/delete', [$adminOrderController, 'delete']);
 $router->get('/api/admin/pending-orders', [$adminOrderController, 'pendingFeed']);
 $router->post('/api/admin/pending-orders/action', [$adminOrderController, 'handlePending']);
+$router->post('/language/switch', [$languageController, 'switch']);
 
 $response = $app->run();
 if (is_string($response)) {

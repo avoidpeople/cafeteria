@@ -9,6 +9,7 @@ use App\Domain\MenuRepositoryInterface;
 use App\Infrastructure\SessionManager;
 use App\Infrastructure\ViewRenderer;
 use function setToast;
+use function translate;
 
 class OrderController
 {
@@ -24,27 +25,27 @@ class OrderController
 
     public function history(): string
     {
-        $this->authService->requireLogin('Войдите или зарегистрируйтесь, чтобы просматривать заказы');
+        $this->authService->requireLogin(translate('auth.require.orders'));
         $orders = $this->orderService->userOrders($this->session->get('user_id'));
         return $this->view->render('orders/history', [
-            'title' => 'Doctor Gorilka — Мои заказы',
+            'title' => 'Doctor Gorilka — ' . translate('orders.history.title'),
             'orders' => $orders,
         ]);
     }
 
     public function view(): string
     {
-        $this->authService->requireLogin('Авторизуйтесь, чтобы просматривать заказ');
+        $this->authService->requireLogin(translate('auth.require.view_order'));
         $orderId = intval($_GET['id'] ?? 0);
         $order = $this->orderService->getOrder($orderId);
         if (!$order) {
-            setToast('Заказ не найден или уже удалён', 'warning');
+            setToast(translate('orders.errors.not_found'), 'warning');
             $this->redirectBack();
         }
         $userId = $this->session->get('user_id');
         $isAdmin = $this->session->get('role') === 'admin';
         if (!$isAdmin && $order->userId !== $userId) {
-            setToast('Заказ не найден или доступ запрещён', 'warning');
+            setToast(translate('orders.errors.forbidden'), 'warning');
             $this->redirectBack();
         }
 
@@ -55,7 +56,7 @@ class OrderController
         }
 
         return $this->view->render('orders/view', [
-            'title' => 'Doctor Gorilka — Заказ #' . $orderId,
+            'title' => 'Doctor Gorilka — ' . translate('orders.view.title', ['id' => $orderId]),
             'order' => $order,
             'isAdmin' => $isAdmin,
             'orderId' => $orderId,
@@ -79,10 +80,10 @@ class OrderController
 
     public function place(): void
     {
-        $this->authService->requireLogin('Авторизуйтесь, чтобы оформить заказ');
+        $this->authService->requireLogin(translate('auth.require.checkout'));
 
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            setToast('Выберите позиции для оформления заказа', 'warning');
+            setToast(translate('orders.errors.select_items'), 'warning');
             header('Location: /cart');
             exit;
         }
@@ -93,7 +94,7 @@ class OrderController
 
         if ($deliveryAddress === '') {
             $this->session->set('delivery_address_draft', '');
-            setToast('Укажите адрес доставки', 'warning');
+            setToast(translate('orders.errors.address_required'), 'warning');
             header('Location: /cart');
             exit;
         }
@@ -103,7 +104,7 @@ class OrderController
         $userId = $this->session->get('user_id');
         $result = $this->orderService->placeOrder($userId, $selectedIds, $deliveryAddress, $this->cartService, $this->menuRepository);
         if (!$result['success']) {
-            setToast($result['message'] ?? 'Не удалось оформить заказ', 'danger');
+            setToast($result['message'] ?? translate('orders.errors.place_failed'), 'danger');
             header('Location: /cart');
             exit;
         }
@@ -116,7 +117,7 @@ class OrderController
         $total = $result['total'];
 
         echo $this->view->render('orders/placed', [
-            'title' => 'Doctor Gorilka — Заказ оформлен',
+            'title' => 'Doctor Gorilka — ' . translate('orders.placed.title'),
             'orderId' => $orderId,
             'items' => $items,
             'totalPrice' => $total,

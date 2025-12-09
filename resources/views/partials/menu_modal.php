@@ -3,10 +3,10 @@
     <div class="modal-content">
       <div class="modal-header">
         <div>
-            <p class="text-uppercase text-muted small mb-1">Комплексный обед</p>
+            <p class="text-uppercase text-muted small mb-1"><?= htmlspecialchars(translate('menu.combo.tagline')) ?></p>
             <div class="d-flex align-items-center gap-2 flex-wrap">
                 <h5 class="modal-title mb-0" id="dishTitle">...</h5>
-                <span class="dish-unique-badge d-none" id="dishUniqueBadge">★ Уникальное блюдо</span>
+                <span class="dish-unique-badge d-none" id="dishUniqueBadge"><?= htmlspecialchars(translate('menu.card.unique_badge')) ?></span>
             </div>
         </div>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -18,21 +18,21 @@
                 <div class="carousel-inner" id="dishCarouselInner"></div>
                 <button class="carousel-control-prev" type="button" data-bs-target="#dishCarousel" data-bs-slide="prev" id="dishCarouselPrev">
                     <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                    <span class="visually-hidden">Предыдущее</span>
+                    <span class="visually-hidden"><?= htmlspecialchars(translate('menu.modal.prev')) ?></span>
                 </button>
                 <button class="carousel-control-next" type="button" data-bs-target="#dishCarousel" data-bs-slide="next" id="dishCarouselNext">
                     <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                    <span class="visually-hidden">Следующее</span>
+                    <span class="visually-hidden"><?= htmlspecialchars(translate('menu.modal.next')) ?></span>
                 </button>
             </div>
         </div>
         <div class="col-md-7">
-            <p class="text-muted small">Используйте стрелки или свайп, чтобы посмотреть все фото и описание блюда.</p>
+            <p class="text-muted small"><?= htmlspecialchars(translate('menu.modal.carousel_hint')) ?></p>
             <p class="text-muted" id="dishCategory"></p>
             <p id="dishDescription" class="text-break"></p>
             <p id="dishIngridients" class="text-break"></p>
             <p class="fs-4 fw-bold text-info" id="dishPrice"></p>
-            <button class="btn btn-primary" id="modalAddToCart">Добавить в комплекс</button>
+            <button class="btn btn-primary" id="modalAddToCart"><?= htmlspecialchars(translate('menu.card.button_default')) ?></button>
         </div>
       </div>
     </div>

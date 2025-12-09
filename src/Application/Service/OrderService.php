@@ -4,6 +4,7 @@ namespace App\Application\Service;
 
 use App\Domain\MenuRepositoryInterface;
 use App\Domain\OrderRepositoryInterface;
+use function translate;
 
 class OrderService
 {
@@ -53,7 +54,7 @@ class OrderService
     ): array {
         $deliveryAddress = trim($deliveryAddress);
         if ($deliveryAddress === '') {
-            return ['success' => false, 'message' => 'Укажите адрес доставки'];
+            return ['success' => false, 'message' => translate('orders.errors.address_required')];
         }
 
         $cart = $cartService->getQuantities();
@@ -77,7 +78,7 @@ class OrderService
         $comboSelection = array_values(array_intersect($comboSelection, array_keys($comboEntries)));
 
         if (empty($menuSelection) && empty($comboSelection)) {
-            return ['success' => false, 'message' => 'Выбранные позиции отсутствуют в корзине'];
+            return ['success' => false, 'message' => translate('orders.errors.cart_missing')];
         }
 
         $menuItems = $menuSelection ? $menuRepository->findByIds($menuSelection) : [];
@@ -114,7 +115,7 @@ class OrderService
                 'menu_id' => $menuId,
                 'quantity' => 1,
                 'price' => $price,
-                'title' => $combo['title'] ?? 'Комплексный обед',
+                'title' => $combo['title'] ?? translate('combo.title'),
                 'combo_details' => $combo,
                 'type' => 'combo',
             ];
@@ -123,11 +124,11 @@ class OrderService
         }
 
         if (empty($items)) {
-            return ['success' => false, 'message' => 'Выбранные блюда недоступны в меню сегодня'];
+            return ['success' => false, 'message' => translate('orders.errors.items_unavailable')];
         }
 
         $order = $this->orders->create($userId, $deliveryAddress, $items, $total, 'pending');
-        $this->notifications?->record($userId, $order->id, 'pending', $total, 'Заказ оформлен и ожидает подтверждения');
+        $this->notifications?->record($userId, $order->id, 'pending', $total);
         $cartService->removeItems($usedIds);
 
         return [

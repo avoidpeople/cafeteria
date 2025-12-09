@@ -1,7 +1,7 @@
-<?php $title = 'Doctor Gorilka — Вход'; ?>
+<?php $title = 'Doctor Gorilka — ' . translate('auth.login.title'); ?>
 <div class="d-flex justify-content-center align-items-center" style="min-height: 100vh;">
     <div class="card" style="max-width: 420px; width: 100%; padding: 20px;">
-        <h2 class="mb-3">Авторизация</h2>
+        <h2 class="mb-3"><?= htmlspecialchars(translate('auth.login.heading')) ?></h2>
 
         <?php if (!empty($error)): ?>
             <div class="alert alert-danger"><?= htmlspecialchars($error) ?></div>
@@ -9,17 +9,19 @@
 
         <form method="POST" action="/login" class="d-flex flex-column gap-3">
             <div>
-                <label class="form-label">Логин</label>
+                <label class="form-label"><?= htmlspecialchars(translate('auth.login.username')) ?></label>
                 <input type="text" class="form-control" name="username" value="<?= htmlspecialchars($usernameValue) ?>" required>
             </div>
             <div>
-                <label class="form-label">Пароль</label>
+                <label class="form-label"><?= htmlspecialchars(translate('auth.login.password')) ?></label>
                 <input type="password" class="form-control" name="password" required>
             </div>
-            <button type="submit" class="btn btn-primary">Войти</button>
+            <button type="submit" class="btn btn-primary"><?= htmlspecialchars(translate('auth.login.submit')) ?></button>
         </form>
 
-        <a href="/" class="btn btn-outline-secondary w-100 mt-3">Отмена и на главную</a>
-        <p class="mt-3 mb-0">Нет аккаунта? <a href="/register">Зарегистрируйтесь</a></p>
+        <a href="/" class="btn btn-outline-secondary w-100 mt-3"><?= htmlspecialchars(translate('auth.login.cancel')) ?></a>
+        <p class="mt-3 mb-0"><?= htmlspecialchars(translate('auth.login.no_account')) ?>
+            <a href="/register"><?= htmlspecialchars(translate('auth.login.register_link')) ?></a>
+        </p>
     </div>
 </div>

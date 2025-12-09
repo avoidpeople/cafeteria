@@ -6,22 +6,28 @@
     if (!container || !badge) {
         return;
     }
+    const emptyText = container.dataset.emptyText || 'No notifications yet';
+    const loginText = container.dataset.loginText || 'Sign in to receive order updates.';
+    const noneText = container.dataset.noneText || 'No orders yet';
+    const clearedText = container.dataset.clearedText || emptyText;
 
     const storageKey = 'notifLastSeen';
     let lastSeenId = parseInt(localStorage.getItem(storageKey), 10) || 0;
     let latestFetchedId = lastSeenId;
+    const amountLabel = container.dataset.amountLabel || 'Total:';
+    const locale = document.documentElement.getAttribute('lang') || 'ru';
 
     const render = (data) => {
         if (!data || !data.authenticated) {
             badge.classList.add('d-none');
-            container.innerHTML = `<div class="text-muted">Войдите, чтобы получать уведомления о заказах.</div>`;
+            container.innerHTML = `<div class="text-muted">${loginText}</div>`;
             return;
         }
 
         const items = data.items || [];
 
         if (!items.length) {
-            container.innerHTML = `<div class="text-muted">Заказов пока нет</div>`;
+            container.innerHTML = `<div class="text-muted">${noneText}</div>`;
             return;
         }
 
@@ -47,10 +53,10 @@
             card.innerHTML = `
                 <div class="notification-card__header">
                     <strong>${item.title}</strong>
-                    <small>${item.created_at ? new Date(item.created_at).toLocaleString('ru-RU', {hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit'}) : ''}</small>
+                    <small>${item.created_at ? new Date(item.created_at).toLocaleString(locale, {hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit'}) : ''}</small>
                 </div>
                 <p class="notification-card__text">${item.message}</p>
-                <div class="notification-card__meta">Сумма: ${Number(item.amount ?? 0).toFixed(2)} €</div>
+                <div class="notification-card__meta">${amountLabel} ${Number(item.amount ?? 0).toFixed(2)} €</div>
             `;
             container.appendChild(card);
 
@@ -94,7 +100,7 @@
                 credentials: 'same-origin',
             });
             if (response.ok) {
-                container.innerHTML = `<div class="text-muted">Уведомлений нет</div>`;
+                container.innerHTML = `<div class="text-muted">${clearedText}</div>`;
                 badge.classList.add('d-none');
                 lastSeenId = 0;
                 latestFetchedId = 0;

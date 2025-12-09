@@ -4,6 +4,7 @@ namespace App\Application\Service;
 
 use App\Domain\MenuRepositoryInterface;
 use App\Infrastructure\SessionManager;
+use function translate;
 
 class CartService
 {
@@ -198,7 +199,7 @@ class CartService
             if (!$menuItem || !$menuItem->isToday) {
                 $missing[] = [
                     'id' => $id,
-                    'title' => $item['title'] ?? 'Блюдо',
+                    'title' => $item['title'] ?? translate('common.dish'),
                 ];
             }
         }

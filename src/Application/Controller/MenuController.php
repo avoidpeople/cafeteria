@@ -5,6 +5,7 @@ namespace App\Application\Controller;
 use App\Application\Service\MenuService;
 use App\Domain\MenuItem;
 use App\Infrastructure\ViewRenderer;
+use function translate;
 
 class MenuController
 {
@@ -74,7 +75,7 @@ class MenuController
         return array_values(array_map(static fn (MenuItem $item) => [
             'id' => $item->id,
             'title' => $item->title,
-            'category' => $item->category ?? 'Без категории',
+            'category' => $item->category ?? translate('menu.card.no_category'),
             'role' => $role,
             'image' => $item->primaryImage(),
             'description' => $item->description ?? null,

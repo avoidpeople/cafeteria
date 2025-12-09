@@ -4,6 +4,7 @@ namespace App\Application\Service;
 
 use App\Domain\MenuItem;
 use App\Domain\MenuRepositoryInterface;
+use function translate;
 
 class AdminMenuService
 {
@@ -45,10 +46,10 @@ class AdminMenuService
         $price = (float)($data['price'] ?? 0);
         $useManualPrice = !empty($data['use_manual_price']);
         if ($title === '') {
-            $errors[] = 'Название обязательно.';
+            $errors[] = translate('admin.menu.errors.title_required');
         }
         if ($useManualPrice && $price <= 0) {
-            $errors[] = 'Укажите цену вручную для уникального блюда.';
+            $errors[] = translate('admin.menu.errors.manual_price');
         }
         if (!$useManualPrice) {
             $price = 0.0;
@@ -104,7 +105,7 @@ class AdminMenuService
                 }
                 $mime = (new \finfo(FILEINFO_MIME_TYPE))->file($tmp);
                 if (!isset($allowed[$mime])) {
-                    $errors[] = 'Недопустимый формат изображения: ' . htmlspecialchars($name);
+                    $errors[] = translate('admin.menu.errors.invalid_image', ['name' => $name]);
                     continue;
                 }
                 $filename = time() . '_' . bin2hex(random_bytes(4)) . '_' . $index . '.' . $allowed[$mime];

@@ -7,6 +7,7 @@ use App\Application\Service\OrderService;
 use App\Infrastructure\SessionManager;
 use App\Infrastructure\ViewRenderer;
 use function setToast;
+use function translate;
 
 class OrderController
 {
@@ -37,7 +38,7 @@ class OrderController
         $pendingCount = $this->orderService->pendingCount();
 
         return $this->view->render('admin/orders', [
-            'title' => 'Doctor Gorilka — Все заказы',
+            'title' => 'Doctor Gorilka — ' . translate('admin.orders.title'),
             'orders' => $orders,
             'summary' => $summary,
             'statusFilter' => $statusFilter,
@@ -53,9 +54,9 @@ class OrderController
         $status = trim($_POST['status'] ?? '');
         if ($orderId > 0 && in_array($status, ['new','cooking','ready','delivered','cancelled'], true)) {
             $this->orderService->updateStatus($orderId, $status);
-            setToast("Статус заказа #{$orderId} обновлён", 'info');
+            setToast(translate('admin.orders.toast.status_updated', ['id' => $orderId]), 'info');
         } else {
-            setToast('Выберите корректный статус', 'warning');
+            setToast(translate('admin.orders.toast.status_invalid'), 'warning');
         }
         header('Location: /admin/orders');
         exit;
@@ -67,7 +68,7 @@ class OrderController
         $orderId = intval($_POST['id'] ?? 0);
         if ($orderId > 0) {
             $this->orderService->delete($orderId);
-            setToast("Заказ #{$orderId} удалён", 'warning');
+            setToast(translate('admin.orders.toast.deleted', ['id' => $orderId]), 'warning');
         }
         header('Location: /admin/orders');
         exit;
@@ -86,7 +87,7 @@ class OrderController
             }, $order->items ?? []);
             return [
                 'id' => $order->id,
-                'user' => $order->customerName ?? "Пользователь #{$order->userId}",
+                'user' => $order->customerName ?? translate('admin.pending.user_placeholder', ['id' => $order->userId]),
                 'address' => $order->deliveryAddress,
                 'total' => $order->totalPrice,
                 'created_at' => $order->createdAt,

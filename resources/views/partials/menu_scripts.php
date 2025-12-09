@@ -1,5 +1,9 @@
 <script>
 document.addEventListener('DOMContentLoaded', () => {
+    const translationsEl = document.getElementById('menuTranslations');
+    const menuTexts = translationsEl ? JSON.parse(translationsEl.textContent) : {};
+    const t = (key, fallback = '') => menuTexts[key] ?? fallback;
+
     const modal = document.getElementById('dishModal');
     const modalTitle = document.getElementById('dishTitle');
     const modalDesc = document.getElementById('dishDescription');
@@ -21,16 +25,16 @@ document.addEventListener('DOMContentLoaded', () => {
         card.addEventListener('click', () => {
             const item = JSON.parse(card.dataset.item);
             modalTitle.textContent = item.title;
-            modalDesc.textContent = item.description || 'Описание пока отсутствует.';
-            modalIngr.textContent = item.ingredients ? `Состав: ${item.ingredients}` : '';
-            modalCat.textContent = item.category ? `Категория: ${item.category}` : 'Без категории';
+            modalDesc.textContent = item.description || t('description_missing', 'Description is not available.');
+            modalIngr.textContent = item.ingredients ? `${t('ingredients_prefix', 'Ingredients:')} ${item.ingredients}` : '';
+            modalCat.textContent = item.category ? `${t('category_prefix', 'Category:')} ${item.category}` : t('category_none', 'No category');
             const rawPrice = typeof item.raw_price !== 'undefined' ? parseFloat(item.raw_price) : parseFloat(item.price);
             const isUnique = Boolean(item.is_unique);
             modalUniqueBadge?.classList.toggle('d-none', !isUnique);
             if (modalPrice) {
                 modalPrice.textContent = isUnique && rawPrice > 0
                     ? `${rawPrice.toFixed(2)} €`
-                    : 'Входит в комплексный обед';
+                    : t('included_price', 'Included in combo');
             }
             modalAddBtn.dataset.id = item.id;
             modalAddBtn.dataset.comboRole = card.dataset.comboRole || 'main';
@@ -53,7 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const imgEl = document.createElement('img');
                 imgEl.className = 'd-block w-100 rounded dish-carousel-img';
                 imgEl.alt = item.title;
-                imgEl.src = img ? `/assets/images/${img}` : 'https://via.placeholder.com/400x250?text=Нет+фото';
+                imgEl.src = img ? `/assets/images/${img}` : `https://via.placeholder.com/400x250?text=${encodeURIComponent(t('no_photo', 'No photo'))}`;
                 slide.appendChild(imgEl);
                 carouselInner.appendChild(slide);
 
@@ -63,7 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     indicator.setAttribute('data-bs-target', '#dishCarousel');
                     indicator.setAttribute('data-bs-slide-to', index);
                     indicator.className = isActive;
-                    indicator.setAttribute('aria-label', `Слайд ${index + 1}`);
+                    indicator.setAttribute('aria-label', `${t('slide_label', 'Slide')} ${index + 1}`);
                     if (index === 0) {
                         indicator.setAttribute('aria-current', 'true');
                     }
@@ -85,6 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
     modalAddBtn.addEventListener('click', () => {
         const role = modalAddBtn.dataset.comboRole || 'main';
         openComboModal(role, modalAddBtn.dataset.id);
+        dishModal.hide();
     });
 
     // Combo builder
@@ -145,7 +150,7 @@ document.addEventListener('DOMContentLoaded', () => {
     comboSubmit?.addEventListener('click', async () => {
         if (!comboState.main) {
             if (comboError) {
-                comboError.textContent = 'Выберите горячее блюдо';
+                comboError.textContent = t('summary_pick_main', 'Select a main dish');
                 comboError.classList.remove('d-none');
             }
             return;
@@ -158,13 +163,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         const originalText = comboSubmit.textContent;
         comboSubmit.disabled = true;
-        comboSubmit.textContent = 'Добавляем...';
+        comboSubmit.textContent = t('adding', 'Adding...');
         try {
             const response = await fetch('/api/cart/combo', { method: 'POST', body: formData });
             const data = await response.json();
-            showToast(data.message || 'Комплексный обед добавлен', data.success);
+            showToast(data.message || t('toast_added', 'Combo added'), data.success);
             if (!data.success && comboError) {
-                comboError.textContent = data.message || 'Не удалось добавить комплексный обед';
+                comboError.textContent = data.message || t('error_add_combo', 'Failed to add combo');
                 comboError.classList.remove('d-none');
             }
             if (data.success) {
@@ -172,9 +177,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 comboModal?.hide();
             }
         } catch (error) {
-            showToast('Не удалось добавить комплексный обед', false);
+            showToast(t('toast_failed', 'Failed to add combo'), false);
             if (comboError) {
-                comboError.textContent = 'Ошибка при сохранении комплекса';
+                comboError.textContent = t('error_save', 'Failed to save combo');
                 comboError.classList.remove('d-none');
             }
         } finally {
@@ -237,7 +242,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 ? comboState.soup === id
                 : comboState.main === id;
             btn.classList.toggle('selected', Boolean(isActive));
-            btn.textContent = isActive ? 'Выбрано' : (btn.dataset.defaultText || 'Добавить в комплекс');
+            btn.textContent = isActive ? t('button_selected', 'Selected') : (btn.dataset.defaultText || t('button_add', 'Add to combo'));
         });
     }
 
@@ -247,15 +252,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const mainData = getCardData('main', comboState.main);
         const soupData = comboState.soup ? getCardData('soup', comboState.soup) : null;
         if (mainData) {
-            comboSummary.appendChild(renderSummaryItem(mainData, 'Горячее'));
+            comboSummary.appendChild(renderSummaryItem(mainData, t('label_main', 'Main dish')));
         } else {
             const placeholder = document.createElement('div');
             placeholder.className = 'text-muted';
-            placeholder.textContent = 'Выберите горячее блюдо';
+            placeholder.textContent = t('summary_pick_main', 'Select a main dish');
             comboSummary.appendChild(placeholder);
         }
         if (soupData) {
-            comboSummary.appendChild(renderSummaryItem(soupData, 'Суп'));
+            comboSummary.appendChild(renderSummaryItem(soupData, t('label_soup', 'Soup')));
         } else if (comboState.soup === null) {
             comboSummary.appendChild(renderNoSoupSummary());
         }
@@ -267,24 +272,24 @@ document.addEventListener('DOMContentLoaded', () => {
         const soupData = comboState.soup ? getCardData('soup', comboState.soup) : null;
         if (!mainData) {
             comboPriceValue.textContent = `${COMBO_BASE_PRICE.toFixed(2)} €`;
-            comboPriceHint && (comboPriceHint.textContent = 'Выберите горячее блюдо');
+            comboPriceHint && (comboPriceHint.textContent = t('summary_pick_main', 'Select a main dish'));
             return;
         }
         let total = mainData.is_unique ? parsePrice(mainData.price) : COMBO_BASE_PRICE;
         const hintParts = [];
         if (mainData.is_unique) {
-            hintParts.push(`Основное: ${formatCurrency(mainData.price)}`);
+            hintParts.push(t('hint_main_unique', 'Main: :price €').replace(':price', formatCurrency(mainData.price)));
         } else {
-            hintParts.push('Стандартный сет 4.00 €');
+            hintParts.push(t('hint_main_standard', 'Standard set :price €').replace(':price', COMBO_BASE_PRICE.toFixed(2)));
         }
         if (soupData) {
             if (soupData.is_unique) {
                 const soupPrice = parsePrice(soupData.price);
                 total += soupPrice;
-                hintParts.push(`Суп: ${formatCurrency(soupPrice)}`);
+                hintParts.push(t('hint_soup_unique', 'Soup: :price €').replace(':price', formatCurrency(soupPrice)));
             } else {
                 total += COMBO_SOUP_EXTRA;
-                hintParts.push('Суп: +0.50 €');
+                hintParts.push(t('hint_soup_standard', 'Soup: +0.50 €'));
             }
         }
         comboPriceValue.textContent = `${total.toFixed(2)} €`;
@@ -306,7 +311,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function extractCardData(card) {
         return {
             role: card.dataset.role,
-            title: card.dataset.title || 'Блюдо',
+            title: card.dataset.title || t('default_dish', 'Dish'),
             description: card.dataset.description || '',
             image: card.dataset.image || '',
             price: card.dataset.price || '0',
@@ -325,7 +330,7 @@ document.addEventListener('DOMContentLoaded', () => {
             img.alt = data.title;
             thumb.appendChild(img);
         } else {
-            thumb.textContent = 'Нет фото';
+            thumb.textContent = t('no_photo', 'No photo');
         }
         const body = document.createElement('div');
         const titleEl = document.createElement('div');
@@ -334,7 +339,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (data.is_unique) {
             const badge = document.createElement('span');
             badge.className = 'combo-unique-chip ms-2';
-            badge.textContent = '★ Уникальное';
+            badge.textContent = t('unique_badge', '★ Unique');
             titleEl.appendChild(badge);
         }
         const meta = document.createElement('div');
@@ -342,7 +347,7 @@ document.addEventListener('DOMContentLoaded', () => {
         meta.textContent = label;
         const desc = document.createElement('div');
         desc.className = 'text-muted small text-truncate-2';
-        desc.textContent = data.description || 'Описание появится позже';
+        desc.textContent = data.description || t('description_pending', 'Description coming soon');
         body.append(meta, titleEl, desc);
         if (data.is_unique && parsePrice(data.price) > 0) {
             const price = document.createElement('div');
@@ -363,10 +368,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const body = document.createElement('div');
         const meta = document.createElement('div');
         meta.className = 'text-muted small';
-        meta.textContent = 'Суп';
+        meta.textContent = t('label_soup', 'Soup');
         const title = document.createElement('div');
         title.className = 'combo-selection-title';
-        title.textContent = 'Без супа';
+        title.textContent = t('label_no_soup', 'No soup');
         body.append(meta, title);
         wrapper.append(thumb, body);
         return wrapper;

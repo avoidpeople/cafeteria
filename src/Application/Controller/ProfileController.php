@@ -7,6 +7,7 @@ use App\Application\Service\OrderService;
 use App\Domain\UserRepositoryInterface;
 use App\Infrastructure\SessionManager;
 use App\Infrastructure\ViewRenderer;
+use function translate;
 
 class ProfileController
 {
@@ -21,7 +22,7 @@ class ProfileController
 
     public function index(): string
     {
-        $this->authService->requireLogin('Войдите или зарегистрируйтесь, чтобы просматривать профиль', '/login');
+        $this->authService->requireLogin(translate('auth.require.profile'), '/login');
         $userId = $this->session->get('user_id');
         $user = $this->users->findById($userId);
         if (!$user) {
@@ -37,7 +38,7 @@ class ProfileController
         $this->session->unset('profile_password_success');
 
         return $this->view->render('profile/index', [
-            'title' => 'Doctor Gorilka — Профиль пользователя',
+            'title' => 'Doctor Gorilka — ' . translate('profile.title'),
             'user' => $user,
             'ordersCount' => $stats['orders'] ?? 0,
             'totalSpent' => $stats['total'] ?? 0,
@@ -48,7 +49,7 @@ class ProfileController
 
     public function updatePassword(): void
     {
-        $this->authService->requireLogin('Войдите или зарегистрируйтесь, чтобы изменить пароль', '/login');
+        $this->authService->requireLogin(translate('auth.require.password'), '/login');
         $userId = $this->session->get('user_id');
         $user = $this->users->findById($userId);
         if (!$user) {
@@ -63,16 +64,16 @@ class ProfileController
         $errors = [];
 
         if ($current === '' || $new === '' || $confirm === '') {
-            $errors[] = 'Заполните все поля формы смены пароля.';
+            $errors[] = translate('profile.password.error_required');
         }
         if (strlen($new) < 5) {
-            $errors[] = 'Новый пароль должен быть не короче 5 символов.';
+            $errors[] = translate('profile.password.error_length');
         }
         if ($new !== $confirm) {
-            $errors[] = 'Новый пароль и подтверждение не совпадают.';
+            $errors[] = translate('profile.password.error_mismatch');
         }
         if (!$errors && !password_verify($current, $user->passwordHash)) {
-            $errors[] = 'Текущий пароль введён неверно.';
+            $errors[] = translate('profile.password.error_current');
         }
 
         if ($errors) {
@@ -83,7 +84,7 @@ class ProfileController
 
         $hash = password_hash($new, PASSWORD_DEFAULT);
         $this->users->updatePassword($user->id, $hash);
-        $this->session->set('profile_password_success', 'Пароль успешно обновлён.');
+        $this->session->set('profile_password_success', translate('profile.password.success'));
         header('Location: /profile');
         exit;
     }

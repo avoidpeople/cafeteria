@@ -2,6 +2,8 @@
 
 namespace App\Infrastructure;
 
+use function translate;
+
 class Router
 {
     private array $routes = [];
@@ -32,7 +34,7 @@ class Router
         }
 
         http_response_code(404);
-        return 'Страница не найдена';
+        return translate('errors.not_found');
     }
 
     private function normalizePath(string $path): string

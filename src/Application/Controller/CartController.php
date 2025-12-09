@@ -19,13 +19,13 @@ class CartController
 
     public function index(): string
     {
-        $this->authService->requireLogin('Войдите или зарегистрируйтесь, чтобы управлять корзиной');
+        $this->authService->requireLogin(translate('auth.require.cart'));
         [$items, $total] = $this->cartService->detailedItems();
         $deliveryDraft = $this->session->get('delivery_address_draft') ?? $this->session->get('last_delivery_address', '');
         $this->session->unset('delivery_address_draft');
 
         return $this->view->render('cart/index', [
-            'title' => 'Doctor Gorilka — Корзина',
+            'title' => 'Doctor Gorilka — ' . translate('cart.title'),
             'cartItems' => $items,
             'totalPrice' => $total,
             'deliveryDraft' => $deliveryDraft,
@@ -55,7 +55,7 @@ class CartController
 
     public function removeCombo(): void
     {
-        $this->authService->requireLogin('Войдите или зарегистрируйтесь, чтобы управлять корзиной');
+        $this->authService->requireLogin(translate('auth.require.cart'));
         $comboId = trim($_GET['combo'] ?? '');
         if ($comboId !== '') {
             $this->cartService->removeCombo($comboId);
@@ -66,7 +66,7 @@ class CartController
 
     public function clear(): void
     {
-        $this->authService->requireLogin('Войдите или зарегистрируйтесь, чтобы управлять корзиной');
+        $this->authService->requireLogin(translate('auth.require.cart'));
         $this->cartService->clear();
         header('Location: /cart');
         exit;
@@ -74,7 +74,7 @@ class CartController
 
     private function mutate(callable $callback): void
     {
-        $this->authService->requireLogin('Войдите или зарегистрируйтесь, чтобы управлять корзиной');
+        $this->authService->requireLogin(translate('auth.require.cart'));
         $id = intval($_GET['id'] ?? 0);
         if ($id > 0) {
             $callback($id);
