@@ -23,7 +23,19 @@ $conn->exec("CREATE TABLE IF NOT EXISTS menu (
     image_url TEXT,
     image_gallery TEXT,
     category TEXT,
-    is_today INTEGER DEFAULT 0
+    is_today INTEGER DEFAULT 0,
+    name_original TEXT,
+    name_ru TEXT,
+    name_lv TEXT,
+    description_original TEXT,
+    description_ru TEXT,
+    description_lv TEXT,
+    category_original TEXT,
+    category_ru TEXT,
+    category_lv TEXT,
+    ingredients_original TEXT,
+    ingredients_ru TEXT,
+    ingredients_lv TEXT
 )");
 
 // Таблица заказов

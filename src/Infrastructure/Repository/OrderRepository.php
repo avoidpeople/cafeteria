@@ -8,6 +8,7 @@ use App\Domain\OrderRepositoryInterface;
 use SQLite3;
 use SQLite3Stmt;
 use function translate;
+use function currentLocale;
 
 class OrderRepository implements OrderRepositoryInterface
 {
@@ -184,7 +185,8 @@ class OrderRepository implements OrderRepositoryInterface
     /** @return OrderItem[] */
     private function fetchItems(int $orderId): array
     {
-        $stmt = $this->prepare("SELECT order_items.*, menu.title, menu.price AS menu_price, menu.image_url
+        $stmt = $this->prepare("SELECT order_items.*, menu.title, menu.price AS menu_price, menu.image_url,
+            menu.name_original, menu.name_ru, menu.name_lv
             FROM order_items
             JOIN menu ON menu.id = order_items.menu_id
             WHERE order_items.order_id = :oid");
@@ -207,7 +209,7 @@ class OrderRepository implements OrderRepositoryInterface
 
             $items[] = new OrderItem(
                 menuId: (int)$row['menu_id'],
-                title: $row['title'] ?? translate('common.dish'),
+                title: $this->resolveOrderItemTitle($row),
                 price: $price,
                 quantity: (int)$row['quantity'],
                 imageUrl: $row['image_url'] ?? null,
@@ -239,6 +241,26 @@ class OrderRepository implements OrderRepositoryInterface
     {
         $row = $this->db->querySingle("SELECT COUNT(*) AS total FROM orders WHERE status = 'pending'", true);
         return (int)($row['total'] ?? 0);
+    }
+
+    private function resolveOrderItemTitle(array $row): string
+    {
+        $locale = function_exists('currentLocale') ? currentLocale() : 'ru';
+        $localized = [
+            'ru' => $row['name_ru'] ?? null,
+            'lv' => $row['name_lv'] ?? null,
+        ];
+        $value = $localized[$locale] ?? null;
+        if (is_string($value) && trim($value) !== '') {
+            return $value;
+        }
+        if (!empty($row['name_original'])) {
+            return $row['name_original'];
+        }
+        if (!empty($row['title'])) {
+            return $row['title'];
+        }
+        return translate('common.dish');
     }
 
     private function prepare(string $sql): SQLite3Stmt

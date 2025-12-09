@@ -14,6 +14,7 @@ use App\Application\Service\ComboService;
 use App\Application\Service\OrderService;
 use App\Application\Service\AdminMenuService;
 use App\Application\Service\NotificationService;
+use App\Application\Service\TranslateService;
 use App\Infrastructure\Repository\NotificationRepository;
 
 $sessionManager = new SessionManager();
@@ -22,7 +23,8 @@ $authService = new AuthService($userRepository, $sessionManager);
 
 $menuRepository = new MenuRepository($conn);
 $menuService = new MenuService($menuRepository);
-$adminMenuService = new AdminMenuService($menuRepository);
+$translateService = new TranslateService();
+$adminMenuService = new AdminMenuService($menuRepository, $translateService);
 $comboService = new ComboService($menuRepository);
 $cartService = new CartService($sessionManager, $menuRepository);
 $orderRepository = new OrderRepository($conn);

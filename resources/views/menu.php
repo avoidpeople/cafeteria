@@ -4,6 +4,12 @@ $comboRoles = $comboOptions['roles'] ?? [];
 $comboMainCount = count($comboOptions['main'] ?? []);
 $comboSoupCount = count($comboOptions['soup'] ?? []);
 $title = 'Doctor Gorilka — ' . translate('nav.menu');
+$locale = currentLocale();
+$localizedFieldMap = [
+    'ru' => ['name' => 'nameRu', 'description' => 'descriptionRu', 'category' => 'categoryRu'],
+    'lv' => ['name' => 'nameLv', 'description' => 'descriptionLv', 'category' => 'categoryLv'],
+];
+$activeLocalizedFields = $localizedFieldMap[$locale] ?? ['name' => 'nameOriginal', 'description' => 'descriptionOriginal', 'category' => 'categoryOriginal'];
 ?>
 <div class="page-container menu-page">
 <div class="hero-card mb-4">
@@ -98,29 +104,38 @@ $title = 'Doctor Gorilka — ' . translate('nav.menu');
     <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-4">
         <?php foreach ($menuItems as $item): ?>
             <?php $gallery = $item->galleryImages(); $isUnique = $item->isUnique(); ?>
+            <?php
+                $nameField = $activeLocalizedFields['name'];
+                $descriptionField = $activeLocalizedFields['description'];
+                $categoryField = $activeLocalizedFields['category'];
+                $localizedName = $item->$nameField ?? $item->nameOriginal ?? $item->title;
+                $localizedDescription = $item->$descriptionField ?? $item->descriptionOriginal ?? $item->description ?? translate('common.no_description');
+                $localizedCategory = $item->$categoryField ?? $item->categoryOriginal ?? translate('menu.card.no_category');
+                $localizedIngredients = $item->ingredients ?? $item->ingredientsOriginal ?? '';
+            ?>
             <div class="col">
                 <?php $role = $comboRoles[$item->id] ?? 'main'; ?>
                 <div class="card h-100 border-0 shadow-sm menu-card" data-item='<?= json_encode([
                     'id' => $item->id,
-                    'title' => $item->title,
-                    'description' => $item->description ?? '',
-                    'ingredients' => $item->ingredients ?? '',
-                    'category' => $item->category,
+                    'title' => $localizedName,
+                    'description' => $localizedDescription ?? '',
+                    'ingredients' => $localizedIngredients,
+                    'category' => $localizedCategory,
                     'price' => number_format($item->price, 2, '.', ' '),
                     'raw_price' => (float)$item->price,
                     'is_unique' => $isUnique,
                     'gallery' => $gallery,
                 ], JSON_HEX_APOS | JSON_HEX_QUOT) ?>' data-combo-role="<?= htmlspecialchars($role) ?>">
                 <?php if (!empty($gallery[0])): ?>
-                    <img src="/assets/images/<?= $gallery[0] ?>" class="card-img-top" alt="<?= htmlspecialchars($item->title) ?>">
+                    <img src="/assets/images/<?= $gallery[0] ?>" class="card-img-top" alt="<?= htmlspecialchars($localizedName) ?>">
                 <?php else: ?>
                     <img src="https://via.placeholder.com/400x220?text=<?= urlencode(translate('common.no_photo')) ?>" class="card-img-top" alt="<?= htmlspecialchars(translate('common.no_photo')) ?>">
                 <?php endif; ?>
 
                     <div class="card-body d-flex flex-column">
-                        <div class="small text-muted mb-2"><?= htmlspecialchars($item->category ?? translate('menu.card.no_category')) ?></div>
+                        <div class="small text-muted mb-2"><?= htmlspecialchars($localizedCategory) ?></div>
                         <h5 class="card-title d-flex align-items-center gap-2">
-                            <?= htmlspecialchars($item->title) ?>
+                            <?= htmlspecialchars($localizedName) ?>
                             <?php if ($isUnique): ?>
                                 <span class="unique-chip" title="<?= htmlspecialchars(translate('menu.card.unique_badge')) ?>">★</span>
                             <?php endif; ?>

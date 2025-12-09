@@ -8,8 +8,10 @@ use function translate;
 
 class AdminMenuService
 {
-    public function __construct(private MenuRepositoryInterface $menuRepository)
-    {
+    public function __construct(
+        private MenuRepositoryInterface $menuRepository,
+        private TranslateService $translateService
+    ) {
     }
 
     /** @return MenuItem[] */
@@ -43,8 +45,11 @@ class AdminMenuService
     {
         $errors = [];
         $title = trim($data['title'] ?? '');
+        $description = trim($data['description'] ?? '');
         $price = (float)($data['price'] ?? 0);
         $useManualPrice = !empty($data['use_manual_price']);
+        $categoryType = $data['category_type'] ?? 'hot';
+        $customCategory = trim($data['category_custom'] ?? '');
         if ($title === '') {
             $errors[] = translate('admin.menu.errors.title_required');
         }
@@ -53,6 +58,9 @@ class AdminMenuService
         }
         if (!$useManualPrice) {
             $price = 0.0;
+        }
+        if ($categoryType === 'custom' && $customCategory === '') {
+            $errors[] = translate('admin.menu.errors.custom_category_required');
         }
 
         $gallery = $this->processGallery($files, $data['existing_gallery'] ?? '');
@@ -65,19 +73,38 @@ class AdminMenuService
             array_unshift($images, $cover);
         }
 
+        $categoryFields = $this->resolveCategoryFields($categoryType, $customCategory);
+        if (isset($categoryFields['errors'])) {
+            $errors = array_merge($errors, $categoryFields['errors']);
+        }
+
         if ($errors) {
             return ['success' => false, 'errors' => $errors];
         }
 
+        $ingredients = trim($data['ingredients'] ?? '');
+
         $payload = [
             'title' => $title,
-            'description' => trim($data['description'] ?? ''),
-            'ingredients' => trim($data['ingredients'] ?? ''),
+            'description' => $description,
+            'ingredients' => $ingredients,
             'price' => $price,
-            'category' => trim($data['category'] ?? ''),
+            'category' => $categoryFields['category_original'] ?? '',
             'image_url' => $images[0] ?? null,
             'image_gallery' => $images,
             'use_manual_price' => $useManualPrice,
+            'name_original' => $title,
+            'name_ru' => $this->translateText($title, 'ru'),
+            'name_lv' => $this->translateText($title, 'lv'),
+            'description_original' => $description,
+            'description_ru' => $this->translateText($description, 'ru'),
+            'description_lv' => $this->translateText($description, 'lv'),
+            'ingredients_original' => $ingredients,
+            'ingredients_ru' => $this->translateText($ingredients, 'ru'),
+            'ingredients_lv' => $this->translateText($ingredients, 'lv'),
+            'category_original' => $categoryFields['category_original'] ?? null,
+            'category_ru' => $categoryFields['category_ru'] ?? null,
+            'category_lv' => $categoryFields['category_lv'] ?? null,
         ];
 
         if (!empty($data['id'])) {
@@ -116,5 +143,39 @@ class AdminMenuService
             }
         }
         return ['images' => array_values(array_unique(array_filter($images))), 'errors' => $errors];
+    }
+
+    private function translateText(?string $text, string $locale): ?string
+    {
+        $translated = $this->translateService->translate($text, $locale);
+        if ($translated === null || $translated === '') {
+            return $text !== '' ? $text : null;
+        }
+        return $translated;
+    }
+
+    private function resolveCategoryFields(string $selection, string $customValue): array
+    {
+        $selection = in_array($selection, ['hot', 'soup', 'custom'], true) ? $selection : 'hot';
+        if ($selection === 'custom') {
+            $value = trim($customValue);
+            if ($value === '') {
+                return ['errors' => [translate('admin.menu.errors.custom_category_required')]];
+            }
+            return [
+                'category_original' => $value,
+                'category_ru' => $this->translateText($value, 'ru'),
+                'category_lv' => $this->translateText($value, 'lv'),
+            ];
+        }
+
+        $ru = translate('category.' . $selection, [], 'ru');
+        $lv = translate('category.' . $selection, [], 'lv');
+
+        return [
+            'category_original' => $ru,
+            'category_ru' => $ru,
+            'category_lv' => $lv,
+        ];
     }
 }

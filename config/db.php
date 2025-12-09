@@ -47,6 +47,65 @@ if (!in_array('use_manual_price', $menuColumns, true)) {
     $conn->exec("ALTER TABLE menu ADD COLUMN use_manual_price INTEGER DEFAULT 0");
 }
 
+$localizedColumns = [
+    'name_original' => 'TEXT',
+    'name_ru' => 'TEXT',
+    'name_lv' => 'TEXT',
+    'description_original' => 'TEXT',
+    'description_ru' => 'TEXT',
+    'description_lv' => 'TEXT',
+    'category_original' => 'TEXT',
+    'category_ru' => 'TEXT',
+    'category_lv' => 'TEXT',
+    'ingredients_original' => 'TEXT',
+    'ingredients_ru' => 'TEXT',
+    'ingredients_lv' => 'TEXT',
+];
+
+foreach ($localizedColumns as $column => $type) {
+    if (!in_array($column, $menuColumns, true)) {
+        $conn->exec("ALTER TABLE menu ADD COLUMN {$column} {$type}");
+        switch ($column) {
+            case 'name_original':
+                $conn->exec("UPDATE menu SET name_original = title WHERE (name_original IS NULL OR name_original = '') AND title IS NOT NULL");
+                break;
+            case 'name_ru':
+                $conn->exec("UPDATE menu SET name_ru = title WHERE (name_ru IS NULL OR name_ru = '') AND title IS NOT NULL");
+                break;
+            case 'name_lv':
+                $conn->exec("UPDATE menu SET name_lv = title WHERE (name_lv IS NULL OR name_lv = '') AND title IS NOT NULL");
+                break;
+            case 'description_original':
+                $conn->exec("UPDATE menu SET description_original = description WHERE (description_original IS NULL OR description_original = '') AND description IS NOT NULL");
+                break;
+            case 'description_ru':
+                $conn->exec("UPDATE menu SET description_ru = description WHERE (description_ru IS NULL OR description_ru = '') AND description IS NOT NULL");
+                break;
+            case 'description_lv':
+                $conn->exec("UPDATE menu SET description_lv = description WHERE (description_lv IS NULL OR description_lv = '') AND description IS NOT NULL");
+                break;
+            case 'category_original':
+                $conn->exec("UPDATE menu SET category_original = category WHERE (category_original IS NULL OR category_original = '') AND category IS NOT NULL");
+                break;
+            case 'category_ru':
+                $conn->exec("UPDATE menu SET category_ru = category WHERE (category_ru IS NULL OR category_ru = '') AND category IS NOT NULL");
+                break;
+            case 'category_lv':
+                $conn->exec("UPDATE menu SET category_lv = category WHERE (category_lv IS NULL OR category_lv = '') AND category IS NOT NULL");
+                break;
+            case 'ingredients_original':
+                $conn->exec("UPDATE menu SET ingredients_original = ingredients WHERE (ingredients_original IS NULL OR ingredients_original = '') AND ingredients IS NOT NULL");
+                break;
+            case 'ingredients_ru':
+                $conn->exec("UPDATE menu SET ingredients_ru = ingredients WHERE (ingredients_ru IS NULL OR ingredients_ru = '') AND ingredients IS NOT NULL");
+                break;
+            case 'ingredients_lv':
+                $conn->exec("UPDATE menu SET ingredients_lv = ingredients WHERE (ingredients_lv IS NULL OR ingredients_lv = '') AND ingredients IS NOT NULL");
+                break;
+        }
+    }
+}
+
 $orderColumns = [];
 $orderInfo = $conn->query("PRAGMA table_info(orders)");
 while ($row = $orderInfo->fetchArray(SQLITE3_ASSOC)) {

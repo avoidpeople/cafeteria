@@ -931,6 +931,48 @@ body.combo-mode .combo-select-btn {
     vertical-align: middle;
 }
 
+.form-select-dark,
+.form-control-dark {
+    background: rgba(15, 23, 42, 0.9);
+    border: 1px solid rgba(148, 163, 184, 0.35);
+    color: #eff6ff;
+    border-radius: 14px;
+    padding: 0.65rem 0.9rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.form-select-dark option {
+    background: #0b1120;
+    color: #f1f5f9;
+}
+
+.form-select-dark:focus,
+.form-control-dark:focus {
+    border-color: rgba(59, 130, 246, 0.9);
+    box-shadow: 0 0 0 0.15rem rgba(59, 130, 246, 0.35);
+    background: rgba(15, 23, 42, 0.95);
+    color: #fff;
+}
+
+#categoryCustomWrapper {
+    background: rgba(15, 23, 42, 0.55);
+    border: 1px dashed rgba(148, 163, 184, 0.45);
+    border-radius: 16px;
+    padding: 14px;
+}
+
+#categoryCustomWrapper .form-control-dark {
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.4);
+    border-radius: 0;
+    padding-left: 0;
+}
+
+#categoryCustomWrapper small {
+    color: rgba(226, 232, 240, 0.85);
+}
+
 .today-column {
     width: 170px;
 }
