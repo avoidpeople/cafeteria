@@ -15,7 +15,7 @@ class HomeController
     {
         $menuCount = $this->menuService->todayCount();
         return $this->view->render('home', [
-            'title' => 'Cafeteria — Главная',
+            'title' => 'Doctor Gorilka — Главная',
             'menuCount' => $menuCount,
         ]);
     }

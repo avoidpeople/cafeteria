@@ -1,15 +1,12 @@
 <?php
-// Путь к базе данных
-$database = __DIR__ . '/../database/cafeteria.db';
+$database = __DIR__ . '/../database/doctor_gorilka.db';
 
-// Создаем соединение с SQLite
 try {
     $conn = new SQLite3($database);
 } catch (Exception $e) {
     die("Ошибка подключения к базе: " . $e->getMessage());
 }
 
-// Обновляем структуру таблицы пользователей (имя/фамилия)
 $userColumns = [];
 $result = $conn->query("PRAGMA table_info(users)");
 while ($row = $result->fetchArray(SQLITE3_ASSOC)) {

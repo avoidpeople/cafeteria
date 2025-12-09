@@ -35,7 +35,7 @@ class MenuController
         $errors = $this->session->get('admin_menu_errors', []);
         $this->session->unset('admin_menu_errors');
         return $this->view->render('admin/menu', [
-            'title' => 'Управление меню',
+            'title' => 'Doctor Gorilka — Управление меню',
             'items' => $items,
             'errors' => $errors,
             'todayItems' => $todayItems,

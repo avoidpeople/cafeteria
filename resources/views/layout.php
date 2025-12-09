@@ -6,7 +6,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title><?= htmlspecialchars($title ?? 'Cafeteria') ?></title>
+    <title><?= htmlspecialchars($title ?? 'Doctor Gorilka') ?></title>
     <link rel="stylesheet" href="/assets/css/styles.css">
     <script>
         (function() {

@@ -1,4 +1,4 @@
-<?php $title = 'Заказ #' . $orderId; ?>
+<?php $title = 'Doctor Gorilka — Заказ #' . $orderId; ?>
 <div class="page-container">
 <?php $backUrl = $isAdmin ? '/admin/orders' : '/orders'; ?>
 <div class="actions mt-20 mb-15">

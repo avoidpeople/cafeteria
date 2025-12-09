@@ -1,4 +1,4 @@
-<?php $title = 'Профиль пользователя'; ?>
+<?php $title = 'Doctor Gorilka — Профиль пользователя'; ?>
 <div class="page-container">
     <h1>Профиль пользователя</h1>
 

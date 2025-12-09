@@ -1,4 +1,4 @@
-<?php $title = 'Заказ оформлен'; ?>
+<?php $title = 'Doctor Gorilka — Заказ оформлен'; ?>
 <div class="page-container">
     <div class="card-panel summary-card">
         <h2>Спасибо за заказ!</h2>

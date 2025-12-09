@@ -37,7 +37,7 @@ class OrderController
         $pendingCount = $this->orderService->pendingCount();
 
         return $this->view->render('admin/orders', [
-            'title' => 'Все заказы',
+            'title' => 'Doctor Gorilka — Все заказы',
             'orders' => $orders,
             'summary' => $summary,
             'statusFilter' => $statusFilter,

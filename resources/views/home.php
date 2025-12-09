@@ -2,7 +2,7 @@
     <section class="hero-card mb-5">
         <div class="hero-grid">
             <div>
-                <p class="hero-pill">Modern cafeteria</p>
+                <p class="hero-pill">Doctor Gorilka</p>
                 <h1>Свежие блюда, онлайн‑заказы и полный контроль в одном месте</h1>
                 <p class="lead">
                     <?php if (isset($_SESSION['user_id'])): ?>
@@ -16,10 +16,6 @@
                         <span><?= $menuCount ?></span>
                         <p>позиций доступно сегодня</p>
                     </div>
-                    <div>
-                        <span>*** мин</span>
-                        <p>среднее время доставки</p>
-                    </div>
                 </div>
                  <div class="hero-actions">
                     <a href="/menu" class="btn btn-light btn-lg text-primary fw-semibold px-4">Открыть меню</a>
@@ -31,21 +27,20 @@
             <div class="hero-panel shadow-sm">
                 <h3>Мы рядом</h3>
                 <ul class="list-unstyled mb-4">
-                    <li><strong>Адрес:</strong> Минск, ул. Образцова, 10</li>
-                    <li><strong>Телефон:</strong> +371 ********</li>
-                    <li><strong>Email:</strong> cafeteria@example.com</li>  
+                    <li><strong>Адрес:</strong> Višķu iela 24, Daugavpils, LV-5410</li>
+                    <li><strong>Телефон:</strong> +371 20 173 444</li>
+                    <li><strong>Email:</strong> doctor.gorilka@example.com</li>
                 </ul>
                 <div class="schedule">
                     <div>
-                        <span>Понедельник‑Пятница</span>
-                        <strong>10:00 – 18:00</strong>
+                        <span>Понедельник‑Пятница</span><br>
+                        <strong>10:00 – 17:00</strong>
                     </div>
                     <div>
-                        <span>Суббота-Воскресенье</span>
+                        <span>Суббота-Воскресенье</span><br>
                         <strong>Выходной</strong>
                     </div>
                 </div>
-                <p class="text-white-50 mt-3">Заказы, оформленные вне графика, обрабатываются в начале следующего рабочего дня.</p>
             </div>
         </div>
     </section>
@@ -62,21 +57,6 @@
         <div class="info-card shadow-sm">
             <h3>Умная корзина</h3>
             <p>Отмечайте блюда, которые попадут в заказ, сортируйте список и оформляйте одним кликом.</p>
-        </div>
-    </section>
-
-    <section class="cards-grid">
-        <div class="feature-card shadow-sm">
-            <h4>Без очередей</h4>
-            <p>Система уведомлений заменяет бумажные талончики: вы точно знаете, когда заказ будет готов.</p>
-        </div>
-        <div class="feature-card shadow-sm">
-            <h4>Любимые комбинации</h4>
-            <p>Сохраняем состав заказа и позволяем повторить его целиком или изменить пару позиций.</p>
-        </div>
-        <div class="feature-card shadow-sm">
-            <h4>Живое меню</h4>
-            <p>Администраторы мгновенно обновляют блюда, добавляют фото и отмечают наличие.</p>
         </div>
     </section>
 

@@ -52,8 +52,8 @@ $comboSoupCount = count($comboOptions['soup'] ?? []);
         <div class="combo-hero__note text-muted">Режим конструктора можно выключить в любой момент — корзина сохранит текущий набор.</div>
     </div>
     <div class="combo-hero__price">
-        <div class="combo-price-pill">4 € <span class="text-muted">без супа</span></div>
-        <div class="combo-price-pill">4.5 € <span class="text-muted">с супом</span></div>
+        <div class="combo-price-pill">4 € без супа</span></div>
+        <div class="combo-price-pill">4.5 € с супом</span></div>
     </div>
 </div>
 

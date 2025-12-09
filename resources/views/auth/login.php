@@ -1,4 +1,4 @@
-<?php $title = 'Вход'; ?>
+<?php $title = 'Doctor Gorilka — Вход'; ?>
 <div class="d-flex justify-content-center align-items-center" style="min-height: 100vh;">
     <div class="card" style="max-width: 420px; width: 100%; padding: 20px;">
         <h2 class="mb-3">Авторизация</h2>

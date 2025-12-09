@@ -1,4 +1,4 @@
-<?php $title = 'Регистрация'; ?>
+<?php $title = 'Doctor Gorilka — Регистрация'; ?>
 <div class="d-flex justify-content-center align-items-center" style="min-height: 100vh;">
     <div class="card" style="max-width: 460px; width: 100%; padding: 20px;">
         <h2 class="mb-2">Регистрация</h2>

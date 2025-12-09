@@ -37,7 +37,7 @@ class ProfileController
         $this->session->unset('profile_password_success');
 
         return $this->view->render('profile/index', [
-            'title' => 'Профиль пользователя',
+            'title' => 'Doctor Gorilka — Профиль пользователя',
             'user' => $user,
             'ordersCount' => $stats['orders'] ?? 0,
             'totalSpent' => $stats['total'] ?? 0,

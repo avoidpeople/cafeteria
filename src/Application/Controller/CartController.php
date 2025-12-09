@@ -25,7 +25,7 @@ class CartController
         $this->session->unset('delivery_address_draft');
 
         return $this->view->render('cart/index', [
-            'title' => 'Корзина',
+            'title' => 'Doctor Gorilka — Корзина',
             'cartItems' => $items,
             'totalPrice' => $total,
             'deliveryDraft' => $deliveryDraft,

@@ -27,7 +27,7 @@ class OrderController
         $this->authService->requireLogin('Войдите или зарегистрируйтесь, чтобы просматривать заказы');
         $orders = $this->orderService->userOrders($this->session->get('user_id'));
         return $this->view->render('orders/history', [
-            'title' => 'Мои заказы',
+            'title' => 'Doctor Gorilka — Мои заказы',
             'orders' => $orders,
         ]);
     }
@@ -55,7 +55,7 @@ class OrderController
         }
 
         return $this->view->render('orders/view', [
-            'title' => 'Заказ #' . $orderId,
+            'title' => 'Doctor Gorilka — Заказ #' . $orderId,
             'order' => $order,
             'isAdmin' => $isAdmin,
             'orderId' => $orderId,
@@ -116,7 +116,7 @@ class OrderController
         $total = $result['total'];
 
         echo $this->view->render('orders/placed', [
-            'title' => 'Заказ оформлен',
+            'title' => 'Doctor Gorilka — Заказ оформлен',
             'orderId' => $orderId,
             'items' => $items,
             'totalPrice' => $total,

@@ -1,4 +1,4 @@
-<?php $title = 'Все заказы'; ?>
+<?php $title = 'Doctor Gorilka — Все заказы'; ?>
 <div class="page-container">
 <div class="d-flex align-items-center justify-content-between mb-3">
     <h1 class="mb-0">Все заказы</h1>
