@@ -161,7 +161,12 @@ class AdminMenuService
         $images = array_filter(array_map('trim', json_decode($existingGallery, true) ?? []));
         $errors = [];
         if (isset($files['image']['name']) && is_array($files['image']['name'])) {
-            $allowed = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/gif' => 'gif'];
+            $allowed = [
+                'image/jpeg' => 'jpg',
+                'image/png' => 'png',
+                'image/gif' => 'gif',
+                'image/webp' => 'webp',
+            ];
             foreach ($files['image']['name'] as $index => $name) {
                 if (empty($name)) {
                     continue;
