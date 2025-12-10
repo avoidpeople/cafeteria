@@ -60,7 +60,6 @@ $activeLocalizedFields = $localizedFieldMap[$locale] ?? ['name' => 'nameOriginal
             <span class="combo-hero__badge"><?= htmlspecialchars(translate('menu.combo.badge_main')) ?></span>
             <span class="combo-hero__badge"><?= htmlspecialchars(translate('menu.combo.badge_garnish')) ?></span>
             <span class="combo-hero__badge"><?= htmlspecialchars(translate('menu.combo.badge_optional')) ?></span>
-            <span class="combo-hero__badge"><?= htmlspecialchars(translate('menu.combo.badge_cart')) ?></span>
         </div>
         <div class="d-flex flex-column flex-sm-row gap-2">
             <button class="btn btn-gradient btn-lg" id="comboBuilderButton" type="button"><?= htmlspecialchars(translate('menu.combo.create_btn')) ?></button>
@@ -68,7 +67,7 @@ $activeLocalizedFields = $localizedFieldMap[$locale] ?? ['name' => 'nameOriginal
         </div>
         <div class="combo-hero__note text-muted"><?= htmlspecialchars(translate('menu.combo.note')) ?></div>
     </div>
-    <div class="combo-hero__price">
+    <div class="combo-hero__price combo-hero__price--stacked">
         <div class="combo-price-pill"><?= htmlspecialchars(translate('menu.combo.price_base', ['price' => $comboBasePriceFormatted])) ?></div>
         <div class="combo-price-pill"><?= htmlspecialchars(translate('menu.combo.price_extras')) ?></div>
     </div>
