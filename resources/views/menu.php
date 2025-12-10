@@ -24,7 +24,7 @@ $activeLocalizedFields = $localizedFieldMap[$locale] ?? ['name' => 'nameOriginal
             <p class="lead mb-4"><?= htmlspecialchars(translate('menu.hero.subtitle')) ?></p>
             <div class="d-flex flex-wrap gap-2">
                 <a href="/orders" class="btn btn-light btn-lg text-primary"><?= htmlspecialchars(translate('menu.hero.orders_btn')) ?></a>
-                <a href="/cart" class="btn btn-outline-light btn-lg text-white border-white"><?= htmlspecialchars(translate('menu.hero.cart_btn')) ?></a>
+                <a href="/cart" class="btn btn-outline-light btn-lg hero-cart-btn border-white"><?= htmlspecialchars(translate('menu.hero.cart_btn')) ?></a>
             </div>
             <div class="menu-hero-meta mt-4">
                 <div class="menu-hero-metric">

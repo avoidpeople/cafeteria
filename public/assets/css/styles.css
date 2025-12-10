@@ -69,6 +69,27 @@ body {
     transition: background 0.3s ease, color 0.3s ease;
 }
 
+.hero-cart-btn {
+    color: #f8f9fa;
+    border-color: #f8f9fa;
+    background: rgba(255, 255, 255, 0.06);
+    transition: color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.hero-cart-btn:hover,
+.hero-cart-btn:focus-visible {
+    color: #0d1b3f;
+    background: #f8f9fa;
+    border-color: #f8f9fa;
+    box-shadow: 0 12px 30px rgba(13, 110, 253, 0.35);
+}
+
+:root[data-bs-theme='dark'] .hero-cart-btn:hover,
+:root[data-bs-theme='dark'] .hero-cart-btn:focus-visible {
+    color: #0a225c;
+    box-shadow: 0 12px 30px rgba(13, 110, 253, 0.45);
+}
+
 .page-container {
     max-width: 1100px;
     margin: 0 auto;
