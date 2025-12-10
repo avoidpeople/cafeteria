@@ -100,14 +100,19 @@
                             <tbody>
                                 <?php foreach ($items as $item): ?>
                                     <?php $gallery = $item->galleryImages(); ?>
+                                    <?php $isSystemCombo = ($item->category ?? '') === '_combo'; ?>
                                     <tr>
-                                        <td class="today-cell">
-                                            <label class="today-flag">
-                                                <input type="checkbox" class="today-checkbox" name="today_ids[]" value="<?= $item->id ?>" <?= in_array($item->id, $selectedToday, true) ? 'checked' : '' ?>>
-                                                <span class="today-indicator"></span>
-                                                <span class="today-label"><?= htmlspecialchars(translate('admin.menu.today.flag')) ?></span>
-                                            </label>
-                                        </td>
+                                        <?php if ($isSystemCombo): ?>
+                                            <td class="today-cell text-muted small"><?= htmlspecialchars(translate('admin.menu.errors.system_locked')) ?></td>
+                                        <?php else: ?>
+                                            <td class="today-cell">
+                                                <label class="today-flag">
+                                                    <input type="checkbox" class="today-checkbox" name="today_ids[]" value="<?= $item->id ?>" <?= in_array($item->id, $selectedToday, true) ? 'checked' : '' ?>>
+                                                    <span class="today-indicator"></span>
+                                                    <span class="today-label"><?= htmlspecialchars(translate('admin.menu.today.flag')) ?></span>
+                                                </label>
+                                            </td>
+                                        <?php endif; ?>
                                         <td><?= $item->id ?></td>
                                         <td>
                                             <?php if ($item->primaryImage()): ?>
@@ -127,25 +132,30 @@
                                         </td>
                                         <td><?= htmlspecialchars($item->category ?? '') ?></td>
                                         <td>
-                                            <div class="d-flex flex-column gap-2">
-                                                <button class="btn btn-sm btn-primary" type="button" onclick='fillForm(<?= json_encode([
-                                                    'id' => $item->id,
-                                                    'title' => $item->title,
-                                                    'name_original' => $item->nameOriginal ?? $item->title,
-                                                    'description' => $item->description,
-                                                    'description_original' => $item->descriptionOriginal ?? $item->description,
-                                                    'ingredients' => $item->ingredients,
-                                                    'ingredients_original' => $item->ingredientsOriginal ?? $item->ingredients,
-                                                    'price' => $item->price,
-                                                    'use_manual_price' => $item->isUnique(),
-                                                    'category' => $item->category,
-                                                    'category_original' => $item->categoryOriginal ?? $item->category,
-                                                    'category_role' => $item->categoryRole ?? 'main',
-                                                    'image' => $item->primaryImage(),
-                                                    'gallery' => $gallery,
-                                                ], JSON_HEX_APOS | JSON_HEX_QUOT) ?>)'><?= htmlspecialchars(translate('admin.menu.actions.edit')) ?></button>
-                                                <a class="btn btn-sm btn-outline-danger" href="/admin/menu/delete?id=<?= $item->id ?>" onclick="return confirm('<?= htmlspecialchars(translate('admin.menu.actions.confirm_delete')) ?>');"><?= htmlspecialchars(translate('combo.remove')) ?></a>
-                                            </div>
+                                            <?php if ($isSystemCombo): ?>
+                                                <span class="badge bg-secondary"><?= htmlspecialchars(translate('admin.menu.price.standard')) ?></span>
+                                                <div class="text-muted small mt-1"><?= htmlspecialchars(translate('admin.menu.errors.system_locked')) ?></div>
+                                            <?php else: ?>
+                                                <div class="d-flex flex-column gap-2">
+                                                    <button class="btn btn-sm btn-primary" type="button" onclick='fillForm(<?= json_encode([
+                                                        'id' => $item->id,
+                                                        'title' => $item->title,
+                                                        'name_original' => $item->nameOriginal ?? $item->title,
+                                                        'description' => $item->description,
+                                                        'description_original' => $item->descriptionOriginal ?? $item->description,
+                                                        'ingredients' => $item->ingredients,
+                                                        'ingredients_original' => $item->ingredientsOriginal ?? $item->ingredients,
+                                                        'price' => $item->price,
+                                                        'use_manual_price' => $item->isUnique(),
+                                                        'category' => $item->category,
+                                                        'category_original' => $item->categoryOriginal ?? $item->category,
+                                                        'category_role' => $item->categoryRole ?? 'main',
+                                                        'image' => $item->primaryImage(),
+                                                        'gallery' => $gallery,
+                                                    ], JSON_HEX_APOS | JSON_HEX_QUOT) ?>)'><?= htmlspecialchars(translate('admin.menu.actions.edit')) ?></button>
+                                                    <a class="btn btn-sm btn-outline-danger" href="/admin/menu/delete?id=<?= $item->id ?>" onclick="return confirm('<?= htmlspecialchars(translate('admin.menu.actions.confirm_delete')) ?>');"><?= htmlspecialchars(translate('combo.remove')) ?></a>
+                                                </div>
+                                            <?php endif; ?>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>

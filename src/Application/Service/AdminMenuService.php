@@ -8,6 +8,8 @@ use function translate;
 
 class AdminMenuService
 {
+    private const COMBO_CATEGORY = '_combo';
+
     public function __construct(
         private MenuRepositoryInterface $menuRepository,
         private TranslateService $translateService
@@ -17,18 +19,34 @@ class AdminMenuService
     /** @return MenuItem[] */
     public function list(): array
     {
-        return $this->menuRepository->findAll();
+        $items = $this->menuRepository->findAll();
+        usort($items, static function (MenuItem $a, MenuItem $b) {
+            $aSystem = self::isSystemCombo($a);
+            $bSystem = self::isSystemCombo($b);
+            if ($aSystem === $bSystem) {
+                return $a->id <=> $b->id;
+            }
+            // System combo first
+            return $aSystem ? -1 : 1;
+        });
+        return $items;
     }
 
-    public function delete(int $id): void
+    public function delete(int $id): bool
     {
+        $item = $this->menuRepository->findById($id);
+        if ($item && self::isSystemCombo($item)) {
+            return false;
+        }
         $this->menuRepository->delete($id);
+        return true;
     }
 
     /** @return MenuItem[] */
     public function today(): array
     {
-        return $this->menuRepository->findToday();
+        $items = $this->menuRepository->findToday();
+        return array_values(array_filter($items, static fn (MenuItem $item) => !self::isSystemCombo($item)));
     }
 
     public function todayIds(): array
@@ -38,11 +56,30 @@ class AdminMenuService
 
     public function updateTodaySelection(array $ids): void
     {
-        $this->menuRepository->setTodayMenu($ids);
+        $filtered = [];
+        foreach ($ids as $id) {
+            $intId = (int)$id;
+            if ($intId <= 0) {
+                continue;
+            }
+            $item = $this->menuRepository->findById($intId);
+            if ($item && self::isSystemCombo($item)) {
+                continue;
+            }
+            $filtered[] = $intId;
+        }
+        $this->menuRepository->setTodayMenu($filtered);
     }
 
     public function save(array $data, array $files): array
     {
+        $id = !empty($data['id']) ? (int)$data['id'] : null;
+        if ($id) {
+            $existing = $this->menuRepository->findById($id);
+            if ($existing && self::isSystemCombo($existing)) {
+                return ['success' => false, 'errors' => [translate('admin.menu.errors.system_locked')]];
+            }
+        }
         $errors = [];
         $title = trim($data['title'] ?? '');
         $description = trim($data['description'] ?? '');
@@ -116,6 +153,11 @@ class AdminMenuService
         }
 
         return ['success' => true];
+    }
+
+    private static function isSystemCombo(MenuItem $item): bool
+    {
+        return ($item->category ?? '') === self::COMBO_CATEGORY;
     }
 
     private function processGallery(array $files, string $existingGallery): array

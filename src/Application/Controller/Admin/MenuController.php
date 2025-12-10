@@ -62,8 +62,12 @@ class MenuController
         $this->requireAdmin();
         $id = intval($_GET['id'] ?? 0);
         if ($id > 0) {
-            $this->menuService->delete($id);
-            setToast(translate('admin.menu.toast.deleted', ['id' => $id]), 'warning');
+            $deleted = $this->menuService->delete($id);
+            if ($deleted) {
+                setToast(translate('admin.menu.toast.deleted', ['id' => $id]), 'warning');
+            } else {
+                setToast(translate('admin.menu.errors.system_locked'), 'warning');
+            }
         }
         header('Location: /admin/menu');
         exit;
