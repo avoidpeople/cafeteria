@@ -159,7 +159,7 @@ $activeLocalizedFields = $localizedFieldMap[$locale] ?? ['name' => 'nameOriginal
                                 <span class="menu-price menu-price--placeholder text-muted"><?= htmlspecialchars(translate('menu.card.price_included')) ?></span>
                             <?php endif; ?>
                             <?php if ($allergens): ?>
-                                <span class="badge bg-warning text-dark"><?= htmlspecialchars(translate('menu.card.allergens')) ?>: <?= htmlspecialchars($allergens) ?></span>
+                                <span class="allergens-badge"><?= htmlspecialchars(translate('menu.card.allergens')) ?>: <?= htmlspecialchars($allergens) ?></span>
                             <?php endif; ?>
                             <?php if ($roleKey): ?>
                                 <button type="button" class="btn btn-outline-light combo-select-btn" data-id="<?= $item->id ?>" data-default-text="<?= htmlspecialchars(translate('menu.card.button_default')) ?>" data-combo-role="<?= htmlspecialchars($roleKey) ?>" onclick="event.stopPropagation();"><?= htmlspecialchars(translate('menu.card.button_default')) ?></button>

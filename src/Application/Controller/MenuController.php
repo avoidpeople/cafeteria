@@ -107,6 +107,29 @@ class MenuController
             unset($group);
         }
 
+        foreach ($categories as &$cat) {
+            usort($cat['items'], static function (array $a, array $b) {
+                $aUnique = !empty($a['unique']);
+                $bUnique = !empty($b['unique']);
+                if ($aUnique !== $bUnique) {
+                    return $aUnique ? -1 : 1;
+                }
+                return strnatcasecmp($a['title'], $b['title']);
+            });
+        }
+        unset($cat);
+        foreach ($customGroups as &$cat) {
+            usort($cat['items'], static function (array $a, array $b) {
+                $aUnique = !empty($a['unique']);
+                $bUnique = !empty($b['unique']);
+                if ($aUnique !== $bUnique) {
+                    return $aUnique ? -1 : 1;
+                }
+                return strnatcasecmp($a['title'], $b['title']);
+            });
+        }
+        unset($cat);
+
         $ordered = [
             $categories['main'],
             $categories['garnish'],

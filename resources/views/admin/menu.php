@@ -25,13 +25,47 @@
                     <input type="hidden" name="current_image" id="current_image">
 
                     <div>
-                        <label class="form-label"><?= htmlspecialchars(translate('admin.menu.form.name')) ?></label>
+                        <div class="d-flex align-items-center gap-2">
+                            <label class="form-label mb-0"><?= htmlspecialchars(translate('admin.menu.form.name')) ?></label>
+                            <div class="form-check form-switch mb-0">
+                                <input class="form-check-input" type="checkbox" role="switch" id="toggleLocalizedNames">
+                                <label class="form-check-label small" for="toggleLocalizedNames"><?= htmlspecialchars(translate('admin.menu.form.name_locale_toggle')) ?></label>
+                                <span class="ms-1 text-muted" title="<?= htmlspecialchars(translate('admin.menu.form.name_locale_hint')) ?>">&#9432;</span>
+                            </div>
+                        </div>
                         <input type="text" class="form-control" name="title" id="edit_title" required>
+                        <div id="localizedNames" class="row g-2 mt-2 d-none">
+                            <div class="col-md-6">
+                                <label class="form-label small mb-1"><?= htmlspecialchars(translate('admin.menu.form.name_ru')) ?></label>
+                                <input type="text" class="form-control form-control-sm" name="name_ru" id="edit_name_ru" placeholder="<?= htmlspecialchars(translate('admin.menu.form.name_placeholder_ru')) ?>">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small mb-1"><?= htmlspecialchars(translate('admin.menu.form.name_lv')) ?></label>
+                                <input type="text" class="form-control form-control-sm" name="name_lv" id="edit_name_lv" placeholder="<?= htmlspecialchars(translate('admin.menu.form.name_placeholder_lv')) ?>">
+                            </div>
+                        </div>
                     </div>
 
                     <div>
-                        <label class="form-label"><?= htmlspecialchars(translate('admin.menu.form.description')) ?></label>
+                        <div class="d-flex align-items-center gap-2">
+                            <label class="form-label mb-0"><?= htmlspecialchars(translate('admin.menu.form.description')) ?></label>
+                            <div class="form-check form-switch mb-0">
+                                <input class="form-check-input" type="checkbox" role="switch" id="toggleLocalizedDesc">
+                                <label class="form-check-label small" for="toggleLocalizedDesc"><?= htmlspecialchars(translate('admin.menu.form.desc_locale_toggle')) ?></label>
+                                <span class="ms-1 text-muted" title="<?= htmlspecialchars(translate('admin.menu.form.desc_locale_hint')) ?>">&#9432;</span>
+                            </div>
+                        </div>
                         <textarea name="description" class="form-control" id="edit_desc"></textarea>
+                        <div id="localizedDescriptions" class="row g-2 mt-2 d-none">
+                            <div class="col-md-6">
+                                <label class="form-label small mb-1"><?= htmlspecialchars(translate('admin.menu.form.description_ru')) ?></label>
+                                <textarea class="form-control form-control-sm" name="description_ru" id="edit_desc_ru" rows="2" placeholder="<?= htmlspecialchars(translate('admin.menu.form.desc_placeholder_ru')) ?>"></textarea>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small mb-1"><?= htmlspecialchars(translate('admin.menu.form.description_lv')) ?></label>
+                                <textarea class="form-control form-control-sm" name="description_lv" id="edit_desc_lv" rows="2" placeholder="<?= htmlspecialchars(translate('admin.menu.form.desc_placeholder_lv')) ?>"></textarea>
+                            </div>
+                        </div>
                     </div>
 
                     <div>
@@ -143,7 +177,13 @@
                                             <?php endif; ?>
                                         </td>
                                         <td><?= htmlspecialchars($item->category ?? '') ?></td>
-                                        <td><?= $item->allergens ? htmlspecialchars($item->allergens) : '—' ?></td>
+                                        <td style="max-width: 180px;">
+                                            <?php if ($item->allergens): ?>
+                                                <span class="allergens-badge"><?= htmlspecialchars($item->allergens) ?></span>
+                                            <?php else: ?>
+                                                —
+                                            <?php endif; ?>
+                                        </td>
                                         <td>
                                             <?php if ($isSystemCombo): ?>
                                                 <span class="badge bg-secondary"><?= htmlspecialchars(translate('admin.menu.price.standard')) ?></span>
@@ -156,8 +196,12 @@
                                                     'name_original' => $item->nameOriginal ?? $item->title,
                                                     'description' => $item->description,
                                                     'description_original' => $item->descriptionOriginal ?? $item->description,
+                                                    'description_ru' => $item->descriptionRu ?? null,
+                                                    'description_lv' => $item->descriptionLv ?? null,
                                                     'ingredients' => $item->ingredients,
                                                     'ingredients_original' => $item->ingredientsOriginal ?? $item->ingredients,
+                                                    'name_ru' => $item->nameRu ?? null,
+                                                    'name_lv' => $item->nameLv ?? null,
                                                     'allergens' => $item->allergens,
                                                     'price' => $item->price,
                                                     'use_manual_price' => $item->isUnique(),
@@ -235,6 +279,14 @@ const categoryCustomInput = document.getElementById('edit_category_custom');
 const allergensToggle = document.getElementById('edit_show_allergens');
 const allergensWrapper = document.getElementById('allergensWrapper');
 const allergensInput = document.getElementById('edit_allergens');
+const toggleLocalizedNames = document.getElementById('toggleLocalizedNames');
+const toggleLocalizedDesc = document.getElementById('toggleLocalizedDesc');
+const localizedNames = document.getElementById('localizedNames');
+const localizedDescriptions = document.getElementById('localizedDescriptions');
+const nameRuInput = document.getElementById('edit_name_ru');
+const nameLvInput = document.getElementById('edit_name_lv');
+const descRuInput = document.getElementById('edit_desc_ru');
+const descLvInput = document.getElementById('edit_desc_lv');
 
 function syncManualPriceField(forceValue = null) {
     if (!manualPriceToggle || !manualPriceInput) {
@@ -283,11 +335,43 @@ function toggleAllergens(visible) {
 
 allergensToggle?.addEventListener('change', () => toggleAllergens(allergensToggle.checked));
 
+toggleLocalizedNames?.addEventListener('change', () => {
+    if (!localizedNames) return;
+    localizedNames.classList.toggle('d-none', !toggleLocalizedNames.checked);
+    if (!toggleLocalizedNames.checked) {
+        if (nameRuInput) nameRuInput.value = '';
+        if (nameLvInput) nameLvInput.value = '';
+    }
+});
+
+toggleLocalizedDesc?.addEventListener('change', () => {
+    if (!localizedDescriptions) return;
+    localizedDescriptions.classList.toggle('d-none', !toggleLocalizedDesc.checked);
+    if (!toggleLocalizedDesc.checked) {
+        if (descRuInput) descRuInput.value = '';
+        if (descLvInput) descLvInput.value = '';
+    }
+});
+
 function fillForm(data) {
     document.getElementById('edit_id').value = data.id || '';
     document.getElementById('edit_title').value = data.name_original || data.title || '';
     document.getElementById('edit_desc').value = data.description_original || data.description || '';
     document.getElementById('edit_ingr').value = data.ingredients_original || data.ingredients || '';
+    if (toggleLocalizedNames && localizedNames) {
+        const hasNames = Boolean((data.name_ru ?? '') || (data.name_lv ?? ''));
+        toggleLocalizedNames.checked = hasNames;
+        localizedNames.classList.toggle('d-none', !hasNames);
+        if (nameRuInput) nameRuInput.value = data.name_ru ?? '';
+        if (nameLvInput) nameLvInput.value = data.name_lv ?? '';
+    }
+    if (toggleLocalizedDesc && localizedDescriptions) {
+        const hasDesc = Boolean((data.description_ru ?? '') || (data.description_lv ?? ''));
+        toggleLocalizedDesc.checked = hasDesc;
+        localizedDescriptions.classList.toggle('d-none', !hasDesc);
+        if (descRuInput) descRuInput.value = data.description_ru ?? '';
+        if (descLvInput) descLvInput.value = data.description_lv ?? '';
+    }
     const allergens = data.allergens || '';
     if (allergensToggle) {
         allergensToggle.checked = allergens !== '';

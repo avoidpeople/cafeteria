@@ -77,6 +77,10 @@ class AdminMenuService
         $errors = [];
         $title = trim($data['title'] ?? '');
         $description = trim($data['description'] ?? '');
+        $nameRu = trim($data['name_ru'] ?? '');
+        $nameLv = trim($data['name_lv'] ?? '');
+        $descRu = trim($data['description_ru'] ?? '');
+        $descLv = trim($data['description_lv'] ?? '');
         $allergens = trim($data['allergens'] ?? '');
         $price = (float)($data['price'] ?? 0);
         $useManualPrice = !empty($data['use_manual_price']);
@@ -126,11 +130,11 @@ class AdminMenuService
             'image_gallery' => $images,
             'use_manual_price' => $useManualPrice,
             'name_original' => $title,
-            'name_ru' => $this->translateText($title, 'ru'),
-            'name_lv' => $this->translateText($title, 'lv'),
+            'name_ru' => $nameRu !== '' ? $nameRu : $this->translateText($title, 'ru'),
+            'name_lv' => $nameLv !== '' ? $nameLv : $this->translateText($title, 'lv'),
             'description_original' => $description,
-            'description_ru' => $this->translateText($description, 'ru'),
-            'description_lv' => $this->translateText($description, 'lv'),
+            'description_ru' => $descRu !== '' ? $descRu : $this->translateText($description, 'ru'),
+            'description_lv' => $descLv !== '' ? $descLv : $this->translateText($description, 'lv'),
             'ingredients_original' => $ingredients,
             'ingredients_ru' => $this->translateText($ingredients, 'ru'),
             'ingredients_lv' => $this->translateText($ingredients, 'lv'),
