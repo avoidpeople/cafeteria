@@ -172,7 +172,7 @@ $activeLocalizedFields = $localizedFieldMap[$locale] ?? ['name' => 'nameOriginal
 
 <?php include __DIR__ . '/partials/menu_modal.php'; ?>
 <div class="modal fade" id="comboModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+  <div class="modal-dialog modal-xxl modal-dialog-centered modal-dialog-scrollable combo-modal-wide">
     <div class="modal-content">
       <div class="modal-header">
         <div>
@@ -183,66 +183,68 @@ $activeLocalizedFields = $localizedFieldMap[$locale] ?? ['name' => 'nameOriginal
       </div>
       <div class="modal-body">
         <div class="row g-4">
-            <div class="col-lg-7" id="comboCategories">
-                <?php foreach ($comboCategories as $index => $category): ?>
-                    <div class="combo-step <?= $index > 0 ? 'mt-4' : '' ?>" data-category="<?= htmlspecialchars($category['key']) ?>">
-                        <div class="combo-step-head">
-                            <div>
-                                <h6 class="mb-0"><?= htmlspecialchars($category['label']) ?><?= $category['required'] ? ' *' : '' ?></h6>
-                                <small class="text-muted"><?= htmlspecialchars($category['hint']) ?></small>
+            <div class="col-lg-8" id="comboCategories">
+                <div class="combo-steps-grid">
+                    <?php foreach ($comboCategories as $index => $category): ?>
+                        <div class="combo-step" data-category="<?= htmlspecialchars($category['key']) ?>">
+                            <div class="combo-step-head">
+                                <div>
+                                    <h6 class="mb-0"><?= htmlspecialchars($category['label']) ?><?= $category['required'] ? ' *' : '' ?></h6>
+                                    <small class="text-muted"><?= htmlspecialchars($category['hint']) ?></small>
+                                </div>
                             </div>
-                        </div>
-                        <?php if (!empty($category['items'])): ?>
-                            <div class="combo-option-grid" data-category-grid="<?= htmlspecialchars($category['key']) ?>">
-                                <?php if (!$category['required'] && !empty($category['skip'])): ?>
-                                    <button type="button" class="combo-option-card combo-option-card--skip" data-category="<?= htmlspecialchars($category['key']) ?>" data-id="">
-                                        <div class="combo-option-thumb">—</div>
-                                        <div class="combo-option-body">
-                                            <div class="combo-option-title"><?= htmlspecialchars($category['skip']['title']) ?></div>
-                                            <div class="combo-option-desc"><?= htmlspecialchars($category['skip']['description']) ?></div>
-                                            <span class="combo-option-tag"><?= htmlspecialchars($category['skip']['tag']) ?></span>
-                                        </div>
-                                        <span class="combo-option-check"></span>
-                                    </button>
-                                <?php endif; ?>
-                                <?php foreach ($category['items'] as $option): ?>
-                                    <button type="button" class="combo-option-card" data-category="<?= htmlspecialchars($category['key']) ?>" data-id="<?= $option['id'] ?>" data-title="<?= htmlspecialchars($option['title']) ?>" data-description="<?= htmlspecialchars($option['description'] ?? '') ?>" data-image="<?= htmlspecialchars($option['image'] ?? '') ?>" data-price="<?= htmlspecialchars((string)($option['price'] ?? 0)) ?>" data-custom-price="<?= htmlspecialchars((string)($option['custom_price'] ?? '')) ?>" data-unique="<?= !empty($option['unique']) ? '1' : '0' ?>">
-                                        <div class="combo-option-thumb">
-                                            <?php if (!empty($option['image'])): ?>
-                                                <img src="/assets/images/<?= htmlspecialchars($option['image']) ?>" alt="<?= htmlspecialchars($option['title']) ?>">
-                                            <?php else: ?>
-                                                <span><?= htmlspecialchars(translate('common.no_photo')) ?></span>
-                                            <?php endif; ?>
-                                        </div>
-                                        <div class="combo-option-body">
-                                            <div class="combo-option-title"><?= htmlspecialchars($option['title']) ?></div>
-                                            <div class="combo-option-desc text-truncate-2">
-                                                <?= htmlspecialchars($option['description'] ?? translate('menu.combo_modal.description_pending')) ?>
+                            <?php if (!empty($category['items'])): ?>
+                                <div class="combo-option-grid" data-category-grid="<?= htmlspecialchars($category['key']) ?>">
+                                    <?php if (!$category['required'] && !empty($category['skip'])): ?>
+                                        <button type="button" class="combo-option-card combo-option-card--skip" data-category="<?= htmlspecialchars($category['key']) ?>" data-id="">
+                                            <div class="combo-option-thumb">—</div>
+                                            <div class="combo-option-body">
+                                                <div class="combo-option-title"><?= htmlspecialchars($category['skip']['title']) ?></div>
+                                                <div class="combo-option-desc"><?= htmlspecialchars($category['skip']['description']) ?></div>
+                                                <span class="combo-option-tag"><?= htmlspecialchars($category['skip']['tag']) ?></span>
                                             </div>
-                                            <span class="combo-option-tag"><?= htmlspecialchars($category['label']) ?></span>
-                                            <div class="combo-option-extra">
-                                                <?php if (!empty($option['price'])): ?>
-                                                    <?php if (!empty($category['required'])): ?>
-                                                        <span class="combo-option-unique"><?= number_format((float)$option['price'], 2, '.', ' ') ?> €</span>
-                                                    <?php else: ?>
-                                                        <span class="combo-option-unique">+<?= number_format((float)$option['price'], 2, '.', ' ') ?> €</span>
-                                                    <?php endif; ?>
+                                            <span class="combo-option-check"></span>
+                                        </button>
+                                    <?php endif; ?>
+                                    <?php foreach ($category['items'] as $option): ?>
+                                        <button type="button" class="combo-option-card" data-category="<?= htmlspecialchars($category['key']) ?>" data-id="<?= $option['id'] ?>" data-title="<?= htmlspecialchars($option['title']) ?>" data-description="<?= htmlspecialchars($option['description'] ?? '') ?>" data-image="<?= htmlspecialchars($option['image'] ?? '') ?>" data-price="<?= htmlspecialchars((string)($option['price'] ?? 0)) ?>" data-custom-price="<?= htmlspecialchars((string)($option['custom_price'] ?? '')) ?>" data-unique="<?= !empty($option['unique']) ? '1' : '0' ?>">
+                                            <div class="combo-option-thumb">
+                                                <?php if (!empty($option['image'])): ?>
+                                                    <img src="/assets/images/<?= htmlspecialchars($option['image']) ?>" alt="<?= htmlspecialchars($option['title']) ?>">
                                                 <?php else: ?>
-                                                    <span class="combo-option-regular"><?= htmlspecialchars(translate('combo.category.free')) ?></span>
+                                                    <span><?= htmlspecialchars(translate('common.no_photo')) ?></span>
                                                 <?php endif; ?>
                                             </div>
-                                        </div>
-                                        <span class="combo-option-check"></span>
-                                    </button>
-                                <?php endforeach; ?>
-                            </div>
-                        <?php else: ?>
-                            <div class="text-muted small"><?= htmlspecialchars(translate('combo.category.empty')) ?></div>
-                        <?php endif; ?>
-                    </div>
-                <?php endforeach; ?>
+                                            <div class="combo-option-body">
+                                                <div class="combo-option-title"><?= htmlspecialchars($option['title']) ?></div>
+                                                <div class="combo-option-desc text-truncate-2">
+                                                    <?= htmlspecialchars($option['description'] ?? translate('menu.combo_modal.description_pending')) ?>
+                                                </div>
+                                                <span class="combo-option-tag"><?= htmlspecialchars($category['label']) ?></span>
+                                                <div class="combo-option-extra">
+                                                    <?php if (!empty($option['price'])): ?>
+                                                        <?php if (!empty($category['required'])): ?>
+                                                            <span class="combo-option-unique"><?= number_format((float)$option['price'], 2, '.', ' ') ?> €</span>
+                                                        <?php else: ?>
+                                                            <span class="combo-option-unique">+<?= number_format((float)$option['price'], 2, '.', ' ') ?> €</span>
+                                                        <?php endif; ?>
+                                                    <?php else: ?>
+                                                        <span class="combo-option-regular"><?= htmlspecialchars(translate('combo.category.free')) ?></span>
+                                                    <?php endif; ?>
+                                                </div>
+                                            </div>
+                                            <span class="combo-option-check"></span>
+                                        </button>
+                                    <?php endforeach; ?>
+                                </div>
+                            <?php else: ?>
+                                <div class="text-muted small"><?= htmlspecialchars(translate('combo.category.empty')) ?></div>
+                            <?php endif; ?>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
             </div>
-            <div class="col-lg-5">
+            <div class="col-lg-4">
                 <div class="combo-summary">
                     <h6 class="text-uppercase text-muted mb-3"><?= htmlspecialchars(translate('menu.combo_modal.summary_title')) ?></h6>
                     <div class="combo-selection-list" id="comboSelectionPreview">

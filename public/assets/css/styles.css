@@ -464,6 +464,33 @@ body {
     gap: 1rem;
 }
 
+.combo-modal-wide {
+    max-width: 96vw;
+    width: 96vw;
+}
+
+.combo-modal-wide .modal-content {
+    border-radius: 24px;
+}
+
+.combo-steps-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.25rem;
+}
+
+.combo-step {
+    flex: 1 1 360px;
+    min-width: 300px;
+}
+
+.combo-step-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 10px;
+}
+
 .combo-option-card {
     border: 1px solid var(--combo-option-border);
     border-radius: 20px;

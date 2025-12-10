@@ -228,7 +228,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updateModalCards() {
         cardMap.forEach((card, key) => {
-            const [category, identifier] = key.split(':');
+            const lastColon = key.lastIndexOf(':');
+            const category = lastColon >= 0 ? key.slice(0, lastColon) : key;
+            const identifier = lastColon >= 0 ? key.slice(lastColon + 1) : 'none';
             const normalized = identifier === 'none' ? null : identifier;
             const current = comboState[category] ?? null;
             const isActive = (current ?? null) === (normalized ?? null);

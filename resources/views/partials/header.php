@@ -1,8 +1,5 @@
 <?php
-$cartCount = 0;
-if (!empty($_SESSION['cart']) && is_array($_SESSION['cart'])) {
-    $cartCount = array_sum($_SESSION['cart']);
-}
+
 ?>
 <nav class="navbar navbar-expand-lg theme-navbar mb-3 shadow-sm">
   <div class="container-fluid">
@@ -21,9 +18,7 @@ if (!empty($_SESSION['cart']) && is_array($_SESSION['cart'])) {
         <li class="nav-item">
             <a class="nav-link d-flex align-items-center" href="/cart">
                 <?= htmlspecialchars(translate('nav.cart')) ?>
-                <?php if ($cartCount > 0): ?>
-                    <span class="badge bg-warning text-dark ms-2"><?= $cartCount ?></span>
-                <?php endif; ?>
+
             </a>
         </li>
         <li class="nav-item">
