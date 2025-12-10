@@ -63,7 +63,7 @@ $activeLocalizedFields = $localizedFieldMap[$locale] ?? ['name' => 'nameOriginal
         </div>
         <div class="d-flex flex-column flex-sm-row gap-2">
             <button class="btn btn-gradient btn-lg" id="comboBuilderButton" type="button"><?= htmlspecialchars(translate('menu.combo.create_btn')) ?></button>
-            <button class="btn btn-outline-light btn-lg" type="button" id="comboBuilderReset" hidden><?= htmlspecialchars(translate('menu.combo.exit_btn')) ?></button>
+<!--SADSADASD-->    <button class="btn btn-outline-light btn-lg" type="button" id="comboBuilderReset" hidden><?= htmlspecialchars(translate('menu.combo.exit_btn')) ?></button>
         </div>
         <div class="combo-hero__note text-muted"><?= htmlspecialchars(translate('menu.combo.note')) ?></div>
     </div>
