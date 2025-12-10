@@ -1,15 +1,15 @@
-<?php $title = 'Doctor Gorilka — ' . translate('orders.view.title', ['id' => $orderId]); ?>
+<?php $title = 'Doctor Gorilka — ' . translate('orders.view.title', ['id' => $orderCode ?? $orderId]); ?>
 <div class="page-container">
 <?php $backUrl = $isAdmin ? '/admin/orders' : '/orders'; ?>
 <div class="actions mt-20 mb-15">
     <a class="btn btn-secondary" href="<?= $backUrl ?>"><?= htmlspecialchars(translate('common.back_to_orders')) ?></a>
     <?php if (!$isAdmin && ($order->status === 'new' || $order->status === 'cooking')): ?>
-        <a class="btn btn-danger" href="/orders/view?id=<?= $orderId ?>&cancel=1" onclick="return confirm('<?= htmlspecialchars(translate('common.confirm_cancel')) ?>');"><?= htmlspecialchars(translate('orders.view.cancel')) ?></a>
+        <a class="btn btn-danger" href="/orders/view?code=<?= urlencode($orderCode ?? '') ?>&cancel=1" onclick="return confirm('<?= htmlspecialchars(translate('common.confirm_cancel')) ?>');"><?= htmlspecialchars(translate('orders.view.cancel')) ?></a>
     <?php endif; ?>
 </div>
 
 <div class="card-panel summary-card">
-    <h2><?= htmlspecialchars(translate('orders.view.title', ['id' => $orderId])) ?></h2>
+    <h2><?= htmlspecialchars(translate('orders.view.title', ['id' => $orderCode ?? $orderId])) ?></h2>
     <p><b><?= htmlspecialchars(translate('orders.view.date')) ?></b> <?= $order->createdAt ?></p>
     <p><b><?= htmlspecialchars(translate('orders.view.status')) ?></b>
         <span class="status status-<?= htmlspecialchars($order->status) ?>"><?= htmlspecialchars(translateStatus($order->status)) ?></span>

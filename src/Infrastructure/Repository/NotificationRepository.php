@@ -26,7 +26,10 @@ class NotificationRepository implements NotificationRepositoryInterface
 
     public function latestForUser(int $userId, ?int $limit = null): array
     {
-        $sql = "SELECT * FROM notifications WHERE user_id = :uid ORDER BY id DESC";
+        $sql = "SELECT notifications.*, orders.order_code FROM notifications
+                LEFT JOIN orders ON orders.id = notifications.order_id
+                WHERE notifications.user_id = :uid
+                ORDER BY notifications.id DESC";
         if ($limit !== null) {
             $limit = max(1, $limit);
             $sql .= " LIMIT {$limit}";
@@ -40,6 +43,7 @@ class NotificationRepository implements NotificationRepositoryInterface
                 id: (int)$row['id'],
                 userId: (int)$row['user_id'],
                 orderId: (int)$row['order_id'],
+                orderCode: $row['order_code'] ?? null,
                 status: $row['status'],
                 message: $row['message'],
                 amount: (float)($row['amount'] ?? 0),

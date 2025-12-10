@@ -56,7 +56,8 @@
                 const itemsList = (order.items || []).map((item) => `
                     <li>${escapeHtml(item.quantity)} × ${escapeHtml(item.title)}</li>
                 `).join('') || `<li class="text-muted">${texts.itemsPlaceholder}</li>`;
-                const orderTitle = texts.order.replace(':id', escapeHtml(order.id));
+                const displayCode = escapeHtml(order.code || order.id);
+                const orderTitle = texts.order.replace(':id', displayCode);
                 card.innerHTML = `
                     <div class="pending-card__header">
                         <strong>${orderTitle}</strong>

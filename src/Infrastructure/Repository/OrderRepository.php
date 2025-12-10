@@ -13,6 +13,8 @@ use function currentLocale;
 class OrderRepository implements OrderRepositoryInterface
 {
     private bool $comboColumnChecked = false;
+    private const ORDER_CODE_PREFIX = 'CAF-';
+    private const ORDER_CODE_CHARS = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
 
     public function __construct(private SQLite3 $db)
     {
@@ -28,6 +30,25 @@ class OrderRepository implements OrderRepositoryInterface
             $orders[] = $this->mapOrder($row);
         }
         return $orders;
+    }
+
+    public function findByCode(string $code): ?Order
+    {
+        $stmt = $this->prepare("SELECT orders.*, users.first_name, users.last_name, users.phone, users.username
+            FROM orders
+            LEFT JOIN users ON users.id = orders.user_id
+            WHERE orders.order_code = :code");
+        $stmt->bindValue(':code', $code, SQLITE3_TEXT);
+        $row = $stmt->execute()->fetchArray(SQLITE3_ASSOC);
+        if (!$row) {
+            return null;
+        }
+        $order = $this->mapOrder($row);
+        if (isset($row['first_name']) || isset($row['last_name']) || isset($row['username'])) {
+            $order->customerName = trim(($row['first_name'] ?? '') . ' ' . ($row['last_name'] ?? '')) ?: ($row['username'] ?? null);
+        }
+        $order->customerPhone = $row['phone'] ?? null;
+        return $order;
     }
 
     public function findById(int $id): ?Order
@@ -59,7 +80,7 @@ class OrderRepository implements OrderRepositoryInterface
             $conditions[] = "orders.status = :status";
         }
         if ($searchUser) {
-            $conditions[] = "(users.username LIKE :u OR CAST(orders.id AS TEXT) LIKE :u)";
+            $conditions[] = "(users.username LIKE :u OR orders.order_code LIKE :u)";
         }
         if (!$includePending && !$status) {
             $conditions[] = "orders.status != 'pending'";
@@ -106,7 +127,9 @@ class OrderRepository implements OrderRepositoryInterface
         $this->ensureComboColumn();
         $this->db->exec('BEGIN');
         try {
-            $stmt = $this->prepare("INSERT INTO orders (user_id, total_price, delivery_address, status) VALUES (:uid, :total, :address, :status)");
+            $orderCode = $this->generateOrderCode();
+            $stmt = $this->prepare("INSERT INTO orders (order_code, user_id, total_price, delivery_address, status) VALUES (:code, :uid, :total, :address, :status)");
+            $stmt->bindValue(':code', $orderCode, SQLITE3_TEXT);
             $stmt->bindValue(':uid', $userId, SQLITE3_INTEGER);
             $stmt->bindValue(':total', $total, SQLITE3_FLOAT);
             $stmt->bindValue(':address', $deliveryAddress, SQLITE3_TEXT);
@@ -176,6 +199,7 @@ class OrderRepository implements OrderRepositoryInterface
             totalPrice: (float)$row['total_price'],
             createdAt: $row['created_at'],
             deliveryAddress: $row['delivery_address'] ?? null,
+            orderCode: $row['order_code'] ?? null,
             items: $this->fetchItems((int)$row['id']),
             customerName: $customerName,
             customerPhone: $customerPhone
@@ -217,6 +241,23 @@ class OrderRepository implements OrderRepositoryInterface
             );
         }
         return $items;
+    }
+
+    private function generateOrderCode(): string
+    {
+        $length = random_int(4, 6);
+        $chars = self::ORDER_CODE_CHARS;
+        do {
+            $code = self::ORDER_CODE_PREFIX;
+            for ($i = 0; $i < $length; $i++) {
+                $code .= $chars[random_int(0, strlen($chars) - 1)];
+            }
+            $existsStmt = $this->prepare('SELECT 1 FROM orders WHERE order_code = :code LIMIT 1');
+            $existsStmt->bindValue(':code', $code, SQLITE3_TEXT);
+            $exists = $existsStmt->execute()->fetchArray(SQLITE3_ASSOC);
+        } while ($exists);
+
+        return $code;
     }
 
     public function findPending(): array

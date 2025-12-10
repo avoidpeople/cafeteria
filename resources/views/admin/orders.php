@@ -59,7 +59,7 @@
                 <table class="table mb-0">
                     <thead>
                     <tr>
-                        <th>ID</th>
+                        <th><?= htmlspecialchars(translate('admin.orders.table.number')) ?></th>
                         <th><?= htmlspecialchars(translate('admin.orders.table.user')) ?></th>
                         <th><?= htmlspecialchars(translate('admin.orders.table.date')) ?></th>
                         <th><?= htmlspecialchars(translate('admin.orders.table.delivery')) ?></th>
@@ -72,7 +72,10 @@
                     <tbody>
                     <?php foreach ($orders as $order): ?>
                         <tr>
-                            <td>#<?= $order->id ?></td>
+                            <td>
+                                <div class="fw-semibold">#<?= htmlspecialchars($order->orderCode ?? $order->id) ?></div>
+                                <div class="text-muted small"><?= htmlspecialchars(translate('admin.orders.table.id_internal')) ?>: <?= $order->id ?></div>
+                            </td>
                             <td>
                                 <?= htmlspecialchars($order->customerName ?? translate('orders.view.user_placeholder', ['id' => $order->userId])) ?>
                                 <div class="text-muted small"><?= htmlspecialchars(translate('admin.orders.table.user_id')) ?>: <?= $order->userId ?></div>
@@ -110,7 +113,7 @@
                                 </form>
                             </td>
                             <td>
-                                <a class="btn btn-primary btn-sm" href="/orders/view?id=<?= $order->id ?>"><?= htmlspecialchars(translate('admin.orders.open')) ?></a>
+                                <a class="btn btn-primary btn-sm" href="/orders/view?code=<?= urlencode($order->orderCode ?? '') ?>"><?= htmlspecialchars(translate('admin.orders.open')) ?></a>
                             </td>
                         </tr>
                     <?php endforeach; ?>

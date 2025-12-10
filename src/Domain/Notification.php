@@ -8,6 +8,7 @@ class Notification
         public int $id,
         public int $userId,
         public int $orderId,
+        public ?string $orderCode,
         public string $status,
         public string $message,
         public float $amount,

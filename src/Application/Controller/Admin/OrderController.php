@@ -87,12 +87,13 @@ class OrderController
             }, $order->items ?? []);
             return [
                 'id' => $order->id,
+                'code' => $order->orderCode,
                 'user' => $order->customerName ?? translate('admin.pending.user_placeholder', ['id' => $order->userId]),
                 'address' => $order->deliveryAddress,
                 'total' => $order->totalPrice,
                 'created_at' => $order->createdAt,
                 'items' => $items,
-                'link' => "/orders/view?id={$order->id}",
+                'link' => "/orders/view?code=" . urlencode($order->orderCode ?? ''),
             ];
         }, $orders);
         header('Content-Type: application/json');

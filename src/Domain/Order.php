@@ -12,6 +12,7 @@ class Order
         public float $totalPrice,
         public string $createdAt,
         public ?string $deliveryAddress,
+        public ?string $orderCode = null,
         public array $items = [],
         public ?string $customerName = null,
         public ?string $customerPhone = null,

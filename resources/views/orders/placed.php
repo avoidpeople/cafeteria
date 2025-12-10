@@ -2,7 +2,7 @@
 <div class="page-container">
     <div class="card-panel summary-card">
         <h2><?= htmlspecialchars(translate('orders.placed.thank_you')) ?></h2>
-        <p><?= htmlspecialchars(translate('orders.placed.success', ['id' => $orderId])) ?></p>
+        <p><?= htmlspecialchars(translate('orders.placed.success', ['id' => $orderCode ?? $orderId])) ?></p>
         <p><strong><?= htmlspecialchars(translate('orders.placed.total')) ?></strong> <?= number_format($totalPrice, 2, '.', ' ') ?> €</p>
         <p><strong><?= htmlspecialchars(translate('orders.placed.address')) ?></strong> <?= nl2br(htmlspecialchars($orderAddress)) ?></p>
         <div class="actions">

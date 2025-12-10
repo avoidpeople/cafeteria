@@ -122,6 +122,10 @@ while ($row = $orderInfo->fetchArray(SQLITE3_ASSOC)) {
     $orderColumns[] = $row['name'];
 }
 
+if (!in_array('order_code', $orderColumns, true)) {
+    $conn->exec("ALTER TABLE orders ADD COLUMN order_code TEXT");
+}
+
 if (!in_array('delivery_address', $orderColumns, true)) {
     $conn->exec("ALTER TABLE orders ADD COLUMN delivery_address TEXT");
 }
@@ -142,6 +146,25 @@ if ($orderTableSql && strpos($orderTableSql, "'pending'") === false) {
                  SELECT id, user_id, created_at, status, total_price, delivery_address FROM orders_old");
     $conn->exec("DROP TABLE orders_old");
 }
+
+$ordersWithoutCode = $conn->query("SELECT id FROM orders WHERE order_code IS NULL OR order_code = ''");
+$existingCodes = [];
+$codeChars = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+while ($row = $ordersWithoutCode->fetchArray(SQLITE3_ASSOC)) {
+    $id = (int)$row['id'];
+    do {
+        $length = random_int(4, 6);
+        $code = 'CAF-';
+        for ($i = 0; $i < $length; $i++) {
+            $code .= $codeChars[random_int(0, strlen($codeChars) - 1)];
+        }
+        $escaped = $conn->escapeString($code);
+        $exists = $conn->querySingle("SELECT 1 FROM orders WHERE order_code = '{$escaped}'");
+    } while ($exists || isset($existingCodes[$code]));
+    $existingCodes[$code] = true;
+    $conn->exec("UPDATE orders SET order_code = '{$escaped}' WHERE id = {$id}");
+}
+$conn->exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_orders_order_code ON orders(order_code)");
 
 $conn->exec("CREATE TABLE IF NOT EXISTS notifications (
     id INTEGER PRIMARY KEY AUTOINCREMENT,

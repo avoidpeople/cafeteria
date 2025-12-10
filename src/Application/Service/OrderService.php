@@ -20,6 +20,11 @@ class OrderService
         return $this->orders->findByUser($userId);
     }
 
+    public function getOrderByCode(string $orderCode): ?\App\Domain\Order
+    {
+        return $this->orders->findByCode($orderCode);
+    }
+
     public function getOrder(int $orderId): ?\App\Domain\Order
     {
         return $this->orders->findById($orderId);
@@ -134,6 +139,7 @@ class OrderService
         return [
             'success' => true,
             'order_id' => $order->id,
+            'order_code' => $order->orderCode,
             'items' => array_map(static fn ($item) => [
                 'title' => $item['title'],
                 'price' => $item['price'],

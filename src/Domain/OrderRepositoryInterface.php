@@ -7,6 +7,8 @@ interface OrderRepositoryInterface
     /** @return Order[] */
     public function findByUser(int $userId): array;
 
+    public function findByCode(string $code): ?Order;
+
     public function findById(int $id): ?Order;
 
     /** @return Order[] */

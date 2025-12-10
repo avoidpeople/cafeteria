@@ -36,12 +36,17 @@ class OrderController
     public function view(): string
     {
         $this->authService->requireLogin(translate('auth.require.view_order'));
+        $orderCode = trim($_GET['code'] ?? '');
         $orderId = intval($_GET['id'] ?? 0);
-        $order = $this->orderService->getOrder($orderId);
+        $order = $orderCode !== '' ? $this->orderService->getOrderByCode($orderCode) : null;
+        if (!$order && $orderId > 0) {
+            $order = $this->orderService->getOrder($orderId);
+        }
         if (!$order) {
             setToast(translate('orders.errors.not_found'), 'warning');
             $this->redirectBack();
         }
+        $orderCode = $order->orderCode ?? $orderCode;
         $userId = $this->session->get('user_id');
         $isAdmin = $this->session->get('role') === 'admin';
         if (!$isAdmin && $order->userId !== $userId) {
@@ -50,16 +55,17 @@ class OrderController
         }
 
         if (!$isAdmin && isset($_GET['cancel']) && ($order->status === 'new' || $order->status === 'cooking')) {
-            $this->orderService->updateStatus($orderId, 'cancelled');
+            $this->orderService->updateStatus($order->id, 'cancelled');
             header('Location: /orders');
             exit;
         }
 
         return $this->view->render('orders/view', [
-            'title' => 'Doctor Gorilka — ' . translate('orders.view.title', ['id' => $orderId]),
+            'title' => 'Doctor Gorilka — ' . translate('orders.view.title', ['id' => $orderCode ?: $order->id]),
             'order' => $order,
             'isAdmin' => $isAdmin,
-            'orderId' => $orderId,
+            'orderId' => $order->id,
+            'orderCode' => $orderCode,
         ]);
     }
 
@@ -113,12 +119,14 @@ class OrderController
         $this->session->unset('delivery_address_draft');
 
         $orderId = $result['order_id'];
+        $orderCode = $result['order_code'] ?? null;
         $items = $result['items'];
         $total = $result['total'];
 
         echo $this->view->render('orders/placed', [
             'title' => 'Doctor Gorilka — ' . translate('orders.placed.title'),
             'orderId' => $orderId,
+            'orderCode' => $orderCode,
             'items' => $items,
             'totalPrice' => $total,
             'orderAddress' => $result['delivery_address'] ?? $deliveryAddress,

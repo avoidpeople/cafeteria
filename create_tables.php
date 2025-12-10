@@ -43,6 +43,7 @@ $conn->exec("CREATE TABLE IF NOT EXISTS menu (
 // Таблица заказов
 $conn->exec("CREATE TABLE IF NOT EXISTS orders (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    order_code TEXT UNIQUE,
     user_id INTEGER NOT NULL,
     created_at TEXT DEFAULT CURRENT_TIMESTAMP,
     status TEXT CHECK(status IN ('pending','new','cooking','ready','delivered','cancelled')) DEFAULT 'pending',

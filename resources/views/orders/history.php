@@ -25,7 +25,7 @@
                 <tbody>
                 <?php foreach ($orders as $order): ?>
                     <tr>
-                        <td>#<?= $order->id ?></td>
+                        <td>#<?= htmlspecialchars($order->orderCode ?? $order->id) ?></td>
                         <td><?= $order->createdAt ?></td>
                         <td>
                             <span class="status status-<?= htmlspecialchars($order->status) ?>">
@@ -34,7 +34,7 @@
                         </td>
                         <td><?= number_format($order->totalPrice, 2, '.', ' ') ?> €</td>
                         <td><?= nl2br(htmlspecialchars($order->deliveryAddress ?? '—')) ?></td>
-                        <td><a class="btn btn-primary btn-sm" href="/orders/view?id=<?= $order->id ?>"><?= htmlspecialchars(translate('orders.history.open')) ?></a></td>
+                        <td><a class="btn btn-primary btn-sm" href="/orders/view?code=<?= urlencode($order->orderCode ?? '') ?>"><?= htmlspecialchars(translate('orders.history.open')) ?></a></td>
                     </tr>
                 <?php endforeach; ?>
                 </tbody>

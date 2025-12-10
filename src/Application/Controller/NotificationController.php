@@ -40,13 +40,12 @@ class NotificationController
             }
             $items[] = [
                 'id' => $notification->id,
-                'order_id' => $notification->orderId,
                 'status' => $notification->status,
-                'title' => translate('notifications.order_title', ['id' => $notification->orderId]),
+                'title' => translate('notifications.order_title', ['id' => $notification->orderCode ?? $notification->orderId]),
                 'message' => $message,
                 'created_at' => $notification->createdAt,
                 'amount' => $notification->amount,
-                'link' => "/orders/view?id={$notification->orderId}",
+                'link' => "/orders/view?code=" . urlencode($notification->orderCode ?? (string)$notification->orderId),
             ];
 
             if (!in_array($notification->status, ['delivered', 'cancelled'], true)) {
