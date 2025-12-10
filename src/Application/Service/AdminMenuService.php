@@ -20,15 +20,7 @@ class AdminMenuService
     public function list(): array
     {
         $items = $this->menuRepository->findAll();
-        usort($items, static function (MenuItem $a, MenuItem $b) {
-            $aSystem = self::isSystemCombo($a);
-            $bSystem = self::isSystemCombo($b);
-            if ($aSystem === $bSystem) {
-                return $a->id <=> $b->id;
-            }
-            // System combo first
-            return $aSystem ? -1 : 1;
-        });
+        usort($items, [$this, 'compareMenuItems']);
         return $items;
     }
 
@@ -46,7 +38,9 @@ class AdminMenuService
     public function today(): array
     {
         $items = $this->menuRepository->findToday();
-        return array_values(array_filter($items, static fn (MenuItem $item) => !self::isSystemCombo($item)));
+        $items = array_values(array_filter($items, static fn (MenuItem $item) => !self::isSystemCombo($item)));
+        usort($items, [$this, 'compareMenuItems']);
+        return $items;
     }
 
     public function todayIds(): array
@@ -83,6 +77,7 @@ class AdminMenuService
         $errors = [];
         $title = trim($data['title'] ?? '');
         $description = trim($data['description'] ?? '');
+        $allergens = trim($data['allergens'] ?? '');
         $price = (float)($data['price'] ?? 0);
         $useManualPrice = !empty($data['use_manual_price']);
         $categoryType = $data['category_type'] ?? 'hot';
@@ -144,6 +139,7 @@ class AdminMenuService
             'category_lv' => $categoryFields['category_lv'] ?? null,
             'category_role' => $categoryFields['category_role'] ?? 'main',
             'category_key' => $categoryFields['category_key'] ?? null,
+            'allergens' => $allergens !== '' ? $allergens : null,
         ];
 
         if (!empty($data['id'])) {
@@ -243,5 +239,29 @@ class AdminMenuService
         $value = preg_replace('/[^a-z0-9]+/u', '-', $value);
         $value = trim((string)$value, '-');
         return $value ?: bin2hex(random_bytes(3));
+    }
+
+    private function categoryWeight(MenuItem $item): int
+    {
+        $order = [
+            'main' => 1,
+            'garnish' => 2,
+            'soup' => 3,
+        ];
+        return $order[$item->categoryRole ?? 'main'] ?? 99;
+    }
+
+    private function compareMenuItems(MenuItem $a, MenuItem $b): int
+    {
+        $aSystem = self::isSystemCombo($a);
+        $bSystem = self::isSystemCombo($b);
+        if ($aSystem !== $bSystem) {
+            return $aSystem ? -1 : 1;
+        }
+        $cmpWeight = $this->categoryWeight($a) <=> $this->categoryWeight($b);
+        if ($cmpWeight !== 0) {
+            return $cmpWeight;
+        }
+        return strnatcasecmp($a->title, $b->title);
     }
 }

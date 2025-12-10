@@ -31,6 +31,7 @@
             <p class="text-muted" id="dishCategory"></p>
             <p id="dishDescription" class="text-break"></p>
             <p id="dishIngridients" class="text-break"></p>
+            <p id="dishAllergens" class="text-break text-warning fw-semibold" style="display:none;"></p>
             <p class="fs-4 fw-bold text-info" id="dishPrice"></p>
             <button class="btn btn-primary" id="modalAddToCart"><?= htmlspecialchars(translate('menu.card.button_default')) ?></button>
         </div>

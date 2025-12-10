@@ -24,6 +24,7 @@ class MenuItem
         public ?string $ingredientsOriginal,
         public ?string $ingredientsRu,
         public ?string $ingredientsLv,
+        public ?string $allergens = null,
         public float $price,
         public bool $useManualPrice = false,
         public ?string $categoryOriginal = null,

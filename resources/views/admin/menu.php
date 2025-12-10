@@ -40,6 +40,17 @@
                     </div>
 
                     <div>
+                        <div class="form-check form-switch mb-2">
+                            <input class="form-check-input" type="checkbox" role="switch" id="edit_show_allergens">
+                            <label class="form-check-label" for="edit_show_allergens"><?= htmlspecialchars(translate('admin.menu.form.allergens_toggle')) ?></label>
+                        </div>
+                        <div id="allergensWrapper" class="d-none">
+                            <label class="form-label"><?= htmlspecialchars(translate('admin.menu.form.allergens')) ?></label>
+                            <textarea name="allergens" class="form-control" id="edit_allergens" rows="3"></textarea>
+                        </div>
+                    </div>
+
+                    <div>
                         <div class="d-flex align-items-center justify-content-between gap-3">
                             <label class="form-label mb-0"><?= htmlspecialchars(translate('admin.menu.form.price_label')) ?></label>
                             <div class="form-check form-switch mb-0">
@@ -94,6 +105,7 @@
                                     <th><?= htmlspecialchars(translate('admin.menu.table.name')) ?></th>
                                     <th><?= htmlspecialchars(translate('admin.menu.table.price')) ?></th>
                                     <th><?= htmlspecialchars(translate('admin.menu.table.category')) ?></th>
+                                    <th><?= htmlspecialchars(translate('admin.menu.table.allergens')) ?></th>
                                     <th><?= htmlspecialchars(translate('admin.menu.table.actions')) ?></th>
                                 </tr>
                             </thead>
@@ -131,28 +143,30 @@
                                             <?php endif; ?>
                                         </td>
                                         <td><?= htmlspecialchars($item->category ?? '') ?></td>
+                                        <td><?= $item->allergens ? htmlspecialchars($item->allergens) : '—' ?></td>
                                         <td>
                                             <?php if ($isSystemCombo): ?>
                                                 <span class="badge bg-secondary"><?= htmlspecialchars(translate('admin.menu.price.standard')) ?></span>
                                                 <div class="text-muted small mt-1"><?= htmlspecialchars(translate('admin.menu.errors.system_locked')) ?></div>
                                             <?php else: ?>
                                                 <div class="d-flex flex-column gap-2">
-                                                    <button class="btn btn-sm btn-primary" type="button" onclick='fillForm(<?= json_encode([
-                                                        'id' => $item->id,
-                                                        'title' => $item->title,
-                                                        'name_original' => $item->nameOriginal ?? $item->title,
-                                                        'description' => $item->description,
-                                                        'description_original' => $item->descriptionOriginal ?? $item->description,
-                                                        'ingredients' => $item->ingredients,
-                                                        'ingredients_original' => $item->ingredientsOriginal ?? $item->ingredients,
-                                                        'price' => $item->price,
-                                                        'use_manual_price' => $item->isUnique(),
-                                                        'category' => $item->category,
-                                                        'category_original' => $item->categoryOriginal ?? $item->category,
-                                                        'category_role' => $item->categoryRole ?? 'main',
-                                                        'image' => $item->primaryImage(),
-                                                        'gallery' => $gallery,
-                                                    ], JSON_HEX_APOS | JSON_HEX_QUOT) ?>)'><?= htmlspecialchars(translate('admin.menu.actions.edit')) ?></button>
+                                                <button class="btn btn-sm btn-primary" type="button" onclick='fillForm(<?= json_encode([
+                                                    'id' => $item->id,
+                                                    'title' => $item->title,
+                                                    'name_original' => $item->nameOriginal ?? $item->title,
+                                                    'description' => $item->description,
+                                                    'description_original' => $item->descriptionOriginal ?? $item->description,
+                                                    'ingredients' => $item->ingredients,
+                                                    'ingredients_original' => $item->ingredientsOriginal ?? $item->ingredients,
+                                                    'allergens' => $item->allergens,
+                                                    'price' => $item->price,
+                                                    'use_manual_price' => $item->isUnique(),
+                                                    'category' => $item->category,
+                                                    'category_original' => $item->categoryOriginal ?? $item->category,
+                                                    'category_role' => $item->categoryRole ?? 'main',
+                                                    'image' => $item->primaryImage(),
+                                                    'gallery' => $gallery,
+                                                ], JSON_HEX_APOS | JSON_HEX_QUOT) ?>)'><?= htmlspecialchars(translate('admin.menu.actions.edit')) ?></button>
                                                     <a class="btn btn-sm btn-outline-danger" href="/admin/menu/delete?id=<?= $item->id ?>" onclick="return confirm('<?= htmlspecialchars(translate('admin.menu.actions.confirm_delete')) ?>');"><?= htmlspecialchars(translate('combo.remove')) ?></a>
                                                 </div>
                                             <?php endif; ?>
@@ -218,6 +232,9 @@ const manualHintAuto = <?= json_encode(translate('admin.menu.form.price_hint'), 
 const categorySelect = document.getElementById('edit_category_type');
 const categoryCustomWrapper = document.getElementById('categoryCustomWrapper');
 const categoryCustomInput = document.getElementById('edit_category_custom');
+const allergensToggle = document.getElementById('edit_show_allergens');
+const allergensWrapper = document.getElementById('allergensWrapper');
+const allergensInput = document.getElementById('edit_allergens');
 
 function syncManualPriceField(forceValue = null) {
     if (!manualPriceToggle || !manualPriceInput) {
@@ -256,11 +273,29 @@ function syncCategoryFields(type = null, customValue = null) {
 categorySelect?.addEventListener('change', () => syncCategoryFields());
 syncCategoryFields(categorySelect?.value || 'main', '');
 
+function toggleAllergens(visible) {
+    if (!allergensWrapper || !allergensInput || !allergensToggle) return;
+    allergensWrapper.classList.toggle('d-none', !visible);
+    if (!visible) {
+        allergensInput.value = '';
+    }
+}
+
+allergensToggle?.addEventListener('change', () => toggleAllergens(allergensToggle.checked));
+
 function fillForm(data) {
     document.getElementById('edit_id').value = data.id || '';
     document.getElementById('edit_title').value = data.name_original || data.title || '';
     document.getElementById('edit_desc').value = data.description_original || data.description || '';
     document.getElementById('edit_ingr').value = data.ingredients_original || data.ingredients || '';
+    const allergens = data.allergens || '';
+    if (allergensToggle) {
+        allergensToggle.checked = allergens !== '';
+        toggleAllergens(allergens !== '');
+        if (allergensInput) {
+            allergensInput.value = allergens;
+        }
+    }
     document.getElementById('current_image').value = data.image || '';
     document.getElementById('existing_gallery').value = JSON.stringify(data.gallery || []);
     syncManualPriceField(Boolean(data.use_manual_price));

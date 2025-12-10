@@ -121,6 +121,7 @@ $activeLocalizedFields = $localizedFieldMap[$locale] ?? ['name' => 'nameOriginal
                 $localizedDescription = $item->$descriptionField ?? $item->descriptionOriginal ?? $item->description ?? translate('common.no_description');
                 $localizedCategory = $item->$categoryField ?? $item->categoryOriginal ?? translate('menu.card.no_category');
                 $localizedIngredients = $item->ingredients ?? $item->ingredientsOriginal ?? '';
+                $allergens = $item->allergens ?? '';
                 $roleKey = $comboRoles[$item->id] ?? null;
             ?>
             <div class="col">
@@ -129,6 +130,7 @@ $activeLocalizedFields = $localizedFieldMap[$locale] ?? ['name' => 'nameOriginal
                     'title' => $localizedName,
                     'description' => $localizedDescription ?? '',
                     'ingredients' => $localizedIngredients,
+                    'allergens' => $allergens,
                     'category' => $localizedCategory,
                     'price' => number_format($item->price, 2, '.', ' '),
                     'raw_price' => (float)$item->price,
@@ -155,6 +157,9 @@ $activeLocalizedFields = $localizedFieldMap[$locale] ?? ['name' => 'nameOriginal
                                 <span class="fs-5 fw-bold text-info menu-price"><?= number_format($item->price, 2, '.', ' ') ?> €</span>
                             <?php else: ?>
                                 <span class="menu-price menu-price--placeholder text-muted"><?= htmlspecialchars(translate('menu.card.price_included')) ?></span>
+                            <?php endif; ?>
+                            <?php if ($allergens): ?>
+                                <span class="badge bg-warning text-dark"><?= htmlspecialchars(translate('menu.card.allergens')) ?>: <?= htmlspecialchars($allergens) ?></span>
                             <?php endif; ?>
                             <?php if ($roleKey): ?>
                                 <button type="button" class="btn btn-outline-light combo-select-btn" data-id="<?= $item->id ?>" data-default-text="<?= htmlspecialchars(translate('menu.card.button_default')) ?>" data-combo-role="<?= htmlspecialchars($roleKey) ?>" onclick="event.stopPropagation();"><?= htmlspecialchars(translate('menu.card.button_default')) ?></button>

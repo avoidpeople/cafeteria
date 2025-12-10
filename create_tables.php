@@ -18,6 +18,7 @@ $conn->exec("CREATE TABLE IF NOT EXISTS menu (
     title TEXT NOT NULL,
     description TEXT,
     ingredients TEXT,
+    allergens TEXT,
     price REAL NOT NULL DEFAULT 0,
     use_manual_price INTEGER DEFAULT 0,
     image_url TEXT,

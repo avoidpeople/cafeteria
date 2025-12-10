@@ -43,6 +43,10 @@ if (!in_array('ingredients', $menuColumns, true)) {
     $conn->exec("ALTER TABLE menu ADD COLUMN ingredients TEXT");
 }
 
+if (!in_array('allergens', $menuColumns, true)) {
+    $conn->exec("ALTER TABLE menu ADD COLUMN allergens TEXT");
+}
+
 if (!in_array('use_manual_price', $menuColumns, true)) {
     $conn->exec("ALTER TABLE menu ADD COLUMN use_manual_price INTEGER DEFAULT 0");
 }

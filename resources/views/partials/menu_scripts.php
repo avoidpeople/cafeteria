@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const modalIngr = document.getElementById('dishIngridients');
     const modalCat = document.getElementById('dishCategory');
     const modalPrice = document.getElementById('dishPrice');
+    const modalAllergens = document.getElementById('dishAllergens');
     const modalUniqueBadge = document.getElementById('dishUniqueBadge');
     const carouselEl = document.getElementById('dishCarousel');
     const carouselInner = document.getElementById('dishCarouselInner');
@@ -28,6 +29,10 @@ document.addEventListener('DOMContentLoaded', () => {
             modalDesc.textContent = item.description || t('description_missing', 'Description is not available.');
             modalIngr.textContent = item.ingredients ? `${t('ingredients_prefix', 'Ingredients:')} ${item.ingredients}` : '';
             modalCat.textContent = item.category ? `${t('category_prefix', 'Category:')} ${item.category}` : t('category_none', 'No category');
+            if (modalAllergens) {
+                modalAllergens.textContent = item.allergens ? `${t('allergens_prefix', 'Allergens:')} ${item.allergens}` : '';
+                modalAllergens.style.display = item.allergens ? '' : 'none';
+            }
             const rawPrice = typeof item.raw_price !== 'undefined' ? parseFloat(item.raw_price) : parseFloat(item.price);
             const isUnique = Boolean(item.is_unique);
             modalUniqueBadge?.classList.toggle('d-none', !isUnique);
