@@ -206,7 +206,7 @@ $activeLocalizedFields = $localizedFieldMap[$locale] ?? ['name' => 'nameOriginal
                                     </button>
                                 <?php endif; ?>
                                 <?php foreach ($category['items'] as $option): ?>
-                                    <button type="button" class="combo-option-card" data-category="<?= htmlspecialchars($category['key']) ?>" data-id="<?= $option['id'] ?>" data-title="<?= htmlspecialchars($option['title']) ?>" data-description="<?= htmlspecialchars($option['description'] ?? '') ?>" data-image="<?= htmlspecialchars($option['image'] ?? '') ?>" data-price="<?= htmlspecialchars((string)($option['price'] ?? 0)) ?>" data-unique="<?= !empty($option['unique']) ? '1' : '0' ?>">
+                                    <button type="button" class="combo-option-card" data-category="<?= htmlspecialchars($category['key']) ?>" data-id="<?= $option['id'] ?>" data-title="<?= htmlspecialchars($option['title']) ?>" data-description="<?= htmlspecialchars($option['description'] ?? '') ?>" data-image="<?= htmlspecialchars($option['image'] ?? '') ?>" data-price="<?= htmlspecialchars((string)($option['price'] ?? 0)) ?>" data-custom-price="<?= htmlspecialchars((string)($option['custom_price'] ?? '')) ?>" data-unique="<?= !empty($option['unique']) ? '1' : '0' ?>">
                                         <div class="combo-option-thumb">
                                             <?php if (!empty($option['image'])): ?>
                                                 <img src="/assets/images/<?= htmlspecialchars($option['image']) ?>" alt="<?= htmlspecialchars($option['title']) ?>">
@@ -222,7 +222,11 @@ $activeLocalizedFields = $localizedFieldMap[$locale] ?? ['name' => 'nameOriginal
                                             <span class="combo-option-tag"><?= htmlspecialchars($category['label']) ?></span>
                                             <div class="combo-option-extra">
                                                 <?php if (!empty($option['price'])): ?>
-                                                    <span class="combo-option-unique">+<?= number_format((float)$option['price'], 2, '.', ' ') ?> €</span>
+                                                    <?php if (!empty($category['required'])): ?>
+                                                        <span class="combo-option-unique"><?= number_format((float)$option['price'], 2, '.', ' ') ?> €</span>
+                                                    <?php else: ?>
+                                                        <span class="combo-option-unique">+<?= number_format((float)$option['price'], 2, '.', ' ') ?> €</span>
+                                                    <?php endif; ?>
                                                 <?php else: ?>
                                                     <span class="combo-option-regular"><?= htmlspecialchars(translate('combo.category.free')) ?></span>
                                                 <?php endif; ?>

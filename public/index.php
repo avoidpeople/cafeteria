@@ -20,7 +20,7 @@ $view = new ViewRenderer(__DIR__ . '/../resources/views', __DIR__ . '/../resourc
 $app = App::create($view, new Router());
 
 $homeController = new HomeController($menuService, $view);
-$menuController = new MenuController($menuService, $view);
+$menuController = new MenuController($menuService, $comboService, $view);
 $authController = new AuthController($authService, $view, $sessionManager);
 $cartController = new CartController($authService, $cartService, $view, $sessionManager);
 $orderController = new OrderController($authService, $orderService, $cartService, $menuRepository, $view, $sessionManager);

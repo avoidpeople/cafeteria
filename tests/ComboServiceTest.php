@@ -160,13 +160,52 @@ function testComboPricingWithExtras(): void
         throw new RuntimeException('Combo price mismatch. Expected ' . $expectedPrice . ' got ' . $combo['price']);
     }
     assertComboEqual($extraId, $combo['selection']['extra']['extra:dessert'] ?? null, 'Extra selection must keep category key');
-    assertComboEqual(1.5, $combo['pricing']['extras']['soup'] ?? null, 'Soup surcharge stored');
-    assertComboEqual(2.25, $combo['pricing']['extras']['extra:dessert'] ?? null, 'Extra surcharge stored');
+    assertComboEqual(1.5, $combo['pricing']['surcharges']['soup'] ?? null, 'Soup surcharge stored');
+    assertComboEqual(2.25, $combo['pricing']['surcharges']['extra:dessert'] ?? null, 'Extra surcharge stored');
+}
+
+function testComboPricingWithUniqueDishAndDefaultSoup(): void
+{
+    [$service, $repository] = createComboService();
+    $mainId = seedDish($repository, [
+        'title' => 'Premium Hot',
+        'price' => 4.5,
+        'use_manual_price' => 1,
+        'category_role' => 'main',
+        'category_key' => 'main',
+    ]);
+    $garnishId = seedDish($repository, [
+        'title' => 'Side',
+        'category_role' => 'garnish',
+        'category_key' => 'garnish',
+    ]);
+    $soupId = seedDish($repository, [
+        'title' => 'Soup',
+        'price' => 0,
+        'category_role' => 'soup',
+        'category_key' => 'soup',
+    ]);
+
+    $combo = $service->createCombo([
+        'main' => $mainId,
+        'garnish' => $garnishId,
+        'soup' => $soupId,
+    ]);
+    $expectedPrice = 4.5 + 0.5;
+    if (abs($combo['price'] - $expectedPrice) > 0.001) {
+        throw new RuntimeException('Combo price mismatch with unique dish. Expected ' . $expectedPrice . ' got ' . $combo['price']);
+    }
+    assertComboEqual(4.5, $combo['pricing']['base'] ?? null, 'Base price must follow unique dish');
+    assertComboEqual(null, $combo['pricing']['surcharges']['main'] ?? null, 'Main should not be treated as surcharge');
+    assertComboEqual(0.5, $combo['pricing']['surcharges']['soup'] ?? null, 'Default soup surcharge stored');
+    assertComboEqual(4.5, $combo['items'][0]['price'] ?? null, 'Main price preserved in items');
+    assertComboEqual(0.5, $combo['items'][2]['price'] ?? null, 'Soup price preserved in items');
 }
 
 try {
     testComboRequiresMandatoryDishes();
     testComboPricingWithExtras();
+    testComboPricingWithUniqueDishAndDefaultSoup();
     echo "Combo service tests passed.\n";
 } catch (Throwable $e) {
     fwrite(STDERR, 'Combo service tests failed: ' . $e->getMessage() . PHP_EOL);

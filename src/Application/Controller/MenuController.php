@@ -10,7 +10,7 @@ use function translate;
 
 class MenuController
 {
-    public function __construct(private MenuService $menuService, private ViewRenderer $view)
+    public function __construct(private MenuService $menuService, private ComboService $comboService, private ViewRenderer $view)
     {
     }
 
@@ -134,7 +134,9 @@ class MenuController
 
     private function mapComboItem(MenuItem $item, string $key, string $categoryLabel, bool $required): array
     {
-        $price = $required ? null : ($item->price > 0 ? round($item->price, 2) : null);
+        $pricing = $this->comboService->computeItemPrice($item, $key, $required);
+        $priceValue = $pricing['price'] ?? 0.0;
+        $price = $priceValue > 0 ? $priceValue : null;
         return [
             'id' => $item->id,
             'title' => $item->title,
@@ -143,6 +145,7 @@ class MenuController
             'image' => $item->primaryImage(),
             'description' => $item->description ?? null,
             'price' => $price,
+            'custom_price' => $pricing['custom_price'] ?? null,
             'unique' => $item->isUnique(),
         ];
     }

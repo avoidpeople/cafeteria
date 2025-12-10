@@ -105,6 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const comboError = document.getElementById('comboError');
     const comboPriceValue = document.getElementById('comboPriceValue');
     const comboPriceHint = document.getElementById('comboPriceHint');
+    const defaultPriceHint = comboPriceHint ? comboPriceHint.textContent : '';
     const comboButtons = Array.from(document.querySelectorAll('.combo-select-btn'));
     const comboConfigEl = document.getElementById('comboConfig');
     const comboConfig = comboConfigEl ? JSON.parse(comboConfigEl.textContent) : {};
@@ -268,28 +269,41 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updatePrice() {
         if (!comboPriceValue) return;
-        let total = COMBO_BASE_PRICE;
+        let base = COMBO_BASE_PRICE;
+        const mainId = comboState.main;
+        if (mainId) {
+            const mainData = getCardData('main', mainId);
+            const mainPrice = mainData ? parsePrice(mainData.price) : 0;
+            if (mainPrice > 0) {
+                base = mainPrice;
+            }
+        }
+        let total = base;
         const hintParts = [];
         const hasRequired = requiredKeys.every(key => comboState[key]);
         if (!hasRequired) {
-            comboPriceValue.textContent = `${COMBO_BASE_PRICE.toFixed(2)} €`;
+            comboPriceValue.textContent = `${total.toFixed(2)} €`;
             comboPriceHint && (comboPriceHint.textContent = t('summary_pick_main', 'Select required dish'));
             return;
         }
         comboCategories.forEach(category => {
-            if (!comboState[category.key] || category.required) {
+            const selectionId = comboState[category.key];
+            if (!selectionId) {
                 return;
             }
-            const data = getCardData(category.key, comboState[category.key]);
-            if (data && parsePrice(data.price) > 0) {
-                const price = parsePrice(data.price);
+            const data = getCardData(category.key, selectionId);
+            const price = data ? parsePrice(data.price) : 0;
+            if (['main', 'garnish'].includes(category.key)) {
+                return;
+            }
+            if (price > 0) {
                 total += price;
                 hintParts.push(`${category.label}: +${formatCurrency(price)} €`);
             }
         });
         comboPriceValue.textContent = `${total.toFixed(2)} €`;
         if (comboPriceHint) {
-            comboPriceHint.textContent = hintParts.join(' · ');
+            comboPriceHint.textContent = hintParts.length ? hintParts.join(' · ') : defaultPriceHint;
         }
     }
 

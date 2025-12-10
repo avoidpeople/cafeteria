@@ -11,6 +11,7 @@ class ComboService
 {
     public const BASE_PRICE = 4.0;
     private const COMBO_CATEGORY = '_combo';
+    private const SOUP_DEFAULT_PRICE = 0.5;
     private ?int $comboMenuId = null;
 
     public function __construct(private MenuRepositoryInterface $menuRepository)
@@ -39,32 +40,36 @@ class ComboService
             }
         }
 
+        ['price' => $mainPrice, 'custom_price' => $mainCustomPrice] = $this->computeItemPrice($main, 'main', true);
+        ['price' => $garnishPrice, 'custom_price' => $garnishCustomPrice] = $this->computeItemPrice($garnish, 'garnish', true);
+        ['price' => $soupPrice, 'custom_price' => $soupCustomPrice] = $soup ? $this->computeItemPrice($soup, 'soup', false) : ['price' => 0.0, 'custom_price' => null];
+
         $items = [
-            $this->serializeItem($main, 'main', $main->category ?? translate('combo.category.main'), true),
-            $this->serializeItem($garnish, 'garnish', $garnish->category ?? translate('combo.category.garnish'), true),
+            $this->serializeItem($main, 'main', $main->category ?? translate('combo.category.main'), true, $mainPrice, $mainCustomPrice),
+            $this->serializeItem($garnish, 'garnish', $garnish->category ?? translate('combo.category.garnish'), true, $garnishPrice, $garnishCustomPrice),
         ];
 
         if ($soup) {
-            $items[] = $this->serializeItem($soup, 'soup', $soup->category ?? translate('combo.category.soup'), false);
+            $items[] = $this->serializeItem($soup, 'soup', $soup->category ?? translate('combo.category.soup'), false, $soupPrice, $soupCustomPrice);
         }
 
+        $extraPricing = [];
         foreach ($extraSelections as $key => $dish) {
-            $items[] = $this->serializeItem($dish, $key, $dish->category ?? translate('combo.category.extra'), false);
-        }
-
-        $total = self::BASE_PRICE;
-        $pricingExtras = [];
-        if ($soup && $this->hasComboPrice($soup)) {
-            $price = $this->normalizePrice($soup->price);
-            $pricingExtras['soup'] = $price;
-            $total += $price;
-        }
-        foreach ($extraSelections as $key => $dish) {
-            if (!$this->hasComboPrice($dish)) {
-                continue;
+            ['price' => $price, 'custom_price' => $customPrice] = $this->computeItemPrice($dish, $key, false);
+            $items[] = $this->serializeItem($dish, $key, $dish->category ?? translate('combo.category.extra'), false, $price, $customPrice);
+            if ($price > 0) {
+                $extraPricing[$key] = $price;
             }
-            $price = $this->normalizePrice($dish->price);
-            $pricingExtras[$key] = $price;
+        }
+
+        $basePrice = $mainPrice > 0 ? $mainPrice : self::BASE_PRICE;
+        $total = $basePrice + $soupPrice;
+        $pricingSurcharges = [];
+        if ($soupPrice > 0) {
+            $pricingSurcharges['soup'] = $soupPrice;
+        }
+        foreach ($extraPricing as $key => $price) {
+            $pricingSurcharges[$key] = $price;
             $total += $price;
         }
 
@@ -86,8 +91,8 @@ class ComboService
                 'extra' => $extraSelectionIds,
             ],
             'pricing' => [
-                'base' => self::BASE_PRICE,
-                'extras' => $pricingExtras,
+                'base' => $basePrice,
+                'surcharges' => $pricingSurcharges,
             ],
             'created_at' => time(),
         ];
@@ -127,9 +132,28 @@ class ComboService
         return $dish;
     }
 
-    private function serializeItem(MenuItem $item, string $key, string $label, bool $required): array
+    /**
+     * @return array{price: float, custom_price: ?float}
+     */
+    public function computeItemPrice(MenuItem $item, string $categoryKey, bool $required): array
     {
-        $price = (!$required && $this->hasComboPrice($item)) ? $this->normalizePrice($item->price) : 0.0;
+        if ($categoryKey === 'garnish') {
+            return ['price' => 0.0, 'custom_price' => null];
+        }
+        $customPrice = $this->resolveCustomPrice($item, $required);
+        $basePrice = $categoryKey === 'soup'
+            ? ($customPrice ?? self::SOUP_DEFAULT_PRICE)
+            : ($customPrice ?? 0.0);
+        $price = $this->normalizePrice($basePrice);
+
+        return [
+            'price' => $price,
+            'custom_price' => $customPrice,
+        ];
+    }
+
+    private function serializeItem(MenuItem $item, string $key, string $label, bool $required, float $price, ?float $customPrice): array
+    {
         return [
             'id' => $item->id,
             'title' => $item->title,
@@ -138,13 +162,21 @@ class ComboService
             'image' => $item->primaryImage(),
             'description' => $item->description ?? null,
             'price' => $price,
+            'custom_price' => $customPrice,
             'required' => $required,
         ];
     }
 
-    private function hasComboPrice(MenuItem $dish): bool
+    private function resolveCustomPrice(MenuItem $dish, bool $required): ?float
     {
-        return $this->normalizePrice($dish->price) > 0;
+        $price = $this->normalizePrice($dish->price);
+        if ($price <= 0) {
+            return null;
+        }
+        if (!$required) {
+            return $price;
+        }
+        return $dish->isUnique() ? $price : null;
     }
 
     private function assertAvailable(?MenuItem $item, string $message): void

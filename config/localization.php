@@ -184,7 +184,7 @@ return [
             'menu.modal.carousel_hint' => 'Используйте стрелки или свайп, чтобы посмотреть все фото и описание блюда.',
             'menu.modal.prev' => 'Предыдущее',
             'menu.modal.next' => 'Следующее',
-            'menu.combo_modal.tagline' => 'Комплексный обед · 4.5 €',
+            'menu.combo_modal.tagline' => 'Комплексный обед · от 4 €',
             'menu.combo_modal.title' => 'Соберите персональный набор',
             'menu.combo_modal.main_heading' => '1. Горячее *',
             'menu.combo_modal.main_hint' => 'Выберите одно блюдо',
@@ -456,7 +456,7 @@ return [
         'lv' => [
             'brand.name' => 'Doctor Gorilka',
             'nav.home' => 'Sākums',
-            'nav.menu' => 'Izvēlne',
+            'nav.menu' => 'Ēdienkarte',
             'nav.cart' => 'Grozs',
             'nav.orders' => 'Mani pasūtījumi',
             'nav.profile' => 'Profils',
@@ -629,7 +629,7 @@ return [
             'menu.modal.carousel_hint' => 'Izmantojiet bultiņas vai žestu, lai apskatītu visus foto un aprakstu.',
             'menu.modal.prev' => 'Iepriekšējais',
             'menu.modal.next' => 'Nākamais',
-            'menu.combo_modal.tagline' => 'Komplekss pusdienas · 4.5 €',
+            'menu.combo_modal.tagline' => 'Komplekss pusdienas · no 4€',
             'menu.combo_modal.title' => 'Izveidojiet savu komplektu',
             'menu.combo_modal.main_heading' => '1. Karstais ēdiens *',
             'menu.combo_modal.main_hint' => 'Izvēlieties vienu ēdienu',
@@ -692,7 +692,7 @@ return [
 
             // Cart
             'cart.title' => 'Grozs',
-            'cart.empty' => 'Grozs ir tukšs. Pievienojiet ēdienus no izvēlnes.',
+            'cart.empty' => 'Grozs ir tukšs. Pievienojiet ēdienus no ēdienkartes.',
             'cart.table.in_order' => 'Pasūtījumā',
             'cart.table.photo' => 'Foto',
             'cart.table.name' => 'Nosaukums',
