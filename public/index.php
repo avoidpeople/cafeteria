@@ -21,12 +21,12 @@ $app = App::create($view, new Router());
 
 $homeController = new HomeController($menuService, $view);
 $menuController = new MenuController($menuService, $comboService, $view);
-$authController = new AuthController($authService, $view, $sessionManager);
-$cartController = new CartController($authService, $cartService, $view, $sessionManager);
+$authController = new AuthController($authService, $view, $sessionManager, $cartService);
+$cartController = new CartController($cartService, $view, $sessionManager);
 $orderController = new OrderController($authService, $orderService, $cartService, $menuRepository, $view, $sessionManager);
 $profileController = new ProfileController($authService, $userRepository, $orderService, $view, $sessionManager);
 $languageController = new LanguageController();
-$cartApiController = new CartApiController($authService, $cartService, $comboService, $sessionManager);
+$cartApiController = new CartApiController($cartService, $comboService);
 $adminMenuController = new AdminMenuController($authService, $adminMenuService, $view, $sessionManager);
 $adminOrderController = new AdminOrderController($authService, $orderService, $view, $sessionManager);
 $notificationController = new NotificationController($authService, $notificationService, $sessionManager);

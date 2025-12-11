@@ -16,12 +16,15 @@
                 <label class="form-label"><?= htmlspecialchars(translate('auth.login.password')) ?></label>
                 <input type="password" class="form-control" name="password" required>
             </div>
+            <?php if (!empty($next)): ?>
+                <input type="hidden" name="next" value="<?= htmlspecialchars($next) ?>">
+            <?php endif; ?>
             <button type="submit" class="btn btn-primary"><?= htmlspecialchars(translate('auth.login.submit')) ?></button>
         </form>
 
         <a href="/" class="btn btn-outline-secondary w-100 mt-3"><?= htmlspecialchars(translate('auth.login.cancel')) ?></a>
         <p class="mt-3 mb-0"><?= htmlspecialchars(translate('auth.login.no_account')) ?>
-            <a href="/register"><?= htmlspecialchars(translate('auth.login.register_link')) ?></a>
+            <a href="/register<?= !empty($next) ? '?next=' . urlencode($next) : '' ?>"><?= htmlspecialchars(translate('auth.login.register_link')) ?></a>
         </p>
     </div>
 </div>

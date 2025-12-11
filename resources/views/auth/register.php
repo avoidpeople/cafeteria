@@ -2,7 +2,7 @@
 <div class="d-flex justify-content-center align-items-center" style="min-height: 100vh;">
     <div class="card" style="max-width: 460px; width: 100%; padding: 20px;">
         <h2 class="mb-2"><?= htmlspecialchars(translate('auth.register.heading')) ?></h2>
-        <p><?= htmlspecialchars(translate('auth.register.description')) ?> <a href="/login"><?= htmlspecialchars(translate('auth.register.login_link')) ?></a></p>
+        <p><?= htmlspecialchars(translate('auth.register.description')) ?> <a href="/login<?= !empty($next) ? '?next=' . urlencode($next) : '' ?>"><?= htmlspecialchars(translate('auth.register.login_link')) ?></a></p>
 
         <?php foreach ($errors as $error): ?>
             <div class="alert alert-danger my-2"><?= htmlspecialchars($error) ?></div>
@@ -40,6 +40,9 @@
                 <input type="password" class="form-control" name="confirm" required>
             </div>
 
+            <?php if (!empty($next)): ?>
+                <input type="hidden" name="next" value="<?= htmlspecialchars($next) ?>">
+            <?php endif; ?>
             <button type="submit" class="btn btn-success"><?= htmlspecialchars(translate('auth.register.submit')) ?></button>
         </form>
     </div>

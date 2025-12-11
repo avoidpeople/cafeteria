@@ -1,4 +1,8 @@
-<?php $title = 'Doctor Gorilka — ' . translate('cart.title'); ?>
+<?php
+$title = 'Doctor Gorilka — ' . translate('cart.title');
+$isGuest = empty($_SESSION['user_id']);
+$loginRedirect = '/login?next=/cart';
+?>
 <div class="page-container page-container-wide">
 <div class="d-flex align-items-center justify-content-between mb-3">
     <h1 class="mb-0"><?= htmlspecialchars(translate('cart.title')) ?></h1>
@@ -95,7 +99,11 @@
             </div>
             <div class="d-flex flex-column gap-2 align-self-stretch">
                 <a class="btn btn-outline-danger" href="/cart/clear" onclick="return confirm('<?= htmlspecialchars(translate('cart.actions.confirm_clear')) ?>');"><?= htmlspecialchars(translate('cart.actions.clear')) ?></a>
-                <button type="submit" class="btn btn-success" id="submitOrder"><?= htmlspecialchars(translate('cart.actions.submit')) ?></button>
+                <?php if ($isGuest): ?>
+                    <button type="button" class="btn btn-success" id="submitOrder" data-login-redirect="<?= htmlspecialchars($loginRedirect) ?>"><?= htmlspecialchars(translate('cart.actions.login_checkout')) ?></button>
+                <?php else: ?>
+                    <button type="submit" class="btn btn-success" id="submitOrder"><?= htmlspecialchars(translate('cart.actions.submit')) ?></button>
+                <?php endif; ?>
             </div>
         </div>
     </div>

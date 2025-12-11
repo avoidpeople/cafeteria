@@ -1602,7 +1602,7 @@ h1, h2, h3 {
     background: var(--header-bg);
     border-bottom: 1px solid var(--header-border);
     box-shadow: var(--header-shadow);
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(30px);
 }
 
 .header-shell {
@@ -1610,7 +1610,8 @@ h1, h2, h3 {
     align-items: center;
     gap: 14px;
     min-height: var(--header-height);
-    padding: 12px 6px;
+    padding: 0 6px;
+    flex-wrap: wrap;
 }
 
 .header-content {
@@ -1685,14 +1686,16 @@ h1, h2, h3 {
 }
 
 .brand-mark {
-    width: 32px;
-    height: 32px;
-    border-radius: 10px;
-    background: linear-gradient(135deg, rgba(59,130,246,0.75), rgba(16,185,129,0.7));
+    width: 80px;
+    height: 80px;
+    margin: 1rem 0 0 1rem;
+    border-radius: 12px;
+    background: url('/assets/images/gorilka.jpg') center/cover no-repeat;
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
 }
 
 .brand-text {
+    margin: 1rem 4.5rem 0 1rem;
     color: var(--header-text);
     font-weight: 700;
     letter-spacing: 0.02em;
@@ -1706,7 +1709,6 @@ h1, h2, h3 {
 .theme-navbar .navbar-collapse {
     align-items: center;
     width: 100%;
-    gap: 14px;
 }
 
 .theme-navbar .navbar-toggler {
@@ -1729,6 +1731,7 @@ h1, h2, h3 {
     justify-content: flex-end;
     flex-shrink: 1;
     flex-wrap: wrap;
+    white-space: normal;
     gap: 8px;
     row-gap: 8px;
     max-width: 100%;
@@ -1836,13 +1839,14 @@ h1, h2, h3 {
     }
 
     .header-shell {
-        padding: 10px 10px;
+        padding: 10px 12px;
+        flex-wrap: wrap;
     }
 
     .header-content {
         flex-direction: column;
         align-items: stretch;
-        gap: 12px;
+        gap: 20px;
     }
 
     .header-nav {
@@ -1857,8 +1861,11 @@ h1, h2, h3 {
     .header-actions {
         width: 100%;
         justify-content: flex-start;
+        flex-wrap: nowrap;
         overflow-x: auto;
         padding-bottom: 6px;
+        white-space: nowrap;
+        scrollbar-width: thin;
     }
 
     .theme-navbar .navbar-collapse {
@@ -1894,6 +1901,7 @@ h1, h2, h3 {
     .header-actions {
         gap: 6px;
         row-gap: 6px;
+        flex-wrap: nowrap;
     }
 
     .action-btn {
@@ -1903,8 +1911,7 @@ h1, h2, h3 {
     }
 
     .language-switcher {
-        width: 100%;
-        flex-wrap: wrap;
+        flex-wrap: nowrap;
         gap: 6px;
     }
 }

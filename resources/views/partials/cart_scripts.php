@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const selectedTotalEl = document.getElementById('selectedTotal');
     const selectedCountEl = document.getElementById('selectedCount');
     const submitBtn = document.getElementById('submitOrder');
+    const loginRedirect = submitBtn?.dataset.loginRedirect || '';
     const tbody = document.getElementById('cartTableBody');
     const STORAGE_KEY = 'cart_selected_items';
     const savedState = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
@@ -33,7 +34,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         selectedTotalEl.textContent = total.toFixed(2) + ' €';
         selectedCountEl.textContent = count;
-        submitBtn.disabled = total === 0;
+        if (submitBtn && !loginRedirect) {
+            submitBtn.disabled = total === 0;
+        }
     }
 
     function sortRows() {
@@ -116,6 +119,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (storageDirty) {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(savedState));
+    }
+
+    if (loginRedirect && submitBtn) {
+        submitBtn.addEventListener('click', () => {
+            window.location.href = loginRedirect;
+        });
     }
 
     sortRows();

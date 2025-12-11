@@ -15,6 +15,10 @@ class CartService
         private MenuRepositoryInterface $menus
     ) {
         $this->session->set(self::KEY, $this->session->get(self::KEY, []));
+        $userId = (int)$this->session->get('user_id', 0);
+        if ($userId > 0) {
+            $this->mergeUserCart($userId);
+        }
     }
 
     private function getCart(): array
@@ -54,6 +58,10 @@ class CartService
         $cart['items'] = $cart['items'] ?? [];
         $cart['combos'] = $cart['combos'] ?? [];
         $this->session->set(self::KEY, $cart);
+        $userId = (int)$this->session->get('user_id', 0);
+        if ($userId > 0) {
+            $this->session->set($this->userCartKey($userId), $cart);
+        }
     }
 
     public function addItem(int $id, int $quantity = 1): bool
@@ -170,6 +178,36 @@ class CartService
         return $this->getCart();
     }
 
+    public function mergeUserCart(int $userId): void
+    {
+        if ($userId <= 0) {
+            return;
+        }
+        $sessionCart = $this->getCart();
+        $userCart = $this->session->get($this->userCartKey($userId), []);
+        $merged = [
+            'items' => [],
+            'combos' => [],
+        ];
+
+        foreach ([$userCart, $sessionCart] as $cart) {
+            foreach (($cart['items'] ?? []) as $id => $qty) {
+                $intId = (int)$id;
+                $intQty = (int)$qty;
+                if ($intId > 0 && $intQty > 0) {
+                    $merged['items'][$intId] = ($merged['items'][$intId] ?? 0) + $intQty;
+                }
+            }
+            foreach (($cart['combos'] ?? []) as $comboId => $combo) {
+                if (is_string($comboId) && is_array($combo) && isset($combo['id'], $combo['menu_id'])) {
+                    $merged['combos'][$comboId] = $combo;
+                }
+            }
+        }
+
+        $this->saveCart($merged);
+    }
+
     public function removeItems(array $ids): void
     {
         $cart = $this->getCart();
@@ -185,6 +223,11 @@ class CartService
             }
         }
         $this->saveCart($cart);
+    }
+
+    private function userCartKey(int $userId): string
+    {
+        return 'cart_user_' . $userId;
     }
 
     private function comboAvailability(array $combo): array

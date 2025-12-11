@@ -30,7 +30,9 @@
                             <div class="form-check form-switch mb-0">
                                 <input class="form-check-input" type="checkbox" role="switch" id="toggleLocalizedNames">
                                 <label class="form-check-label small" for="toggleLocalizedNames"><?= htmlspecialchars(translate('admin.menu.form.name_locale_toggle')) ?></label>
-                                <span class="ms-1 text-muted" title="<?= htmlspecialchars(translate('admin.menu.form.name_locale_hint')) ?>">&#9432;</span>
+                                <button type="button" class="btn btn-link btn-sm p-0 ms-2 helper-hint" data-bs-toggle="tooltip" data-bs-placement="top" title="<?= htmlspecialchars(translate('admin.menu.form.name_locale_tooltip')) ?>">
+                                    <?= htmlspecialchars(translate('admin.menu.form.locale_help_label')) ?>
+                                </button>
                             </div>
                         </div>
                         <input type="text" class="form-control" name="title" id="edit_title" required>
@@ -52,7 +54,9 @@
                             <div class="form-check form-switch mb-0">
                                 <input class="form-check-input" type="checkbox" role="switch" id="toggleLocalizedDesc">
                                 <label class="form-check-label small" for="toggleLocalizedDesc"><?= htmlspecialchars(translate('admin.menu.form.desc_locale_toggle')) ?></label>
-                                <span class="ms-1 text-muted" title="<?= htmlspecialchars(translate('admin.menu.form.desc_locale_hint')) ?>">&#9432;</span>
+                                <button type="button" class="btn btn-link btn-sm p-0 ms-2 helper-hint" data-bs-toggle="tooltip" data-bs-placement="top" title="<?= htmlspecialchars(translate('admin.menu.form.desc_locale_tooltip')) ?>">
+                                    <?= htmlspecialchars(translate('admin.menu.form.locale_help_label')) ?>
+                                </button>
                             </div>
                         </div>
                         <textarea name="description" class="form-control" id="edit_desc"></textarea>
@@ -287,6 +291,11 @@ const nameRuInput = document.getElementById('edit_name_ru');
 const nameLvInput = document.getElementById('edit_name_lv');
 const descRuInput = document.getElementById('edit_desc_ru');
 const descLvInput = document.getElementById('edit_desc_lv');
+document.addEventListener('DOMContentLoaded', () => {
+    if (window.bootstrap) {
+        Array.from(document.querySelectorAll('[data-bs-toggle=\"tooltip\"]')).forEach(el => new bootstrap.Tooltip(el));
+    }
+});
 
 function syncManualPriceField(forceValue = null) {
     if (!manualPriceToggle || !manualPriceInput) {

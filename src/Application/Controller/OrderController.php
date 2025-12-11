@@ -86,7 +86,7 @@ class OrderController
 
     public function place(): void
     {
-        $this->authService->requireLogin(translate('auth.require.checkout'));
+        $this->authService->requireLogin(translate('auth.require.checkout'), '/login?next=/cart');
 
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             setToast(translate('orders.errors.select_items'), 'warning');

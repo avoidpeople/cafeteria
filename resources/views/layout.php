@@ -7,6 +7,7 @@
 <head>
     <meta charset="UTF-8">
     <title><?= htmlspecialchars($title ?? 'Doctor Gorilka') ?></title>
+    <link rel="icon" href="/assets/images/gorilka.jpg" type="image/jpeg">
     <link rel="stylesheet" href="/assets/css/styles.css">
     <script>
         (function() {
