@@ -15,6 +15,8 @@ $missingList = $comboEntry['missing'] ?? [];
 $missingIds = array_map(static fn ($item) => (int)($item['id'] ?? 0), $missingList);
 $rowClass = $isAvailable ? 'row-selected' : 'row-unavailable';
 $availableAttr = $isAvailable ? '1' : '0';
+$comboGallery = $combo['image_gallery'] ?? [];
+$comboThumb = $combo['image'] ?? $combo['image_url'] ?? ($comboGallery[0] ?? 'komplekss_obed.png');
 ?>
 <tr class="cart-row combo-row <?= $rowClass ?>" data-id="<?= htmlspecialchars($comboId) ?>" data-sum="<?= htmlspecialchars((string)$sum) ?>" data-qty="<?= $quantity ?>" data-available="<?= $availableAttr ?>">
     <td>
@@ -35,8 +37,14 @@ $availableAttr = $isAvailable ? '1' : '0';
             <?php endif; ?>
         <?php endif; ?>
     </td>
-    <td>
-        <div class="combo-thumb text-gradient">🍱</div>
+        <td>
+        <div class="combo-thumb text-gradient">
+            <?php if ($comboThumb): ?>
+                <img src="/assets/images/<?= htmlspecialchars($comboThumb) ?>" alt="<?= htmlspecialchars($combo['title'] ?? translate('combo.title')) ?>">
+            <?php else: ?>
+                <?= htmlspecialchars(translate('common.no_photo')) ?>
+            <?php endif; ?>
+        </div>
     </td>
     <td>
         <div class="fw-semibold mb-2 d-flex align-items-center gap-2">

@@ -63,7 +63,6 @@ $activeLocalizedFields = $localizedFieldMap[$locale] ?? ['name' => 'nameOriginal
         </div>
         <div class="d-flex flex-column flex-sm-row gap-2">
             <button class="btn btn-gradient btn-lg" id="comboBuilderButton" type="button"><?= htmlspecialchars(translate('menu.combo.create_btn')) ?></button>
-<!--SADSADASD-->    <button class="btn btn-outline-light btn-lg" type="button" id="comboBuilderReset" hidden><?= htmlspecialchars(translate('menu.combo.exit_btn')) ?></button>
         </div>
         <div class="combo-hero__note text-muted"><?= htmlspecialchars(translate('menu.combo.note')) ?></div>
     </div>
@@ -261,7 +260,7 @@ $activeLocalizedFields = $localizedFieldMap[$locale] ?? ['name' => 'nameOriginal
                         </div>
                         <div class="text-end text-muted small" id="comboPriceHint"><?= htmlspecialchars(translate('menu.combo_modal.summary_hint')) ?></div>
                     </div>
-                    <button type="button" class="btn btn-gradient w-100 mt-3" id="comboSubmit" disabled><?= htmlspecialchars(translate('menu.combo_modal.submit')) ?></button>
+                    <button type="button" class="btn btn-gradient w-100 mt-3" id="comboSubmit"><?= htmlspecialchars(translate('menu.combo_modal.submit')) ?></button>
                     <div class="text-danger small mt-2 d-none" id="comboError"></div>
                 </div>
             </div>

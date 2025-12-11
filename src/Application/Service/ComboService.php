@@ -78,11 +78,17 @@ class ComboService
             $extraSelectionIds[$key] = $dish->id;
         }
 
+        $comboMenu = $this->menuRepository->findById($this->comboMenuId());
+        $comboImage = $comboMenu?->primaryImage();
+        $comboGallery = $comboMenu?->galleryImages() ?? [];
+
         return [
             'id' => $selection['id'] ?? $this->generateId(),
             'title' => translate('combo.title'),
             'price' => round($total, 2),
             'menu_id' => $this->comboMenuId(),
+            'image' => $comboImage,
+            'image_gallery' => $comboGallery,
             'items' => $items,
             'selection' => [
                 'main' => $main->id,

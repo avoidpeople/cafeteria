@@ -104,7 +104,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const comboModalEl = document.getElementById('comboModal');
     const comboModal = comboModalEl ? bootstrap.Modal.getOrCreateInstance(comboModalEl) : null;
     const comboBuilderBtn = document.getElementById('comboBuilderButton');
-    const comboExitBtn = document.getElementById('comboBuilderReset');
     const comboSummary = document.getElementById('comboSelectionPreview');
     const comboSubmit = document.getElementById('comboSubmit');
     const comboError = document.getElementById('comboError');
@@ -116,6 +115,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const comboConfig = comboConfigEl ? JSON.parse(comboConfigEl.textContent) : {};
     const comboCategories = Array.isArray(comboConfig.categories) ? comboConfig.categories : [];
     const categoryMap = {};
+    const categorySteps = {};
     comboCategories.forEach(cat => {
         categoryMap[cat.key] = cat;
     });
@@ -126,8 +126,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     const cardMap = new Map();
     const COMBO_BASE_PRICE = parseFloat(comboConfig.base_price ?? 4) || 4;
+    let missingKeys = [];
 
     if (comboModalEl) {
+        comboModalEl.querySelectorAll('.combo-step').forEach(step => {
+            const key = step.dataset.category;
+            if (key) {
+                categorySteps[key] = step;
+            }
+        });
         comboModalEl.querySelectorAll('.combo-option-card').forEach(card => {
             const category = card.dataset.category;
             const id = card.dataset.id || '';
@@ -152,18 +159,19 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     comboBuilderBtn?.addEventListener('click', () => openComboModal());
-    comboExitBtn?.addEventListener('click', () => {
-        comboModal?.hide();
-        toggleComboMode(false);
+    comboModalEl?.addEventListener('show.bs.modal', () => {
+        toggleComboMode(true);
     });
 
     comboModalEl?.addEventListener('shown.bs.modal', () => {
-        toggleComboMode(true);
         updateUI();
     });
 
-    comboModalEl?.addEventListener('hidden.bs.modal', () => {
+    comboModalEl?.addEventListener('hide.bs.modal', () => {
         toggleComboMode(false);
+    });
+
+    comboModalEl?.addEventListener('hidden.bs.modal', () => {
         if (comboError) {
             comboError.classList.add('d-none');
             comboError.textContent = '';
@@ -173,10 +181,16 @@ document.addEventListener('DOMContentLoaded', () => {
     comboSubmit?.addEventListener('click', async () => {
         const missingRequired = requiredKeys.filter(key => !comboState[key]);
         if (missingRequired.length > 0) {
+            missingKeys = missingRequired;
             comboError?.classList.remove('d-none');
-            comboError && (comboError.textContent = t('summary_pick_main', 'Select required dishes'));
+            const missingLabels = missingRequired.map(key => categoryMap[key]?.label || key);
+            comboError && (comboError.textContent = `${t('summary_pick_main', 'Select required dishes')}: ${missingLabels.join(', ')}`);
+            applyMissingHighlight();
+            scrollToCategory(missingRequired[0]);
             return;
         }
+        missingKeys = [];
+        applyMissingHighlight();
         comboError?.classList.add('d-none');
         const formData = new FormData();
         if (comboState.main) {
@@ -228,7 +242,10 @@ document.addEventListener('DOMContentLoaded', () => {
         updateSummary();
         updateMenuButtons();
         updatePrice();
-        comboSubmit && (comboSubmit.disabled = requiredKeys.some(key => !comboState[key]));
+        if (missingKeys.length && requiredKeys.every(key => comboState[key])) {
+            missingKeys = [];
+        }
+        applyMissingHighlight();
     }
 
     function updateModalCards() {
@@ -410,7 +427,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function toggleComboMode(active) {
         document.body.classList.toggle('combo-mode', active);
-        comboExitBtn && (comboExitBtn.hidden = !active);
     }
 
     function showToast(message, success = true) {
@@ -436,6 +452,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function formatCurrency(value) {
         return parsePrice(value).toFixed(2);
+    }
+
+    function applyMissingHighlight() {
+        Object.entries(categorySteps).forEach(([key, el]) => {
+            el.classList.toggle('combo-step-missing', missingKeys.includes(key));
+        });
+        if (!missingKeys.length && comboError && requiredKeys.every(key => comboState[key])) {
+            comboError.classList.add('d-none');
+            comboError.textContent = '';
+        }
+    }
+
+    function scrollToCategory(key) {
+        const el = categorySteps[key];
+        if (!el) return;
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 });
 </script>

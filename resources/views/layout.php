@@ -16,7 +16,7 @@
         })();
     </script>
 </head>
-<body>
+<body class="with-fixed-header">
     <?php include __DIR__ . '/partials/header.php'; ?>
     <?= $content ?>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -30,7 +30,7 @@
             localStorage.setItem('theme', theme);
             document.cookie = `theme=${theme};path=/;max-age=31536000`;
             if (themeToggle) {
-                themeToggle.innerText = theme === 'light' ? '🌙' : '☀️';
+                themeToggle.innerText = theme === 'light' ? '☀️' : '🌙';
             }
         };
         applyTheme(localStorage.getItem('theme') || document.cookie.split('; ').find(row => row.startsWith('theme='))?.split('=')[1] || document.documentElement.getAttribute('data-bs-theme') || 'dark');

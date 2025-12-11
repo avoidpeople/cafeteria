@@ -20,7 +20,10 @@ class MenuController
         $selectedCategory = trim($_GET['category'] ?? '');
         $categories = $this->menuService->categories();
         $menuItems = $this->menuService->menuItems($search, $selectedCategory);
-        $comboOptions = $this->buildComboOptions($menuItems);
+        $comboSourceItems = ($search === '' && $selectedCategory === '')
+            ? $menuItems
+            : $this->menuService->menuItems();
+        $comboOptions = $this->buildComboOptions($comboSourceItems);
 
         return $this->view->render('menu', [
             'search' => $search,

@@ -1,14 +1,14 @@
 <?php
 
 ?>
-<nav class="navbar navbar-expand-lg theme-navbar mb-3 shadow-sm">
+<nav class="navbar navbar-expand-lg theme-navbar shadow-sm site-header">
   <div class="container-fluid">
     <a class="navbar-brand" href="/"><?= htmlspecialchars(translate('brand.name')) ?></a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="mainNav">
-      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0 align-items-lg-center gap-lg-1">
         <li class="nav-item">
             <a class="nav-link" href="/"><?= htmlspecialchars(translate('nav.home')) ?></a>
         </li>
@@ -36,45 +36,50 @@
             </li>
         <?php endif; ?>
       </ul>
-      <span class="navbar-text me-3">
-        <?php
-        if (isset($_SESSION['username'])) {
-            $fullName = trim(($_SESSION['first_name'] ?? '') . ' ' . ($_SESSION['last_name'] ?? ''));
-            echo htmlspecialchars(translate('nav.greeting', ['name' => $fullName ?: $_SESSION['username']]));
-        } else {
-            echo htmlspecialchars(translate('nav.guest'));
-        }
-        ?>
-      </span>
-      <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
-      <button class="btn btn-outline-warning me-2 position-relative" type="button" data-bs-toggle="offcanvas" data-bs-target="#pendingDrawer" aria-controls="pendingDrawer" title="<?= htmlspecialchars(translate('nav.pending_title')) ?>">
-        🧾
-        <span class="badge bg-danger rounded-pill notif-badge d-none" id="pendingBadge">0</span>
-      </button>
-      <?php endif; ?>
-      <button class="btn btn-outline-secondary me-2 position-relative" type="button" data-bs-toggle="offcanvas" data-bs-target="#notificationDrawer" aria-controls="notificationDrawer" title="<?= htmlspecialchars(translate('nav.notifications')) ?>">
-        🔔
-        <span class="badge bg-danger rounded-pill notif-badge d-none" id="notificationsBadge">0</span>
-      </button>
-      <form action="/language/switch" method="post" class="me-2 language-switcher" aria-label="<?= htmlspecialchars(translate('nav.language_label')) ?>">
-        <div class="btn-group btn-group-sm" role="group">
-            <?php foreach (availableLocales() as $code => $locale): ?>
-                <button type="submit"
-                        class="btn btn-outline-primary <?= currentLocale() === $code ? 'active' : '' ?>"
-                        name="lang"
-                        value="<?= htmlspecialchars($code) ?>">
-                    <?= htmlspecialchars($locale['short']) ?>
-                </button>
-            <?php endforeach; ?>
-        </div>
-      </form>
-      <button class="btn btn-outline-secondary me-2" id="themeToggle" type="button" title="<?= htmlspecialchars(translate('nav.theme_toggle')) ?>">🌓</button>
-      <?php if (isset($_SESSION['username'])): ?>
-        <a class="btn btn-outline-danger" href="/logout"><?= htmlspecialchars(translate('nav.logout')) ?></a>
-      <?php else: ?>
-        <a class="btn btn-outline-primary me-2" href="/login"><?= htmlspecialchars(translate('nav.login')) ?></a>
-        <a class="btn btn-primary" href="/register"><?= htmlspecialchars(translate('nav.register')) ?></a>
-      <?php endif; ?>
+      <div class="header-actions d-flex align-items-center flex-wrap gap-2 mt-3 mt-lg-0">
+        <span class="navbar-text text-body-secondary small me-lg-2 flex-shrink-0">
+          <?php
+          if (isset($_SESSION['username'])) {
+              $fullName = trim(($_SESSION['first_name'] ?? '') . ' ' . ($_SESSION['last_name'] ?? ''));
+              echo htmlspecialchars(translate('nav.greeting', ['name' => $fullName ?: $_SESSION['username']]));
+          } else {
+              echo htmlspecialchars(translate('nav.guest'));
+          }
+          ?>
+        </span>
+        <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
+        <button class="action-btn icon-btn position-relative" type="button" data-bs-toggle="offcanvas" data-bs-target="#pendingDrawer" aria-controls="pendingDrawer" title="<?= htmlspecialchars(translate('nav.pending_title')) ?>">
+          <span aria-hidden="true">🧾</span>
+          <span class="visually-hidden"><?= htmlspecialchars(translate('nav.pending_title')) ?></span>
+          <span class="badge bg-danger rounded-pill notif-badge d-none" id="pendingBadge">0</span>
+        </button>
+        <?php endif; ?>
+        <button class="action-btn icon-btn position-relative" type="button" data-bs-toggle="offcanvas" data-bs-target="#notificationDrawer" aria-controls="notificationDrawer" title="<?= htmlspecialchars(translate('nav.notifications')) ?>">
+          <span aria-hidden="true">🔔</span>
+          <span class="visually-hidden"><?= htmlspecialchars(translate('nav.notifications')) ?></span>
+          <span class="badge bg-danger rounded-pill notif-badge d-none" id="notificationsBadge">0</span>
+        </button>
+        <form action="/language/switch" method="post" class="language-switcher d-flex align-items-center gap-1" aria-label="<?= htmlspecialchars(translate('nav.language_label')) ?>">
+          <?php foreach (availableLocales() as $code => $locale): ?>
+              <button type="submit"
+                      class="action-btn <?= currentLocale() === $code ? 'active' : '' ?>"
+                      name="lang"
+                      value="<?= htmlspecialchars($code) ?>">
+                  <?= htmlspecialchars($locale['short']) ?>
+              </button>
+          <?php endforeach; ?>
+        </form>
+        <button class="action-btn icon-btn" id="themeToggle" type="button" title="<?= htmlspecialchars(translate('nav.theme_toggle')) ?>">
+          <span aria-hidden="true">☀️</span>
+          <span class="visually-hidden"><?= htmlspecialchars(translate('nav.theme_toggle')) ?></span>
+        </button>
+        <?php if (isset($_SESSION['username'])): ?>
+          <a class="action-btn action-btn-danger" href="/logout"><?= htmlspecialchars(translate('nav.logout')) ?></a>
+        <?php else: ?>
+          <a class="action-btn action-btn-primary" href="/login"><?= htmlspecialchars(translate('nav.login')) ?></a>
+          <a class="action-btn action-btn-primary" href="/register"><?= htmlspecialchars(translate('nav.register')) ?></a>
+        <?php endif; ?>
+      </div>
     </div>
   </div>
 </nav>

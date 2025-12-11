@@ -16,7 +16,7 @@ class App
         $this->view = $view;
     }
 
-    public static function create(ViewRenderer $view, Router $router = null): self
+    public static function create(ViewRenderer $view, ?Router $router = null): self
     {
         return new self($router ?? new Router(), $view);
     }
