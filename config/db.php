@@ -134,6 +134,10 @@ if (!in_array('delivery_address', $orderColumns, true)) {
     $conn->exec("ALTER TABLE orders ADD COLUMN delivery_address TEXT");
 }
 
+if (!in_array('comment', $orderColumns, true)) {
+    $conn->exec("ALTER TABLE orders ADD COLUMN comment TEXT");
+}
+
 $orderTableSql = $conn->querySingle("SELECT sql FROM sqlite_master WHERE type='table' AND name='orders'");
 if ($orderTableSql && strpos($orderTableSql, "'pending'") === false) {
     $conn->exec("ALTER TABLE orders RENAME TO orders_old");
@@ -144,10 +148,11 @@ if ($orderTableSql && strpos($orderTableSql, "'pending'") === false) {
         status TEXT CHECK(status IN ('pending','new','cooking','ready','delivered','cancelled')) DEFAULT 'pending',
         total_price REAL,
         delivery_address TEXT,
+        comment TEXT,
         FOREIGN KEY (user_id) REFERENCES users(id)
     )");
-    $conn->exec("INSERT INTO orders (id, user_id, created_at, status, total_price, delivery_address)
-                 SELECT id, user_id, created_at, status, total_price, delivery_address FROM orders_old");
+    $conn->exec("INSERT INTO orders (id, user_id, created_at, status, total_price, delivery_address, comment)
+                 SELECT id, user_id, created_at, status, total_price, delivery_address, comment FROM orders_old");
     $conn->exec("DROP TABLE orders_old");
 }
 
@@ -169,6 +174,18 @@ while ($row = $ordersWithoutCode->fetchArray(SQLITE3_ASSOC)) {
     $conn->exec("UPDATE orders SET order_code = '{$escaped}' WHERE id = {$id}");
 }
 $conn->exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_orders_order_code ON orders(order_code)");
+
+$conn->exec("CREATE TABLE IF NOT EXISTS order_status_history (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    order_id INTEGER NOT NULL,
+    old_status TEXT,
+    new_status TEXT NOT NULL,
+    changed_by INTEGER,
+    changed_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
+    FOREIGN KEY (changed_by) REFERENCES users(id) ON DELETE SET NULL
+)");
+$conn->exec("CREATE INDEX IF NOT EXISTS idx_order_status_history_order ON order_status_history(order_id)");
 
 $conn->exec("CREATE TABLE IF NOT EXISTS notifications (
     id INTEGER PRIMARY KEY AUTOINCREMENT,

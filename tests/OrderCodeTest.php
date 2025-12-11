@@ -34,7 +34,8 @@ function createOrderRepository(): array
         created_at TEXT DEFAULT CURRENT_TIMESTAMP,
         status TEXT CHECK(status IN ('pending','new','cooking','ready','delivered','cancelled')) DEFAULT 'pending',
         total_price REAL,
-        delivery_address TEXT
+        delivery_address TEXT,
+        comment TEXT
     )");
     $db->exec("CREATE UNIQUE INDEX idx_orders_order_code ON orders(order_code)");
     $db->exec("CREATE TABLE order_items (
@@ -43,6 +44,14 @@ function createOrderRepository(): array
         menu_id INTEGER NOT NULL,
         quantity INTEGER NOT NULL,
         combo_details TEXT
+    )");
+    $db->exec("CREATE TABLE order_status_history (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        order_id INTEGER NOT NULL,
+        old_status TEXT,
+        new_status TEXT NOT NULL,
+        changed_by INTEGER,
+        changed_at TEXT DEFAULT CURRENT_TIMESTAMP
     )");
     $db->exec("INSERT INTO users (username) VALUES ('tester')");
     $db->exec("INSERT INTO menu (title, price) VALUES ('Dish', 2.5)");

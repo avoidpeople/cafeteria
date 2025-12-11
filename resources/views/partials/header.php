@@ -135,6 +135,8 @@ $currentPath = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?? '/';
         data-items-label="<?= htmlspecialchars(translate('admin.pending.items_label')) ?>"
         data-items-placeholder="<?= htmlspecialchars(translate('admin.pending.items_placeholder')) ?>"
         data-sum-label="<?= htmlspecialchars(translate('admin.pending.sum')) ?>"
+        data-comment-label="<?= htmlspecialchars(translate('admin.pending.comment_label')) ?>"
+        data-comment-placeholder="<?= htmlspecialchars(translate('admin.pending.comment_placeholder')) ?>"
         data-accept-label="<?= htmlspecialchars(translate('admin.pending.accept')) ?>"
         data-decline-label="<?= htmlspecialchars(translate('admin.pending.decline')) ?>"
         data-confirm-decline="<?= htmlspecialchars(translate('admin.pending.confirm_decline')) ?>"

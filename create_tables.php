@@ -50,6 +50,7 @@ $conn->exec("CREATE TABLE IF NOT EXISTS orders (
     status TEXT CHECK(status IN ('pending','new','cooking','ready','delivered','cancelled')) DEFAULT 'pending',
     total_price REAL,
     delivery_address TEXT,
+    comment TEXT,
     FOREIGN KEY (user_id) REFERENCES users(id)
 )");
 
@@ -63,6 +64,18 @@ $conn->exec("CREATE TABLE IF NOT EXISTS order_items (
     FOREIGN KEY (order_id) REFERENCES orders(id),
     FOREIGN KEY (menu_id) REFERENCES menu(id)
 )");
+
+$conn->exec("CREATE TABLE IF NOT EXISTS order_status_history (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    order_id INTEGER NOT NULL,
+    old_status TEXT,
+    new_status TEXT NOT NULL,
+    changed_by INTEGER,
+    changed_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
+    FOREIGN KEY (changed_by) REFERENCES users(id) ON DELETE SET NULL
+)");
+$conn->exec("CREATE INDEX IF NOT EXISTS idx_order_status_history_order ON order_status_history(order_id)");
 
 
 echo "Таблицы успешно созданы!";

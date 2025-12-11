@@ -2,8 +2,15 @@
 
 namespace App\Domain;
 
+use App\Domain\OrderStatusHistory;
+
 interface OrderRepositoryInterface
 {
+    /** @return OrderStatusHistory[] */
+    public function statusHistory(int $orderId): array;
+
+    public function recordStatusHistory(int $orderId, ?string $oldStatus, string $newStatus, ?int $changedBy, ?string $changedAt = null): void;
+
     /** @return Order[] */
     public function findByUser(int $userId): array;
 
@@ -21,7 +28,7 @@ interface OrderRepositoryInterface
     /**
      * @param array<array{menu_id:int, quantity:int, price:float}> $items
      */
-    public function create(int $userId, string $deliveryAddress, array $items, float $total, string $status = 'pending'): Order;
+    public function create(int $userId, string $deliveryAddress, array $items, float $total, string $status = 'pending', ?string $comment = null): Order;
 
     /**
      * @return array{total_orders:int,new_orders:int,total_sum:float}

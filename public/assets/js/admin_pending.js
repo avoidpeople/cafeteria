@@ -15,6 +15,8 @@
         itemsLabel: container.dataset.itemsLabel || 'Items:',
         itemsPlaceholder: container.dataset.itemsPlaceholder || 'Details pending',
         sumLabel: container.dataset.sumLabel || 'Total:',
+        commentLabel: container.dataset.commentLabel || 'Comment:',
+        commentPlaceholder: container.dataset.commentPlaceholder || 'No comment',
         accept: container.dataset.acceptLabel || 'Accept',
         decline: container.dataset.declineLabel || 'Decline',
         confirmDecline: container.dataset.confirmDecline || 'Decline order? This action cannot be undone.',
@@ -58,6 +60,9 @@
                 `).join('') || `<li class="text-muted">${texts.itemsPlaceholder}</li>`;
                 const displayCode = escapeHtml(order.code || order.id);
                 const orderTitle = texts.order.replace(':id', displayCode);
+                const commentBlock = order.comment
+                    ? `<div class="pending-card__comment comment-box"><div class="text-muted small mb-1">${texts.commentLabel}</div>${escapeHtml(order.comment)}</div>`
+                    : '';
                 card.innerHTML = `
                     <div class="pending-card__header">
                         <strong>${orderTitle}</strong>
@@ -69,6 +74,7 @@
                         <div class="text-muted small mb-1">${texts.itemsLabel}</div>
                         <ul class="pending-card__items">${itemsList}</ul>
                     </div>
+                    ${commentBlock}
                     <p class="pending-card__sum">${texts.sumLabel} ${Number(order.total ?? 0).toFixed(2)} €</p>
                     <div class="d-flex gap-2">
                         <button class="btn btn-success btn-sm" data-action="accept" data-id="${order.id}">${texts.accept}</button>

@@ -10,12 +10,20 @@
 
 <div class="card-panel summary-card">
     <h2><?= htmlspecialchars(translate('orders.view.title', ['id' => $orderCode ?? $orderId])) ?></h2>
-    <p><b><?= htmlspecialchars(translate('orders.view.date')) ?></b> <?= $order->createdAt ?></p>
+    <?php
+    $timezone = appTimezone();
+    $locale = currentLocale() === 'lv' ? 'lv' : 'ru';
+    $createdFormatted = \Carbon\Carbon::parse($order->createdAt, 'UTC')->setTimezone($timezone)->locale($locale)->isoFormat('D MMMM YYYY, HH:mm:ss');
+    ?>
+    <p><b><?= htmlspecialchars(translate('orders.view.date')) ?></b> <?= htmlspecialchars($createdFormatted) ?></p>
     <p><b><?= htmlspecialchars(translate('orders.view.status')) ?></b>
         <span class="status status-<?= htmlspecialchars($order->status) ?>"><?= htmlspecialchars(translateStatus($order->status)) ?></span>
     </p>
     <p><b><?= htmlspecialchars(translate('orders.view.total')) ?></b> <?= number_format($order->totalPrice, 2, '.', ' ') ?> €</p>
     <p><b><?= htmlspecialchars(translate('orders.view.address')) ?></b> <?= nl2br(htmlspecialchars($order->deliveryAddress ?? '—')) ?></p>
+    <?php if (!empty($order->comment)): ?>
+        <p><b><?= htmlspecialchars(translate('orders.view.comment')) ?></b> <?= nl2br(htmlspecialchars($order->comment)) ?></p>
+    <?php endif; ?>
     <?php if ($isAdmin): ?>
         <p><b><?= htmlspecialchars(translate('orders.view.customer')) ?></b> <?= htmlspecialchars($order->customerName ?? translate('orders.view.user_placeholder', ['id' => $order->userId])) ?></p>
         <p><b><?= htmlspecialchars(translate('orders.view.phone')) ?></b> <?= htmlspecialchars($order->customerPhone ?? translate('orders.view.phone_unknown')) ?></p>

@@ -25,9 +25,27 @@ class OrderService
         return $this->orders->findByCode($orderCode);
     }
 
+    public function getOrderByCodeWithHistory(string $orderCode): ?\App\Domain\Order
+    {
+        $order = $this->orders->findByCode($orderCode);
+        if ($order) {
+            $order->statusHistory = $this->orders->statusHistory($order->id);
+        }
+        return $order;
+    }
+
     public function getOrder(int $orderId): ?\App\Domain\Order
     {
         return $this->orders->findById($orderId);
+    }
+
+    public function getOrderWithHistory(int $orderId): ?\App\Domain\Order
+    {
+        $order = $this->orders->findById($orderId);
+        if ($order) {
+            $order->statusHistory = $this->orders->statusHistory($orderId);
+        }
+        return $order;
     }
 
     public function adminOrders(?string $status = null, ?string $search = null, bool $includePending = false): array
@@ -35,14 +53,28 @@ class OrderService
         return $this->orders->findAll($status, $search, $includePending);
     }
 
-    public function updateStatus(int $orderId, string $status): void
+    public function updateStatus(int $orderId, string $status, ?int $changedBy = null): bool
     {
+        $allowed = ['pending','new','cooking','ready','delivered','cancelled'];
+        if (!in_array($status, $allowed, true)) {
+            return false;
+        }
         $order = $this->orders->findById($orderId);
         if (!$order) {
-            return;
+            return false;
         }
+        if ($order->status === 'cancelled') {
+            return false;
+        }
+        if ($order->status === $status) {
+            return false;
+        }
+
         $this->orders->updateStatus($orderId, $status);
+        $this->orders->recordStatusHistory($orderId, $order->status, $status, $changedBy);
         $this->notifications?->record($order->userId, $orderId, $status, $order->totalPrice);
+
+        return true;
     }
 
     public function delete(int $orderId): void
@@ -55,7 +87,8 @@ class OrderService
         array $selectedIds,
         string $deliveryAddress,
         CartService $cartService,
-        MenuRepositoryInterface $menuRepository
+        MenuRepositoryInterface $menuRepository,
+        ?string $comment = null
     ): array {
         $deliveryAddress = trim($deliveryAddress);
         if ($deliveryAddress === '') {
@@ -132,7 +165,8 @@ class OrderService
             return ['success' => false, 'message' => translate('orders.errors.items_unavailable')];
         }
 
-        $order = $this->orders->create($userId, $deliveryAddress, $items, $total, 'pending');
+        $order = $this->orders->create($userId, $deliveryAddress, $items, $total, 'pending', $comment);
+        $this->orders->recordStatusHistory($order->id, null, 'pending', $userId);
         $this->notifications?->record($userId, $order->id, 'pending', $total);
         $cartService->removeItems($usedIds);
 
@@ -150,6 +184,7 @@ class OrderService
             ], $items),
             'total' => $total,
             'delivery_address' => $deliveryAddress,
+            'comment' => $comment,
         ];
     }
 

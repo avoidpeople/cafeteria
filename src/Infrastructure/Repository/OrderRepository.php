@@ -5,6 +5,7 @@ namespace App\Infrastructure\Repository;
 use App\Domain\Order;
 use App\Domain\OrderItem;
 use App\Domain\OrderRepositoryInterface;
+use App\Domain\OrderStatusHistory;
 use SQLite3;
 use SQLite3Stmt;
 use function translate;
@@ -13,6 +14,7 @@ use function currentLocale;
 class OrderRepository implements OrderRepositoryInterface
 {
     private bool $comboColumnChecked = false;
+    private bool $statusHistoryEnsured = false;
     private const ORDER_CODE_PREFIX = 'CAF-';
     private const ORDER_CODE_CHARS = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
 
@@ -122,18 +124,23 @@ class OrderRepository implements OrderRepositoryInterface
         $this->db->exec("DELETE FROM orders WHERE id = " . (int)$orderId);
     }
 
-    public function create(int $userId, string $deliveryAddress, array $items, float $total, string $status = 'pending'): Order
+    public function create(int $userId, string $deliveryAddress, array $items, float $total, string $status = 'pending', ?string $comment = null): Order
     {
         $this->ensureComboColumn();
         $this->db->exec('BEGIN');
         try {
             $orderCode = $this->generateOrderCode();
-            $stmt = $this->prepare("INSERT INTO orders (order_code, user_id, total_price, delivery_address, status) VALUES (:code, :uid, :total, :address, :status)");
+            $stmt = $this->prepare("INSERT INTO orders (order_code, user_id, total_price, delivery_address, status, comment) VALUES (:code, :uid, :total, :address, :status, :comment)");
             $stmt->bindValue(':code', $orderCode, SQLITE3_TEXT);
             $stmt->bindValue(':uid', $userId, SQLITE3_INTEGER);
             $stmt->bindValue(':total', $total, SQLITE3_FLOAT);
             $stmt->bindValue(':address', $deliveryAddress, SQLITE3_TEXT);
             $stmt->bindValue(':status', $status, SQLITE3_TEXT);
+            if ($comment === null || $comment === '') {
+                $stmt->bindValue(':comment', null, SQLITE3_NULL);
+            } else {
+                $stmt->bindValue(':comment', $comment, SQLITE3_TEXT);
+            }
             $stmt->execute();
             $orderId = (int)$this->db->lastInsertRowID();
 
@@ -180,6 +187,50 @@ class OrderRepository implements OrderRepositoryInterface
         ];
     }
 
+    public function statusHistory(int $orderId): array
+    {
+        $this->ensureStatusHistoryTable();
+        $stmt = $this->prepare("SELECT h.*, u.first_name, u.last_name, u.username
+            FROM order_status_history h
+            LEFT JOIN users u ON u.id = h.changed_by
+            WHERE h.order_id = :oid
+            ORDER BY h.changed_at DESC, h.id DESC");
+        $stmt->bindValue(':oid', $orderId, SQLITE3_INTEGER);
+        $result = $stmt->execute();
+        $history = [];
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $fullName = trim(($row['first_name'] ?? '') . ' ' . ($row['last_name'] ?? ''));
+            $username = $row['username'] ?? null;
+            $history[] = new OrderStatusHistory(
+                orderId: (int)($row['order_id'] ?? $orderId),
+                oldStatus: $row['old_status'] ?? null,
+                newStatus: $row['new_status'],
+                changedBy: isset($row['changed_by']) ? (int)$row['changed_by'] : null,
+                changedAt: $row['changed_at'] ?? '',
+                id: isset($row['id']) ? (int)$row['id'] : null,
+                changedByName: $fullName !== '' ? $fullName : ($username ?: null),
+            );
+        }
+        return $history;
+    }
+
+    public function recordStatusHistory(int $orderId, ?string $oldStatus, string $newStatus, ?int $changedBy, ?string $changedAt = null): void
+    {
+        $this->ensureStatusHistoryTable();
+        $stmt = $this->prepare("INSERT INTO order_status_history (order_id, old_status, new_status, changed_by, changed_at)
+            VALUES (:oid, :old, :new, :by, :at)");
+        $stmt->bindValue(':oid', $orderId, SQLITE3_INTEGER);
+        $stmt->bindValue(':old', $oldStatus, SQLITE3_TEXT);
+        $stmt->bindValue(':new', $newStatus, SQLITE3_TEXT);
+        if ($changedBy === null) {
+            $stmt->bindValue(':by', null, SQLITE3_NULL);
+        } else {
+            $stmt->bindValue(':by', $changedBy, SQLITE3_INTEGER);
+        }
+        $stmt->bindValue(':at', $changedAt ?? date('Y-m-d H:i:s'), SQLITE3_TEXT);
+        $stmt->execute();
+    }
+
     private function mapOrder(array $row): Order
     {
         $customerName = null;
@@ -202,7 +253,8 @@ class OrderRepository implements OrderRepositoryInterface
             orderCode: $row['order_code'] ?? null,
             items: $this->fetchItems((int)$row['id']),
             customerName: $customerName,
-            customerPhone: $customerPhone
+            customerPhone: $customerPhone,
+            comment: $row['comment'] ?? null,
         );
     }
 
@@ -307,6 +359,25 @@ class OrderRepository implements OrderRepositoryInterface
     private function prepare(string $sql): SQLite3Stmt
     {
         return $this->db->prepare($sql);
+    }
+
+    private function ensureStatusHistoryTable(): void
+    {
+        if ($this->statusHistoryEnsured) {
+            return;
+        }
+        $this->statusHistoryEnsured = true;
+        $this->db->exec("CREATE TABLE IF NOT EXISTS order_status_history (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            order_id INTEGER NOT NULL,
+            old_status TEXT,
+            new_status TEXT NOT NULL,
+            changed_by INTEGER,
+            changed_at TEXT DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
+            FOREIGN KEY (changed_by) REFERENCES users(id) ON DELETE SET NULL
+        )");
+        $this->db->exec("CREATE INDEX IF NOT EXISTS idx_order_status_history_order ON order_status_history(order_id)");
     }
 
     private function ensureComboColumn(): void

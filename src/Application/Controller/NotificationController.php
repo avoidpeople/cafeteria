@@ -38,12 +38,15 @@ class NotificationController
             if ($message === $messageKey) {
                 $message = $notification->message ?: translate('notifications.status.default');
             }
+            $createdAt = \Carbon\Carbon::parse($notification->createdAt, 'UTC')
+                ->setTimezone(appTimezone())
+                ->toIso8601String();
             $items[] = [
                 'id' => $notification->id,
                 'status' => $notification->status,
                 'title' => translate('notifications.order_title', ['id' => $notification->orderCode ?? $notification->orderId]),
                 'message' => $message,
-                'created_at' => $notification->createdAt,
+                'created_at' => $createdAt,
                 'amount' => $notification->amount,
                 'link' => "/orders/view?code=" . urlencode($notification->orderCode ?? (string)$notification->orderId),
             ];

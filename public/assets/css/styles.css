@@ -1103,6 +1103,21 @@ body.combo-mode .combo-select-btn {
     font-weight: 600;
 }
 
+.pending-card__comment {
+    margin: 10px 0;
+    font-size: 0.95rem;
+}
+
+.comment-box {
+    background: var(--bs-secondary-bg, #f8f9fa);
+    color: var(--bs-body-color, #111827);
+    border: 1px solid var(--bs-border-color, #e5e7eb);
+    border-radius: 12px;
+    padding: 0.65rem 0.75rem;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
 .admin-column {
     min-width: 0;
 }

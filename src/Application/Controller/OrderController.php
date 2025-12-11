@@ -55,7 +55,7 @@ class OrderController
         }
 
         if (!$isAdmin && isset($_GET['cancel']) && ($order->status === 'new' || $order->status === 'cooking')) {
-            $this->orderService->updateStatus($order->id, 'cancelled');
+            $this->orderService->updateStatus($order->id, 'cancelled', $userId);
             header('Location: /orders');
             exit;
         }
@@ -94,9 +94,23 @@ class OrderController
             exit;
         }
 
+        if (!verify_csrf()) {
+            setToast(translate('common.csrf_failed'), 'warning');
+            header('Location: /cart');
+            exit;
+        }
+
         $selectedIds = isset($_POST['items']) ? array_unique(array_map('strval', $_POST['items'])) : [];
         $selectedIds = array_values(array_filter($selectedIds, fn($value) => $value !== ''));
         $deliveryAddress = trim($_POST['delivery_address'] ?? '');
+        $comment = trim($_POST['comment'] ?? '');
+
+        $commentLength = $comment === '' ? 0 : (function_exists('mb_strlen') ? mb_strlen($comment) : strlen($comment));
+        if ($comment !== '' && $commentLength > 1000) {
+            setToast(translate('orders.errors.comment_too_long'), 'warning');
+            header('Location: /cart');
+            exit;
+        }
 
         if ($deliveryAddress === '') {
             $this->session->set('delivery_address_draft', '');
@@ -108,7 +122,7 @@ class OrderController
         $this->session->set('delivery_address_draft', $deliveryAddress);
 
         $userId = $this->session->get('user_id');
-        $result = $this->orderService->placeOrder($userId, $selectedIds, $deliveryAddress, $this->cartService, $this->menuRepository);
+        $result = $this->orderService->placeOrder($userId, $selectedIds, $deliveryAddress, $this->cartService, $this->menuRepository, $comment === '' ? null : $comment);
         if (!$result['success']) {
             setToast($result['message'] ?? translate('orders.errors.place_failed'), 'danger');
             header('Location: /cart');
@@ -130,6 +144,7 @@ class OrderController
             'items' => $items,
             'totalPrice' => $total,
             'orderAddress' => $result['delivery_address'] ?? $deliveryAddress,
+            'comment' => $result['comment'] ?? ($comment === '' ? null : $comment),
         ]);
     }
 }

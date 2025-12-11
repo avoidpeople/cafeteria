@@ -16,6 +16,8 @@ class Order
         public array $items = [],
         public ?string $customerName = null,
         public ?string $customerPhone = null,
+        public ?string $comment = null,
+        public array $statusHistory = [],
     ) {
     }
 }

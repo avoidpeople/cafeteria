@@ -13,6 +13,7 @@ $loginRedirect = '/login?next=/cart';
     <div class="empty-state mt-20"><?= htmlspecialchars(translate('cart.empty')) ?></div>
 <?php else: ?>
 <form method="POST" action="/orders/place" id="cartForm">
+    <?= csrf_field() ?>
     <div class="card border-0 shadow-sm mt-3">
         <div class="card-body p-0">
             <div class="table-responsive">
@@ -96,6 +97,11 @@ $loginRedirect = '/login?next=/cart';
                 <label class="form-label"><?= htmlspecialchars(translate('cart.address.label')) ?></label>
                 <textarea class="form-control" name="delivery_address" rows="3" placeholder="<?= htmlspecialchars(translate('cart.address.placeholder')) ?>" required><?= htmlspecialchars($deliveryDraft) ?></textarea>
                 <small class="text-muted"><?= htmlspecialchars(translate('cart.address.hint')) ?></small>
+                <div class="mt-3">
+                    <label class="form-label" for="comment"><?= htmlspecialchars(translate('cart.comment.label')) ?></label>
+                    <textarea name="comment" id="comment" class="form-control" rows="3" placeholder="<?= htmlspecialchars(translate('cart.comment.placeholder')) ?>"></textarea>
+                    <small class="text-muted"><?= htmlspecialchars(translate('cart.comment.hint')) ?></small>
+                </div>
             </div>
             <div class="d-flex flex-column gap-2 align-self-stretch">
                 <a class="btn btn-outline-danger" href="/cart/clear" onclick="return confirm('<?= htmlspecialchars(translate('cart.actions.confirm_clear')) ?>');"><?= htmlspecialchars(translate('cart.actions.clear')) ?></a>

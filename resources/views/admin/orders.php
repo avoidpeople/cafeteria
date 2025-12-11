@@ -2,13 +2,13 @@
 use Carbon\Carbon;
 
 $title = 'Doctor Gorilka — ' . translate('admin.orders.title');
-$timezone = 'Europe/Riga';
+$timezone = appTimezone();
 $locale = currentLocale() === 'lv' ? 'lv' : 'ru';
 $currentDate = Carbon::now($timezone)->locale($locale);
 $ordersByDay = [];
 
 foreach ($orders as $order) {
-    $orderMoment = Carbon::parse($order->createdAt)->setTimezone($timezone)->locale($locale);
+    $orderMoment = Carbon::parse($order->createdAt, 'UTC')->setTimezone($timezone)->locale($locale);
     $dayKey = $orderMoment->toDateString();
     $ordersByDay[$dayKey][] = ['order' => $order, 'moment' => $orderMoment];
 }
@@ -107,6 +107,19 @@ while ($cursor->greaterThanOrEqualTo($endDate)) {
     </div>
 </form>
 
+<form method="POST" action="/admin/orders/bulk-status" id="bulkStatusForm" class="d-flex align-items-end gap-2 flex-wrap mb-3">
+    <?= csrf_field() ?>
+    <div>
+        <label class="form-label mb-1 small"><?= htmlspecialchars(translate('admin.orders.bulk.label')) ?></label>
+        <select name="status" class="form-select">
+            <?php foreach (['new','cooking','ready','delivered'] as $status): ?>
+                <option value="<?= $status ?>"><?= htmlspecialchars(translateStatus($status)) ?></option>
+            <?php endforeach; ?>
+        </select>
+    </div>
+    <button type="submit" class="btn btn-primary"><?= htmlspecialchars(translate('admin.orders.bulk.submit')) ?></button>
+</form>
+
 <?php foreach ($dateRange as $day): ?>
     <?php
     $dayKey = $day->toDateString();
@@ -119,6 +132,7 @@ while ($cursor->greaterThanOrEqualTo($endDate)) {
                 <table class="table mb-0">
                     <thead>
                     <tr>
+                        <th><?= htmlspecialchars(translate('admin.orders.table.select')) ?></th>
                         <th><?= htmlspecialchars(translate('admin.orders.table.number')) ?></th>
                         <th><?= htmlspecialchars(translate('admin.orders.table.user')) ?></th>
                         <th><?= htmlspecialchars(translate('admin.orders.table.date')) ?></th>
@@ -137,6 +151,13 @@ while ($cursor->greaterThanOrEqualTo($endDate)) {
                             $orderMoment = $entry['moment'];
                             ?>
                             <tr>
+                                <td class="align-middle text-center">
+                                    <?php if ($order->status === 'cancelled'): ?>
+                                        <input type="checkbox" class="form-check-input" disabled title="<?= htmlspecialchars(translate('admin.orders.bulk.disabled_cancelled')) ?>">
+                                    <?php else: ?>
+                                        <input type="checkbox" class="form-check-input" name="orders[]" value="<?= $order->id ?>" form="bulkStatusForm" aria-label="<?= htmlspecialchars(translate('admin.orders.bulk.checkbox_label', ['id' => $order->id])) ?>">
+                                    <?php endif; ?>
+                                </td>
                                 <td>
                                     <div class="fw-semibold">#<?= htmlspecialchars($order->orderCode ?? $order->id) ?></div>
                                     <div class="text-muted small"><?= htmlspecialchars(translate('admin.orders.table.id_internal')) ?>: <?= $order->id ?></div>
@@ -163,6 +184,7 @@ while ($cursor->greaterThanOrEqualTo($endDate)) {
                                         <div class="text-muted small mb-2"><?= htmlspecialchars(translate('admin.orders.cancelled_notice')) ?></div>
                                     <?php else: ?>
                                         <form method="POST" action="/admin/orders/status" class="d-flex flex-column gap-2 status-form">
+                                            <?= csrf_field() ?>
                                             <input type="hidden" name="id" value="<?= $order->id ?>">
                                             <select name="status" class="form-select form-select-sm" required>
                                                 <?php foreach (['new','cooking','ready','delivered','cancelled'] as $status): ?>
@@ -173,12 +195,13 @@ while ($cursor->greaterThanOrEqualTo($endDate)) {
                                         </form>
                                     <?php endif; ?>
                                     <form method="POST" action="/admin/orders/delete" class="mt-2" onsubmit="return confirm('<?= htmlspecialchars(translate('admin.orders.delete')) ?>');">
+                                        <?= csrf_field() ?>
                                         <input type="hidden" name="id" value="<?= $order->id ?>">
                                         <button type="submit" class="btn btn-danger btn-sm"><?= htmlspecialchars(translate('combo.remove')) ?></button>
                                     </form>
                                 </td>
                                 <td>
-                                    <a class="btn btn-primary btn-sm" href="/orders/view?code=<?= urlencode($order->orderCode ?? '') ?>"><?= htmlspecialchars(translate('admin.orders.open')) ?></a>
+                                    <a class="btn btn-primary btn-sm" href="/admin/orders/show?id=<?= $order->id ?>"><?= htmlspecialchars(translate('admin.orders.open')) ?></a>
                                 </td>
                             </tr>
                         <?php endforeach; ?>

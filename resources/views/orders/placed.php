@@ -5,6 +5,9 @@
         <p><?= htmlspecialchars(translate('orders.placed.success', ['id' => $orderCode ?? $orderId])) ?></p>
         <p><strong><?= htmlspecialchars(translate('orders.placed.total')) ?></strong> <?= number_format($totalPrice, 2, '.', ' ') ?> €</p>
         <p><strong><?= htmlspecialchars(translate('orders.placed.address')) ?></strong> <?= nl2br(htmlspecialchars($orderAddress)) ?></p>
+        <?php if (!empty($comment)): ?>
+            <p><strong><?= htmlspecialchars(translate('orders.view.comment')) ?></strong> <?= nl2br(htmlspecialchars($comment)) ?></p>
+        <?php endif; ?>
         <div class="actions">
             <a href="/orders" class="btn btn-primary"><?= htmlspecialchars(translate('orders.placed.my_orders')) ?></a>
             <a href="/menu" class="btn btn-outline-secondary"><?= htmlspecialchars(translate('orders.placed.back_to_menu')) ?></a>

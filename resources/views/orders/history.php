@@ -23,20 +23,24 @@
                 </tr>
                 </thead>
                 <tbody>
-                <?php foreach ($orders as $order): ?>
-                    <tr>
-                        <td>#<?= htmlspecialchars($order->orderCode ?? $order->id) ?></td>
-                        <td><?= $order->createdAt ?></td>
-                        <td>
-                            <span class="status status-<?= htmlspecialchars($order->status) ?>">
-                                <?= htmlspecialchars(translateStatus($order->status)) ?>
-                            </span>
-                        </td>
-                        <td><?= number_format($order->totalPrice, 2, '.', ' ') ?> €</td>
-                        <td><?= nl2br(htmlspecialchars($order->deliveryAddress ?? '—')) ?></td>
-                        <td><a class="btn btn-primary btn-sm" href="/orders/view?code=<?= urlencode($order->orderCode ?? '') ?>"><?= htmlspecialchars(translate('orders.history.open')) ?></a></td>
-                    </tr>
-                <?php endforeach; ?>
+<?php
+$timezone = appTimezone();
+$locale = currentLocale() === 'lv' ? 'lv' : 'ru';
+?>
+<?php foreach ($orders as $order): ?>
+    <tr>
+        <td>#<?= htmlspecialchars($order->orderCode ?? $order->id) ?></td>
+        <td><?= htmlspecialchars(\Carbon\Carbon::parse($order->createdAt, 'UTC')->setTimezone($timezone)->locale($locale)->isoFormat('YYYY-MM-DD HH:mm:ss')) ?></td>
+        <td>
+            <span class="status status-<?= htmlspecialchars($order->status) ?>">
+                <?= htmlspecialchars(translateStatus($order->status)) ?>
+            </span>
+        </td>
+        <td><?= number_format($order->totalPrice, 2, '.', ' ') ?> €</td>
+        <td><?= nl2br(htmlspecialchars($order->deliveryAddress ?? '—')) ?></td>
+        <td><a class="btn btn-primary btn-sm" href="/orders/view?code=<?= urlencode($order->orderCode ?? '') ?>"><?= htmlspecialchars(translate('orders.history.open')) ?></a></td>
+    </tr>
+<?php endforeach; ?>
                 </tbody>
             </table>
         </div>
