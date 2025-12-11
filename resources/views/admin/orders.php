@@ -1,4 +1,35 @@
-<?php $title = 'Doctor Gorilka — ' . translate('admin.orders.title'); ?>
+<?php
+use Carbon\Carbon;
+
+$title = 'Doctor Gorilka — ' . translate('admin.orders.title');
+$timezone = 'Europe/Riga';
+$locale = currentLocale() === 'lv' ? 'lv' : 'ru';
+$currentDate = Carbon::now($timezone)->locale($locale);
+$ordersByDay = [];
+
+foreach ($orders as $order) {
+    $orderMoment = Carbon::parse($order->createdAt)->setTimezone($timezone)->locale($locale);
+    $dayKey = $orderMoment->toDateString();
+    $ordersByDay[$dayKey][] = ['order' => $order, 'moment' => $orderMoment];
+}
+
+foreach ($ordersByDay as &$dayOrders) {
+    usort($dayOrders, static fn ($a, $b) => $b['moment']->getTimestamp() <=> $a['moment']->getTimestamp());
+}
+unset($dayOrders);
+
+$dateKeys = array_keys($ordersByDay);
+$dateKeys[] = $currentDate->toDateString();
+$maxDateKey = max($dateKeys);
+$minDateKey = min($dateKeys);
+$dateRange = [];
+$cursor = Carbon::createFromFormat('Y-m-d', $maxDateKey, $timezone);
+$endDate = Carbon::createFromFormat('Y-m-d', $minDateKey, $timezone);
+while ($cursor->greaterThanOrEqualTo($endDate)) {
+    $dateRange[] = $cursor->copy()->locale($locale);
+    $cursor = $cursor->subDay();
+}
+?>
 <div class="page-container">
 <div class="d-flex align-items-center justify-content-between mb-3">
     <h1 class="mb-0"><?= htmlspecialchars(translate('admin.orders.title')) ?></h1>
@@ -50,10 +81,13 @@
     </div>
 </form>
 
-<?php if (empty($orders)): ?>
-    <div class="empty-state"><?= htmlspecialchars(translate('admin.orders.empty')) ?></div>
-<?php else: ?>
-    <div class="card border-0 shadow-sm">
+<?php foreach ($dateRange as $day): ?>
+    <?php
+    $dayKey = $day->toDateString();
+    $dayOrders = $ordersByDay[$dayKey] ?? [];
+    ?>
+    <h2 class="orders-date-header"><?= htmlspecialchars($day->isoFormat('D MMMM YYYY, dddd')) ?></h2>
+    <div class="card border-0 shadow-sm mb-4">
         <div class="card-body p-0">
             <div class="table-responsive">
                 <table class="table mb-0">
@@ -70,59 +104,65 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <?php foreach ($orders as $order): ?>
-                        <tr>
-                            <td>
-                                <div class="fw-semibold">#<?= htmlspecialchars($order->orderCode ?? $order->id) ?></div>
-                                <div class="text-muted small"><?= htmlspecialchars(translate('admin.orders.table.id_internal')) ?>: <?= $order->id ?></div>
-                            </td>
-                            <td>
-                                <?= htmlspecialchars($order->customerName ?? translate('orders.view.user_placeholder', ['id' => $order->userId])) ?>
-                                <div class="text-muted small"><?= htmlspecialchars(translate('admin.orders.table.user_id')) ?>: <?= $order->userId ?></div>
-                            </td>
-                            <td>
-                                <?= $order->createdAt ?>
-                                <?php if (!empty($order->customerPhone)): ?>
-                                    <div class="text-muted small"><?= htmlspecialchars(translate('admin.orders.table.phone')) ?> <?= htmlspecialchars($order->customerPhone) ?></div>
-                                <?php endif; ?>
-                            </td>
-                            <td><?= nl2br(htmlspecialchars($order->deliveryAddress ?? '—')) ?></td>
-                            <td><?= number_format($order->totalPrice, 2, '.', ' ') ?> €</td>
-                            <td>
-                                <span class="status status-<?= htmlspecialchars($order->status) ?>">
-                                    <?= htmlspecialchars(translateStatus($order->status)) ?>
-                                </span>
-                            </td>
-                            <td>
-                                <?php if ($order->status === 'cancelled'): ?>
-                                    <div class="text-muted small mb-2"><?= htmlspecialchars(translate('admin.orders.cancelled_notice')) ?></div>
-                                <?php else: ?>
-                                    <form method="POST" action="/admin/orders/status" class="d-flex flex-column gap-2 status-form">
+                    <?php if (!empty($dayOrders)): ?>
+                        <?php foreach ($dayOrders as $entry): ?>
+                            <?php
+                            $order = $entry['order'];
+                            $orderMoment = $entry['moment'];
+                            ?>
+                            <tr>
+                                <td>
+                                    <div class="fw-semibold">#<?= htmlspecialchars($order->orderCode ?? $order->id) ?></div>
+                                    <div class="text-muted small"><?= htmlspecialchars(translate('admin.orders.table.id_internal')) ?>: <?= $order->id ?></div>
+                                </td>
+                                <td>
+                                    <?= htmlspecialchars($order->customerName ?? translate('orders.view.user_placeholder', ['id' => $order->userId])) ?>
+                                    <div class="text-muted small"><?= htmlspecialchars(translate('admin.orders.table.user_id')) ?>: <?= $order->userId ?></div>
+                                </td>
+                                <td>
+                                    <?= htmlspecialchars($orderMoment->isoFormat('D MMMM YYYY, dddd HH:mm')) ?>
+                                    <?php if (!empty($order->customerPhone)): ?>
+                                        <div class="text-muted small"><?= htmlspecialchars(translate('admin.orders.table.phone')) ?> <?= htmlspecialchars($order->customerPhone) ?></div>
+                                    <?php endif; ?>
+                                </td>
+                                <td><?= nl2br(htmlspecialchars($order->deliveryAddress ?? '—')) ?></td>
+                                <td><?= number_format($order->totalPrice, 2, '.', ' ') ?> €</td>
+                                <td>
+                                    <span class="status status-<?= htmlspecialchars($order->status) ?>">
+                                        <?= htmlspecialchars(translateStatus($order->status)) ?>
+                                    </span>
+                                </td>
+                                <td>
+                                    <?php if ($order->status === 'cancelled'): ?>
+                                        <div class="text-muted small mb-2"><?= htmlspecialchars(translate('admin.orders.cancelled_notice')) ?></div>
+                                    <?php else: ?>
+                                        <form method="POST" action="/admin/orders/status" class="d-flex flex-column gap-2 status-form">
+                                            <input type="hidden" name="id" value="<?= $order->id ?>">
+                                            <select name="status" class="form-select form-select-sm" required>
+                                                <?php foreach (['new','cooking','ready','delivered','cancelled'] as $status): ?>
+                                                    <option value="<?= $status ?>" <?= $order->status === $status ? 'selected' : '' ?>><?= htmlspecialchars(translateStatus($status)) ?></option>
+                                                <?php endforeach; ?>
+                                            </select>
+                                            <button type="submit" class="btn btn-outline-primary btn-sm"><?= htmlspecialchars(translate('admin.orders.update.submit')) ?></button>
+                                        </form>
+                                    <?php endif; ?>
+                                    <form method="POST" action="/admin/orders/delete" class="mt-2" onsubmit="return confirm('<?= htmlspecialchars(translate('admin.orders.delete')) ?>');">
                                         <input type="hidden" name="id" value="<?= $order->id ?>">
-                                        <select name="status" class="form-select form-select-sm" required>
-                                            <?php foreach (['new','cooking','ready','delivered','cancelled'] as $status): ?>
-                                                <option value="<?= $status ?>" <?= $order->status === $status ? 'selected' : '' ?>><?= htmlspecialchars(translateStatus($status)) ?></option>
-                                            <?php endforeach; ?>
-                                        </select>
-                                        <button type="submit" class="btn btn-outline-primary btn-sm"><?= htmlspecialchars(translate('admin.orders.update.submit')) ?></button>
+                                        <button type="submit" class="btn btn-danger btn-sm"><?= htmlspecialchars(translate('combo.remove')) ?></button>
                                     </form>
-                                <?php endif; ?>
-                                <form method="POST" action="/admin/orders/delete" class="mt-2" onsubmit="return confirm('<?= htmlspecialchars(translate('admin.orders.delete')) ?>');">
-                                    <input type="hidden" name="id" value="<?= $order->id ?>">
-                                    <button type="submit" class="btn btn-danger btn-sm"><?= htmlspecialchars(translate('combo.remove')) ?></button>
-                                </form>
-                            </td>
-                            <td>
-                                <a class="btn btn-primary btn-sm" href="/orders/view?code=<?= urlencode($order->orderCode ?? '') ?>"><?= htmlspecialchars(translate('admin.orders.open')) ?></a>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
+                                </td>
+                                <td>
+                                    <a class="btn btn-primary btn-sm" href="/orders/view?code=<?= urlencode($order->orderCode ?? '') ?>"><?= htmlspecialchars(translate('admin.orders.open')) ?></a>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
-<?php endif; ?>
+<?php endforeach; ?>
 </div>
 
 <?php if (!empty($orders)): ?>

@@ -1,8 +1,14 @@
+<?php
+use Carbon\Carbon;
+
+$currentLocale = currentLocale() === 'lv' ? 'lv' : 'ru';
+$homeDateLabel = Carbon::now('Europe/Riga')->locale($currentLocale)->isoFormat('D MMMM YYYY, dddd');
+?>
 <div class="page-container home-page">
     <section class="hero-card mb-5">
         <div class="hero-grid">
             <div>
-                <p class="hero-pill"><?= htmlspecialchars(translate('hero.tagline')) ?></p>
+                <p class="hero-pill mb-3"><?= htmlspecialchars(translate('hero.tagline')) ?></p>
                 <h1><?= htmlspecialchars(translate('hero.title')) ?></h1>
                 <p class="lead">
                     <?php if (isset($_SESSION['user_id'])): ?>
@@ -16,6 +22,12 @@
                         <span><?= $menuCount ?></span>
                         <p><?= htmlspecialchars(translate('hero.stats_caption')) ?></p>
                     </div>
+                </div>
+                <div class="mt-0 mb-3">
+                    <span class="badge rounded-pill bg-body-secondary text-body fw-semibold d-inline-flex align-items-center gap-2 px-3 py-2">
+                        <span aria-hidden="true">📅</span>
+                        <?= htmlspecialchars($homeDateLabel) ?>
+                    </span>
                 </div>
                  <div class="hero-actions">
                     <a href="/menu" class="btn btn-light btn-lg text-primary fw-semibold px-4"><?= htmlspecialchars(translate('hero.cta_menu')) ?></a>

@@ -1,4 +1,6 @@
 <?php
+use Carbon\Carbon;
+
 $comboOptions = $comboOptions ?? ['categories' => [], 'roles' => [], 'counts' => []];
 $comboCategories = $comboOptions['categories'] ?? [];
 $comboRoles = $comboOptions['roles'] ?? [];
@@ -15,6 +17,7 @@ $localizedFieldMap = [
     'lv' => ['name' => 'nameLv', 'description' => 'descriptionLv', 'category' => 'categoryLv'],
 ];
 $activeLocalizedFields = $localizedFieldMap[$locale] ?? ['name' => 'nameOriginal', 'description' => 'descriptionOriginal', 'category' => 'categoryOriginal'];
+$menuDateLabel = Carbon::now('Europe/Riga')->locale($locale === 'lv' ? 'lv' : 'ru')->isoFormat('D MMMM YYYY, dddd');
 ?>
 <div class="page-container menu-page">
 <div class="hero-card mb-4">
@@ -26,7 +29,13 @@ $activeLocalizedFields = $localizedFieldMap[$locale] ?? ['name' => 'nameOriginal
                 <a href="/orders" class="btn btn-light btn-lg text-primary"><?= htmlspecialchars(translate('menu.hero.orders_btn')) ?></a>
                 <a href="/cart" class="btn btn-outline-light btn-lg hero-cart-btn border-white"><?= htmlspecialchars(translate('menu.hero.cart_btn')) ?></a>
             </div>
-            <div class="menu-hero-meta mt-4">
+            <div class="mt-3 mb-0">
+                <span class="badge rounded-pill bg-body-secondary text-body fw-semibold d-inline-flex align-items-center gap-2 px-3 py-2">
+                    <span aria-hidden="true">📅</span>
+                    <?= htmlspecialchars($menuDateLabel) ?>
+                </span>
+            </div>
+            <div class="menu-hero-meta mt-2">
                 <div class="menu-hero-metric">
                     <span class="label"><?= htmlspecialchars(translate('menu.hero.metric_today')) ?></span>
                     <span class="value"><?= count($menuItems) ?></span>
@@ -45,7 +54,7 @@ $activeLocalizedFields = $localizedFieldMap[$locale] ?? ['name' => 'nameOriginal
                 </div>
             </div>
         </div>
-        <div class="col-md-4 text-md-end">
+        <div class="col-md-4 text-md-end d-flex flex-column align-items-start align-items-md-end gap-2">
             <div class="badge bg-light text-dark fs-6"><?= htmlspecialchars(translate('menu.hero.available_badge', ['count' => count($menuItems)])) ?></div>
         </div>
     </div>

@@ -1995,3 +1995,13 @@ h1, h2, h3 {
 .admin-menu-layout .admin-column + .admin-column {
     margin-top: 24px;
 }
+
+.orders-date-header {
+    margin: 32px 0 12px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--bs-body-color);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}

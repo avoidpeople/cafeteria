@@ -1,7 +1,20 @@
-<?php $title = 'Doctor Gorilka — ' . translate('admin.menu.title'); ?>
+<?php
+use Carbon\Carbon;
+
+$title = 'Doctor Gorilka — ' . translate('admin.menu.title');
+$selectedToday = $todayIds ?? [];
+$locale = currentLocale() === 'lv' ? 'lv' : 'ru';
+$todayDateLabel = Carbon::now('Europe/Riga')->locale($locale)->isoFormat('D MMMM YYYY, dddd');
+$todayCount = count($selectedToday);
+?>
 <div class="page-container">
 <div class="d-flex align-items-center justify-content-between mb-3">
-    <h1 class="mb-0"><?= htmlspecialchars(translate('admin.menu.title')) ?></h1>
+    <div>
+        <h1 class="mb-1"><?= htmlspecialchars(translate('admin.menu.title')) ?></h1>
+        <div class="text-muted fw-semibold small d-flex align-items-center gap-2 flex-wrap">
+            <span><?= htmlspecialchars($todayDateLabel) ?></span>
+        </div>
+    </div>
     <a class="btn btn-secondary" href="/menu"><?= htmlspecialchars(translate('admin.menu.back')) ?></a>
 </div>
 
@@ -12,8 +25,6 @@
         <?php endforeach; ?>
     </div>
 <?php endif; ?>
-<?php $selectedToday = $todayIds ?? []; ?>
-
 <div class="admin-menu-layout mt-1">
     <div class="admin-column admin-form-block">
         <div class="card border-0 shadow-sm h-100">
@@ -234,7 +245,11 @@
     <div class="admin-column admin-today-block">
         <div class="card border-0 shadow-sm admin-today-card h-100">
             <div class="card-body">
-                <h4 class="card-title mb-3"><?= htmlspecialchars(translate('admin.menu.today.title', ['count' => count($todayItems ?? [])])) ?></h4>
+                <h4 class="card-title mb-1"><?= htmlspecialchars(translate('admin.menu.today.title', ['count' => count($todayItems ?? [])])) ?></h4>
+                <div class="text-muted small mb-3 d-flex align-items-center gap-2">
+                    <span aria-hidden="true">📅</span>
+                    <span><?= htmlspecialchars($todayDateLabel) ?></span>
+                </div>
                 <?php if (empty($todayItems)): ?>
                     <div class="text-muted"><?= htmlspecialchars(translate('admin.menu.today.empty')) ?></div>
                 <?php else: ?>

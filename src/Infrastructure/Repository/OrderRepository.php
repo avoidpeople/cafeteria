@@ -88,7 +88,7 @@ class OrderRepository implements OrderRepositoryInterface
         if ($conditions) {
             $sql .= ' WHERE ' . implode(' AND ', $conditions);
         }
-        $sql .= ' ORDER BY orders.id DESC';
+        $sql .= ' ORDER BY orders.created_at DESC, orders.id DESC';
         $stmt = $this->prepare($sql);
         if ($status) {
             $stmt->bindValue(':status', $status, SQLITE3_TEXT);
