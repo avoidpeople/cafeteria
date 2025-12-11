@@ -1,43 +1,45 @@
 <?php
-
+$currentPath = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?? '/';
 ?>
 <nav class="navbar navbar-expand-lg theme-navbar shadow-sm site-header">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="/"><?= htmlspecialchars(translate('brand.name')) ?></a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
+  <div class="container-fluid header-shell">
+    <a class="navbar-brand d-flex align-items-center gap-2" href="/">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span class="brand-text">Doctor Gorilka</span>
+    </a>
+    <button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
-    <div class="collapse navbar-collapse" id="mainNav">
-      <ul class="navbar-nav me-auto mb-2 mb-lg-0 align-items-lg-center gap-lg-1">
+    <div class="collapse navbar-collapse header-content" id="mainNav">
+      <ul class="navbar-nav header-nav mb-2 mb-lg-0 align-items-lg-center">
         <li class="nav-item">
-            <a class="nav-link" href="/"><?= htmlspecialchars(translate('nav.home')) ?></a>
+            <a class="nav-link <?= $currentPath === '/' ? 'active' : '' ?>" href="/"><?= htmlspecialchars(translate('nav.home')) ?></a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="/menu"><?= htmlspecialchars(translate('nav.menu')) ?></a>
+            <a class="nav-link <?= strpos($currentPath, '/menu') === 0 ? 'active' : '' ?>" href="/menu"><?= htmlspecialchars(translate('nav.menu')) ?></a>
         </li>
         <li class="nav-item">
-            <a class="nav-link d-flex align-items-center" href="/cart">
+            <a class="nav-link d-flex align-items-center <?= strpos($currentPath, '/cart') === 0 ? 'active' : '' ?>" href="/cart">
                 <?= htmlspecialchars(translate('nav.cart')) ?>
-
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="/orders"><?= htmlspecialchars(translate('nav.orders')) ?></a>
+            <a class="nav-link <?= strpos($currentPath, '/orders') === 0 ? 'active' : '' ?>" href="/orders"><?= htmlspecialchars(translate('nav.orders')) ?></a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="/profile"><?= htmlspecialchars(translate('nav.profile')) ?></a>
+            <a class="nav-link <?= strpos($currentPath, '/profile') === 0 ? 'active' : '' ?>" href="/profile"><?= htmlspecialchars(translate('nav.profile')) ?></a>
         </li>
         <?php if (isset($_SESSION['role']) && $_SESSION['role'] == 'admin'): ?>
             <li class="nav-item">
-                <a class="nav-link" href="/admin/orders"><?= htmlspecialchars(translate('nav.admin_orders')) ?></a>
+                <a class="nav-link <?= strpos($currentPath, '/admin/orders') === 0 ? 'active' : '' ?>" href="/admin/orders"><?= htmlspecialchars(translate('nav.admin_orders')) ?></a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="/admin/menu"><?= htmlspecialchars(translate('nav.admin_menu')) ?></a>
+                <a class="nav-link <?= strpos($currentPath, '/admin/menu') === 0 ? 'active' : '' ?>" href="/admin/menu"><?= htmlspecialchars(translate('nav.admin_menu')) ?></a>
             </li>
         <?php endif; ?>
       </ul>
-      <div class="header-actions d-flex align-items-center flex-wrap gap-2 mt-3 mt-lg-0">
-        <span class="navbar-text text-body-secondary small me-lg-2 flex-shrink-0">
+      <div class="header-actions d-flex align-items-center flex-wrap mt-3 mt-lg-0 justify-content-lg-end">
+        <span class="navbar-text text-body-secondary small flex-shrink-0">
           <?php
           if (isset($_SESSION['username'])) {
               $fullName = trim(($_SESSION['first_name'] ?? '') . ' ' . ($_SESSION['last_name'] ?? ''));
@@ -49,7 +51,7 @@
         </span>
         <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
         <button class="action-btn icon-btn position-relative" type="button" data-bs-toggle="offcanvas" data-bs-target="#pendingDrawer" aria-controls="pendingDrawer" title="<?= htmlspecialchars(translate('nav.pending_title')) ?>">
-          <span aria-hidden="true">🧾</span>
+          <span aria-hidden="true">🛎</span>
           <span class="visually-hidden"><?= htmlspecialchars(translate('nav.pending_title')) ?></span>
           <span class="badge bg-danger rounded-pill notif-badge d-none" id="pendingBadge">0</span>
         </button>
@@ -59,7 +61,7 @@
           <span class="visually-hidden"><?= htmlspecialchars(translate('nav.notifications')) ?></span>
           <span class="badge bg-danger rounded-pill notif-badge d-none" id="notificationsBadge">0</span>
         </button>
-        <form action="/language/switch" method="post" class="language-switcher d-flex align-items-center gap-1" aria-label="<?= htmlspecialchars(translate('nav.language_label')) ?>">
+        <form action="/language/switch" method="post" class="language-switcher d-flex align-items-center gap-2" aria-label="<?= htmlspecialchars(translate('nav.language_label')) ?>">
           <?php foreach (availableLocales() as $code => $locale): ?>
               <button type="submit"
                       class="action-btn <?= currentLocale() === $code ? 'active' : '' ?>"
@@ -70,7 +72,7 @@
           <?php endforeach; ?>
         </form>
         <button class="action-btn icon-btn" id="themeToggle" type="button" title="<?= htmlspecialchars(translate('nav.theme_toggle')) ?>">
-          <span aria-hidden="true">☀️</span>
+          <span aria-hidden="true">🌓</span>
           <span class="visually-hidden"><?= htmlspecialchars(translate('nav.theme_toggle')) ?></span>
         </button>
         <?php if (isset($_SESSION['username'])): ?>
