@@ -99,7 +99,9 @@ class OrderController
                     'quantity' => $item->quantity,
                 ];
             }, $order->items ?? []);
-            $createdLocal = \Carbon\Carbon::parse($order->createdAt, 'UTC')->setTimezone(appTimezone())->toIso8601String();
+            $createdLocal = \Carbon\Carbon::parse($order->createdAt, 'UTC')
+                ->setTimezone(appTimezone())
+                ->format(\DateTimeInterface::ATOM);
             return [
                 'id' => $order->id,
                 'code' => $order->orderCode,

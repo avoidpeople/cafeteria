@@ -96,6 +96,16 @@ class Carbon
         return $this->dateTime->format('Y-m-d');
     }
 
+    public function format(string $format): string
+    {
+        return $this->dateTime->format($format);
+    }
+
+    public function toIso8601String(): string
+    {
+        return $this->dateTime->format(\DateTimeInterface::ATOM);
+    }
+
     public function subDay(int $days = 1): self
     {
         $clone = clone $this;
