@@ -18,10 +18,59 @@
 </head>
 <body class="with-fixed-header">
     <?php include __DIR__ . '/partials/header.php'; ?>
+    <script>
+        (function() {
+            const root = document.documentElement;
+            const header = document.querySelector('.site-header');
+            if (!header) return;
+            const setOffset = () => {
+                const height = Math.round(header.getBoundingClientRect().height);
+                root.style.setProperty('--header-offset', `${height}px`);
+            };
+            const observer = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(setOffset) : null;
+            observer?.observe(header);
+            window.addEventListener('resize', setOffset);
+            document.addEventListener('shown.bs.collapse', (event) => {
+                if (event.target.id === 'mainNav') {
+                    setOffset();
+                }
+            });
+            document.addEventListener('hidden.bs.collapse', (event) => {
+                if (event.target.id === 'mainNav') {
+                    setOffset();
+                }
+            });
+            setOffset();
+        })();
+    </script>
     <?= $content ?>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/assets/js/notifications.js" defer></script>
     <script src="/assets/js/admin_pending.js" defer></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const navCollapse = document.getElementById('mainNav');
+        if (!navCollapse) return;
+        const collapse = bootstrap.Collapse.getOrCreateInstance(navCollapse, { toggle: false });
+        const shouldHide = () => navCollapse.classList.contains('show');
+        const hideNav = () => {
+            if (shouldHide()) {
+                collapse.hide();
+            }
+        };
+
+        document.addEventListener('click', (event) => {
+            if (!shouldHide()) return;
+            const header = document.querySelector('.site-header');
+            if (header && header.contains(event.target)) {
+                return;
+            }
+            hideNav();
+        });
+
+        document.addEventListener('show.bs.modal', hideNav, true);
+    });
+    </script>
     <script>
     (function() {
         const themeToggle = document.getElementById('themeToggle');
