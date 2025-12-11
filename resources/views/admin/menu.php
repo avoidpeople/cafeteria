@@ -10,12 +10,36 @@ $todayCount = count($selectedToday);
 <div class="page-container">
 <div class="d-flex align-items-center justify-content-between mb-3">
     <div>
-        <h1 class="mb-1"><?= htmlspecialchars(translate('admin.menu.title')) ?></h1>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+            <h1 class="mb-1"><?= htmlspecialchars(translate('admin.menu.title')) ?></h1>
+            <button class="btn btn-outline-info btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#menuHelp" aria-expanded="false" aria-controls="menuHelp">
+                <?= htmlspecialchars(translate('admin.menu.help.button')) ?>
+            </button>
+        </div>
         <div class="text-muted fw-semibold small d-flex align-items-center gap-2 flex-wrap">
             <span><?= htmlspecialchars($todayDateLabel) ?></span>
         </div>
     </div>
     <a class="btn btn-secondary" href="/menu"><?= htmlspecialchars(translate('admin.menu.back')) ?></a>
+</div>
+
+<div class="collapse" id="menuHelp">
+    <div class="alert alert-info small mb-3">
+        <div class="fw-semibold mb-2"><?= htmlspecialchars(translate('admin.menu.help.title')) ?></div>
+        <ul class="mb-0 ps-3">
+            <li><?= htmlspecialchars(translate('admin.menu.help.manage')) ?></li>
+            <li><?= htmlspecialchars(translate('admin.menu.help.locale')) ?></li>
+            <li><?= htmlspecialchars(translate('admin.menu.help.autofill')) ?></li>
+            <li><?= htmlspecialchars(translate('admin.menu.help.details')) ?></li>
+            <li><?= htmlspecialchars(translate('admin.menu.help.price')) ?></li>
+            <li><?= htmlspecialchars(translate('admin.menu.help.category')) ?></li>
+            <li><?= htmlspecialchars(translate('admin.menu.help.photos')) ?></li>
+            <li><?= htmlspecialchars(translate('admin.menu.help.today')) ?></li>
+            <li><?= htmlspecialchars(translate('admin.menu.help.actions')) ?></li>
+            <li><?= htmlspecialchars(translate('admin.menu.help.save')) ?></li>
+            <li><?= htmlspecialchars(translate('admin.menu.help.preview')) ?></li>
+        </ul>
+    </div>
 </div>
 
 <?php if (!empty($errors)): ?>

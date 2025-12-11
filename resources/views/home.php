@@ -104,6 +104,16 @@ $homeDateLabel = Carbon::now('Europe/Riga')->locale($currentLocale)->isoFormat('
                 <h4><?= htmlspecialchars(translate('steps.3.title')) ?></h4>
                 <p><?= htmlspecialchars(translate('steps.3.text')) ?></p>
             </div>
+            <div class="step-item">
+                <span class="badge bg-primary rounded-pill">4</span>
+                <h4><?= htmlspecialchars(translate('steps.4.title')) ?></h4>
+                <p><?= htmlspecialchars(translate('steps.4.text')) ?></p>
+            </div>
+            <div class="step-item">
+                <span class="badge bg-primary rounded-pill">5</span>
+                <h4><?= htmlspecialchars(translate('steps.5.title')) ?></h4>
+                <p><?= htmlspecialchars(translate('steps.5.text')) ?></p>
+            </div>
         </div>
     </section>
 

@@ -32,8 +32,34 @@ while ($cursor->greaterThanOrEqualTo($endDate)) {
 ?>
 <div class="page-container">
 <div class="d-flex align-items-center justify-content-between mb-3">
-    <h1 class="mb-0"><?= htmlspecialchars(translate('admin.orders.title')) ?></h1>
+    <div class="d-flex align-items-center gap-2 flex-wrap">
+        <h1 class="mb-0"><?= htmlspecialchars(translate('admin.orders.title')) ?></h1>
+        <button class="btn btn-outline-info btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#ordersHelp" aria-expanded="false" aria-controls="ordersHelp">
+            <?= htmlspecialchars(translate('admin.orders.help.button')) ?>
+        </button>
+    </div>
     <a class="btn btn-secondary" href="/"><?= htmlspecialchars(translate('common.back_to_home')) ?></a>
+</div>
+
+<div class="collapse" id="ordersHelp">
+    <div class="alert alert-info small mb-3">
+        <div class="fw-semibold mb-2"><?= htmlspecialchars(translate('admin.orders.help.title')) ?></div>
+        <ul class="mb-0 ps-3">
+            <li><?= htmlspecialchars(translate('admin.orders.help.purpose')) ?></li>
+            <li><?= htmlspecialchars(translate('admin.orders.help.filters')) ?></li>
+            <li><?= htmlspecialchars(translate('admin.orders.help.row')) ?></li>
+            <li><?= htmlspecialchars(translate('admin.orders.help.status')) ?></li>
+            <li><?= htmlspecialchars(translate('admin.orders.help.open')) ?></li>
+            <li><?= htmlspecialchars(translate('admin.orders.help.delete')) ?></li>
+            <li><?= htmlspecialchars(translate('admin.orders.help.cancelled')) ?></li>
+            <li><?= htmlspecialchars(translate('admin.orders.help.colors')) ?></li>
+            <li><?= htmlspecialchars(translate('admin.orders.help.summary')) ?></li>
+            <li><?= htmlspecialchars(translate('admin.orders.help.flow')) ?></li>
+            <li><?= htmlspecialchars(translate('admin.orders.help.contact')) ?></li>
+            <li><?= htmlspecialchars(translate('admin.orders.help.history')) ?></li>
+            <li><?= htmlspecialchars(translate('admin.orders.help.nocancel')) ?></li>
+        </ul>
+    </div>
 </div>
 
 <div class="row g-3 mb-4">
