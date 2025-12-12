@@ -498,6 +498,129 @@ body.with-fixed-header {
     margin-bottom: 10px;
 }
 
+/* Home page responsive tweaks */
+@media (max-width: 1200px) {
+    .hero-card {
+        padding: 36px;
+    }
+}
+
+@media (max-width: 992px) {
+    .hero-grid {
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
+    .hero-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .hero-actions .btn {
+        width: 100%;
+    }
+    .hero-panel {
+        padding: 20px;
+    }
+    .schedule {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 10px;
+    }
+    .steps-card {
+        padding: 22px;
+    }
+    .steps-grid {
+        gap: 14px;
+    }
+    .info-grid {
+        gap: 14px;
+    }
+    .cta-panel {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+    .cta-actions {
+        width: 100%;
+        flex-wrap: wrap;
+    }
+    .cta-actions .btn {
+        flex: 1 1 220px;
+    }
+}
+
+@media (max-width: 768px) {
+    .hero-card {
+        padding: 26px;
+    }
+    .hero-panel {
+        padding: 18px;
+    }
+    .home-page .hero-card .badge {
+        font-size: 0.95rem;
+        padding: 10px 14px;
+    }
+    .hero-stats {
+        gap: 18px;
+    }
+    .steps-card {
+        padding: 20px;
+    }
+    .steps-grid {
+        gap: 14px;
+    }
+    .steps-grid .step-item {
+        flex: 1 1 calc((100% - 14px) / 2);
+        min-width: 200px;
+    }
+    .step-item {
+        padding: 16px;
+    }
+    .info-card,
+    .feature-card {
+        padding: 18px;
+    }
+    .cta-panel {
+        padding: 18px;
+    }
+    .cta-actions .btn {
+        width: 100%;
+    }
+}
+
+@media (max-width: 576px) {
+    .hero-card {
+        padding: 22px;
+        border-radius: 20px;
+    }
+    .hero-stats span {
+        font-size: 1.6rem;
+    }
+    .hero-panel {
+        border-radius: 16px;
+    }
+    .info-grid {
+        gap: 12px;
+    }
+    .steps-card {
+        padding: 18px;
+    }
+    .steps-grid {
+        gap: 12px;
+    }
+    .steps-grid .step-item {
+        flex: 1 1 100%;
+        min-width: 0;
+    }
+    .cta-panel {
+        border-radius: 18px;
+    }
+    .home-page .cta-panel h3,
+    .home-page .cta-panel p {
+        text-align: center !important;
+        width: 100%;
+    }
+}
+
 .cards-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -513,10 +636,16 @@ body.with-fixed-header {
 }
 
 .steps-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    display: flex;
+    flex-wrap: wrap;
     gap: 18px;
     align-items: stretch;
+}
+
+.steps-grid .step-item {
+    flex: 1 1 calc((100% - 36px) / 3);
+    min-width: 220px;
+    max-width: 100%;
 }
 
 .step-item {
@@ -532,19 +661,6 @@ body.with-fixed-header {
 }
 
 @media (min-width: 1200px) {
-    .steps-grid {
-        grid-template-columns: repeat(5, minmax(0, 1fr));
-    }
-}
-
-@media (max-width: 576px) {
-    .steps-card {
-        padding: 20px;
-    }
-    .steps-grid {
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-        gap: 14px;
-    }
 }
 
 .highlight-grid {
@@ -569,37 +685,6 @@ body.with-fixed-header {
     border: 1px dashed rgba(255,255,255,0.1);
     pointer-events: none;
 }
-
-.gallery-strip {
-    display: grid;
-    grid-template-columns: 280px 1fr;
-    gap: 24px;
-    align-items: center;
-}
-
-.gallery-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 12px;
-}
-
-.gallery-item {
-    height: 200px;
-    border-radius: 18px;
-    background-size: cover;
-    background-position: center;
-    filter: saturate(1.1);
-}
-
-@media (max-width: 768px) {
-    .gallery-strip {
-        grid-template-columns: 1fr;
-    }
-    .hero-card {
-        padding: 32px;
-    }
-}
-
 .testimonials {
     background: var(--bs-body-bg);
 }
@@ -1421,10 +1506,36 @@ body.combo-mode .combo-select-btn {
     gap: 20px;
 }
 
+.home-page .cta-panel h3,
+.home-page .cta-panel p {
+    text-align: left;
+}
+
 .cta-actions {
     display: flex;
     gap: 12px;
     flex-wrap: wrap;
+}
+
+/* Home hero date badge */
+.home-page .hero-card .badge {
+    font-size: 0.95rem;
+    padding: 10px 14px;
+    border-radius: 14px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.18);
+}
+
+/* Align info/cta blocks with steps items */
+.home-page .info-grid {
+    padding-inline: 10px;
+}
+
+.home-page .info-grid .info-card {
+    height: 100%;
+}
+
+.home-page .cta-panel {
+    margin-inline: 10px;
 }
 
 h1, h2, h3 {

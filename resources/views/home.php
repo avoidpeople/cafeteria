@@ -87,6 +87,7 @@ $homeDateLabel = Carbon::now('Europe/Riga')->locale($currentLocale)->isoFormat('
             </div>
         </div>
     </section>
+
     <br>
     <section class="info-grid mb-5">
         <div class="info-card shadow-sm">
@@ -103,21 +104,7 @@ $homeDateLabel = Carbon::now('Europe/Riga')->locale($currentLocale)->isoFormat('
         </div>
     </section>
 
-    <section class="gallery-strip mt-5">
-        <div class="gallery-title">
-            <p class="hero-pill text-uppercase"><?= htmlspecialchars(translate('gallery.tagline')) ?></p>
-            <h3><?= htmlspecialchars(translate('gallery.title')) ?></h3>
-            <p><?= htmlspecialchars(translate('gallery.text')) ?></p>
-        </div>
-        <div class="gallery-grid">
-            <div class="gallery-item" style="background-image:url('https://images.unsplash.com/photo-1496417263034-38ec4f0b665a?auto=format&fit=crop&w=600&q=60');"></div>
-            <div class="gallery-item" style="background-image:url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=600&q=60');"></div>
-            <div class="gallery-item" style="background-image:url('https://images.unsplash.com/photo-1470337458703-46ad1756a187?auto=format&fit=crop&w=600&q=60');"></div>
-            <div class="gallery-item" style="background-image:url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=800&q=60');"></div>
-        </div>
-    </section>
-
-    <section class="testimonials mt-5">
+    <!-- <section class="testimonials mt-5">
         <h3 class="mb-4"><?= htmlspecialchars(translate('testimonials.title')) ?></h3>
         <div class="testimonials-grid">
             <article class="testimonial">
@@ -133,7 +120,7 @@ $homeDateLabel = Carbon::now('Europe/Riga')->locale($currentLocale)->isoFormat('
                 <span><?= htmlspecialchars(translate('testimonials.3.author')) ?></span>
             </article>
         </div>
-    </section>
+    </section> -->
 
     <section class="cta-panel shadow-sm mt-5">
         <div>
