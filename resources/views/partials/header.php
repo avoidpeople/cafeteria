@@ -1,5 +1,21 @@
 <?php
 $currentPath = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?? '/';
+$currentLocale = currentLocale();
+$locales = availableLocales();
+$localeKeys = array_keys($locales);
+
+$nextLocale = $currentLocale ?: 'ru';
+if (!empty($localeKeys)) {
+    $currentIndex = array_search($currentLocale, $localeKeys, true);
+    $nextLocale = $localeKeys[($currentIndex === false ? 0 : $currentIndex + 1) % count($localeKeys)];
+}
+
+$localeFlags = [
+    'ru' => '🇷🇺',
+    'lv' => '🇱🇻',
+];
+$nextLocaleFlag = $localeFlags[$nextLocale] ?? '🌐';
+$nextLocaleShort = $locales[$nextLocale]['short'] ?? (is_string($nextLocale) && $nextLocale !== '' ? strtoupper($nextLocale) : 'LANG');
 ?>
 <nav class="navbar navbar-expand-lg theme-navbar shadow-sm site-header">
   <div class="container-fluid header-shell">
@@ -19,11 +35,6 @@ $currentPath = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?? '/';
             <a class="nav-link <?= strpos($currentPath, '/menu') === 0 ? 'active' : '' ?>" href="/menu"><?= htmlspecialchars(translate('nav.menu')) ?></a>
         </li>
         <li class="nav-item">
-            <a class="nav-link d-flex align-items-center <?= strpos($currentPath, '/cart') === 0 ? 'active' : '' ?>" href="/cart">
-                <?= htmlspecialchars(translate('nav.cart')) ?>
-            </a>
-        </li>
-        <li class="nav-item">
             <a class="nav-link <?= strpos($currentPath, '/orders') === 0 ? 'active' : '' ?>" href="/orders"><?= htmlspecialchars(translate('nav.orders')) ?></a>
         </li>
         <li class="nav-item">
@@ -39,7 +50,7 @@ $currentPath = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?? '/';
         <?php endif; ?>
       </ul>
       <div class="header-actions d-flex align-items-center flex-wrap mt-3 mt-lg-0 justify-content-lg-end">
-        <span class="navbar-text text-body-secondary small flex-shrink-0">
+        <span class="navbar-text text-body-secondary small flex-shrink-0 header-greeting">
           <?php
           if (isset($_SESSION['username'])) {
               $fullName = trim(($_SESSION['first_name'] ?? '') . ' ' . ($_SESSION['last_name'] ?? ''));
@@ -49,6 +60,10 @@ $currentPath = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?? '/';
           }
           ?>
         </span>
+        <a class="action-btn icon-btn cart-action-btn" href="/cart" title="<?= htmlspecialchars(translate('nav.cart')) ?>">
+          <span aria-hidden="true">🛒</span>
+          <span class="cart-action-label"><?= htmlspecialchars(translate('nav.cart')) ?></span>
+        </a>
         <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
         <button class="action-btn icon-btn position-relative" type="button" data-bs-toggle="offcanvas" data-bs-target="#pendingDrawer" aria-controls="pendingDrawer" title="<?= htmlspecialchars(translate('nav.pending_title')) ?>">
           <span aria-hidden="true">🛎</span>
@@ -62,14 +77,12 @@ $currentPath = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?? '/';
           <span class="badge bg-danger rounded-pill notif-badge d-none" id="notificationsBadge">0</span>
         </button>
         <form action="/language/switch" method="post" class="language-switcher d-flex align-items-center gap-2" aria-label="<?= htmlspecialchars(translate('nav.language_label')) ?>">
-          <?php foreach (availableLocales() as $code => $locale): ?>
-              <button type="submit"
-                      class="action-btn <?= currentLocale() === $code ? 'active' : '' ?>"
-                      name="lang"
-                      value="<?= htmlspecialchars($code) ?>">
-                  <?= htmlspecialchars($locale['short']) ?>
-              </button>
-          <?php endforeach; ?>
+          <input type="hidden" name="lang" value="<?= htmlspecialchars($nextLocale) ?>">
+          <button type="submit" class="action-btn language-toggle" aria-label="<?= htmlspecialchars(translate('nav.language_label')) ?> (<?= htmlspecialchars($nextLocaleShort) ?>)">
+              <span class="language-flag" aria-hidden="true"><?= htmlspecialchars($nextLocaleFlag) ?></span>
+              <span class="language-code"><?= htmlspecialchars($nextLocaleShort) ?></span>
+              <span class="visually-hidden"><?= htmlspecialchars(translate('nav.language_label')) ?> <?= htmlspecialchars($nextLocaleShort) ?></span>
+          </button>
         </form>
         <button class="action-btn icon-btn" id="themeToggle" type="button" title="<?= htmlspecialchars(translate('nav.theme_toggle')) ?>">
           <span aria-hidden="true">🌓</span>

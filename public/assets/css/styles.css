@@ -1722,14 +1722,14 @@ h1, h2, h3 {
 .brand-mark {
     width: 80px;
     height: 80px;
-    margin: 1rem 0 0 1rem;
+    margin: 0.5rem 0 0 0.5rem;
     border-radius: 12px;
     background: url('/assets/images/gorilka.jpg') center/cover no-repeat;
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
 }
 
 .brand-text {
-    margin: 1rem 4.5rem 0 1rem;
+    margin: 1rem 4.5rem 0 0.5rem;
     color: var(--header-text);
     font-weight: 700;
     letter-spacing: 0.02em;
@@ -1774,6 +1774,13 @@ h1, h2, h3 {
 .header-actions .navbar-text {
     line-height: 1.2;
     font-weight: 500;
+}
+
+.header-greeting {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--header-text);
+    letter-spacing: 0.01em;
 }
 
 .action-btn {
@@ -1857,6 +1864,34 @@ h1, h2, h3 {
     box-shadow: 0 0 0 1px color-mix(in srgb, var(--action-border) 55%, transparent), 0 8px 18px rgba(0,0,0,0.12);
 }
 
+.language-toggle {
+    min-width: 72px;
+    gap: 8px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    padding-inline: 14px;
+}
+
+.language-toggle .language-flag {
+    font-size: 1.05rem;
+    line-height: 1;
+}
+
+.language-toggle .language-code {
+    font-size: 0.95rem;
+    color: var(--header-text);
+}
+
+.cart-action-btn {
+    gap: 8px;
+    font-weight: 700;
+    padding-inline: 12px;
+}
+
+.cart-action-label {
+    font-size: 0.95rem;
+}
+
 @media (max-width: 1199.98px) {
     .header-nav {
         gap: 14px;
@@ -1938,6 +1973,10 @@ h1, h2, h3 {
         flex-wrap: nowrap;
     }
 
+    .header-greeting {
+        font-size: 0.95rem;
+    }
+
     .action-btn {
         --action-height: 32px;
         padding: 0 10px;
@@ -1947,6 +1986,20 @@ h1, h2, h3 {
     .language-switcher {
         flex-wrap: nowrap;
         gap: 6px;
+    }
+
+    .language-toggle {
+        min-width: 66px;
+        padding-inline: 12px;
+    }
+
+    .cart-action-btn {
+        padding-inline: 10px;
+        gap: 6px;
+    }
+
+    .cart-action-label {
+        font-size: 0.9rem;
     }
 }
 
