@@ -1637,6 +1637,7 @@ h1, h2, h3 {
     border-bottom: 1px solid var(--header-border);
     box-shadow: var(--header-shadow);
     backdrop-filter: blur(30px);
+    text-align: center;
 }
 
 .header-shell {
@@ -1729,7 +1730,7 @@ h1, h2, h3 {
 }
 
 .brand-text {
-    margin: 1rem 4.5rem 0 0.5rem;
+    margin: 1rem 10rem 0 0.5rem;
     color: var(--header-text);
     font-weight: 700;
     letter-spacing: 0.02em;
@@ -1748,7 +1749,7 @@ h1, h2, h3 {
 .theme-navbar .navbar-toggler {
     border: 1px solid var(--header-border);
     border-radius: 10px;
-    padding: 6px 10px;
+    padding: 10px 16px;
     background: var(--action-bg);
     color: var(--header-text);
 }

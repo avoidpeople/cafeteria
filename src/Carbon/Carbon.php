@@ -54,13 +54,24 @@ class Carbon
 
     public function isoFormat(string $pattern): string
     {
+        // Map Moment-like tokens to IntlDateFormatter tokens.
         $intlPattern = strtr($pattern, [
             'dddd' => 'EEEE',
-            'MMMM' => 'MMMM',
-            'YYYY' => 'yyyy',
-            'HH' => 'HH',
-            'mm' => 'mm',
+            'ddd' => 'EEE',
+            'dd' => 'dd',
             'D' => 'd',
+            'MMMM' => 'MMMM',
+            'MMM' => 'MMM',
+            'MM' => 'MM',
+            'M' => 'M',
+            'YYYY' => 'yyyy',
+            'YY' => 'yy',
+            'HH' => 'HH',
+            'H' => 'H',
+            'mm' => 'mm',
+            'm' => 'm',
+            'ss' => 'ss',
+            's' => 's',
         ]);
 
         if (class_exists(IntlDateFormatter::class)) {
@@ -79,13 +90,25 @@ class Carbon
             }
         }
 
+        // Fallback to PHP date formatting (English-only) when intl is unavailable.
+        // Extra mappings keep numeric output sane instead of repeating tokens.
         $phpPattern = strtr($pattern, [
             'dddd' => 'l',
-            'MMMM' => 'F',
-            'YYYY' => 'Y',
-            'HH' => 'H',
-            'mm' => 'i',
+            'ddd' => 'D',
+            'dd' => 'd',
             'D' => 'j',
+            'MMMM' => 'F',
+            'MMM' => 'M',
+            'MM' => 'm',
+            'M' => 'n',
+            'YYYY' => 'Y',
+            'YY' => 'y',
+            'HH' => 'H',
+            'H' => 'G',
+            'mm' => 'i',
+            'm' => 'i',
+            'ss' => 's',
+            's' => 's',
         ]);
 
         return $this->dateTime->format($phpPattern);
