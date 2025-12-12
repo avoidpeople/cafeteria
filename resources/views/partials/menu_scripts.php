@@ -4,6 +4,52 @@ document.addEventListener('DOMContentLoaded', () => {
     const menuTexts = translationsEl ? JSON.parse(translationsEl.textContent) : {};
     const t = (key, fallback = '') => menuTexts[key] ?? fallback;
 
+    const filterForm = document.querySelector('.menu-filters form');
+    const searchInput = filterForm?.querySelector('input[name="search"]');
+    const categorySelect = filterForm?.querySelector('select[name="category"]');
+    const resetLink = null;
+    const bannerEl = document.getElementById('activeCategoryBanner');
+    const bannerTitle = document.getElementById('activeFilterTitle');
+    const bannerReset = document.getElementById('activeFilterReset');
+    const cardsGrid = document.getElementById('menuCardsGrid');
+    const emptyFilteredEl = document.getElementById('menuEmptyFiltered');
+    const categoryCounters = document.querySelectorAll('.menu-hero-metric[data-filter-category]');
+    const menuCards = Array.from(document.querySelectorAll('.menu-card')).map(card => ({
+        card,
+        col: card.closest('.col'),
+        data: safeParse(card.dataset.item || '{}'),
+    }));
+
+    filterForm?.addEventListener('submit', event => {
+        event.preventDefault();
+        applyFilters();
+    });
+
+    categorySelect?.addEventListener('change', () => applyFilters());
+    if (searchInput) {
+        searchInput.addEventListener('input', debounce(applyFilters, 240));
+    }
+
+    bannerReset?.addEventListener('click', () => resetFilters());
+
+    categoryCounters.forEach(counter => {
+        counter.addEventListener('click', () => {
+            const value = counter.dataset.filterCategory || '';
+            if (!value || !categorySelect) {
+                return;
+            }
+            const matchedOption = Array.from(categorySelect.options).find(opt => normalize(opt.value) === normalize(value));
+            if (!matchedOption) {
+                return;
+            }
+            categorySelect.value = matchedOption.value;
+            applyFilters();
+            filterForm?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+    });
+
+    applyFilters();
+
     const modal = document.getElementById('dishModal');
     const modalTitle = document.getElementById('dishTitle');
     const modalDesc = document.getElementById('dishDescription');
@@ -468,6 +514,91 @@ document.addEventListener('DOMContentLoaded', () => {
         const el = categorySteps[key];
         if (!el) return;
         el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    function applyFilters() {
+        const searchTerm = normalize(searchInput?.value);
+        const selectedCategory = categorySelect ? categorySelect.value : '';
+        const normalizedCategory = normalize(selectedCategory);
+        if (!menuCards.length || !cardsGrid) {
+            toggleBanner(normalizedCategory ? selectedCategory : '');
+            return;
+        }
+        let visibleCount = 0;
+
+        menuCards.forEach(entry => {
+            const matchesCategory = !normalizedCategory || normalize(entry.data.category) === normalizedCategory;
+            const matchesSearch = !searchTerm || matchesText(entry.data, searchTerm);
+            const isVisible = matchesCategory && matchesSearch;
+            if (entry.col) {
+                entry.col.classList.toggle('d-none', !isVisible);
+            }
+            if (isVisible) {
+                visibleCount += 1;
+            }
+        });
+
+        toggleEmptyState(visibleCount, Boolean(searchTerm || normalizedCategory));
+        toggleBanner(normalizedCategory ? selectedCategory : '');
+    }
+
+    function resetFilters() {
+        if (searchInput) {
+            searchInput.value = '';
+        }
+        if (categorySelect) {
+            categorySelect.value = '';
+        }
+        applyFilters();
+    }
+
+    function toggleBanner(categoryValue) {
+        if (!bannerEl || !bannerTitle) return;
+        const hasCategory = Boolean(categoryValue && categoryValue.trim() !== '');
+        if (!hasCategory) {
+            bannerEl.classList.add('d-none');
+            bannerTitle.textContent = '';
+            return;
+        }
+        const template = bannerEl.dataset.template || '';
+        const text = template.replace('__CATEGORY__', categoryValue).replace(':category', categoryValue);
+        bannerTitle.textContent = text;
+        bannerEl.classList.remove('d-none');
+    }
+
+    function toggleEmptyState(visibleCount, hasFilters) {
+        if (!emptyFilteredEl || !cardsGrid) return;
+        const noResults = visibleCount === 0 && hasFilters;
+        cardsGrid.classList.toggle('d-none', noResults);
+        emptyFilteredEl.classList.toggle('d-none', !noResults);
+    }
+
+    function matchesText(data, needle) {
+        const haystack = [data.title, data.description, data.ingredients]
+            .filter(Boolean)
+            .join(' ')
+            .toLowerCase();
+        return haystack.includes(needle);
+    }
+
+    function normalize(value) {
+        return (value || '').toString().trim().toLowerCase();
+    }
+
+    function safeParse(value) {
+        try {
+            return JSON.parse(value);
+        } catch (e) {
+            return {};
+        }
+    }
+
+    function debounce(fn, delay = 200) {
+        let timer = null;
+        return (...args) => {
+            clearTimeout(timer);
+            timer = setTimeout(() => fn(...args), delay);
+        };
     }
 });
 </script>

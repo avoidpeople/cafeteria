@@ -18,10 +18,22 @@ $localizedFieldMap = [
 ];
 $activeLocalizedFields = $localizedFieldMap[$locale] ?? ['name' => 'nameOriginal', 'description' => 'descriptionOriginal', 'category' => 'categoryOriginal'];
 $menuDateLabel = Carbon::now('Europe/Riga')->locale($locale === 'lv' ? 'lv' : 'ru')->isoFormat('D MMMM YYYY, dddd');
+$roleCategoryLabels = ['main' => null, 'garnish' => null, 'soup' => null];
+foreach ($menuItems as $item) {
+    $roleKey = $comboRoles[$item->id] ?? null;
+    if (!$roleKey || !array_key_exists($roleKey, $roleCategoryLabels)) {
+        continue;
+    }
+    $categoryField = $activeLocalizedFields['category'];
+    $localizedCategory = $item->$categoryField ?? $item->categoryOriginal ?? translate('menu.card.no_category');
+    if ($localizedCategory && $roleCategoryLabels[$roleKey] === null) {
+        $roleCategoryLabels[$roleKey] = $localizedCategory;
+    }
+}
 ?>
 <div class="page-container menu-page">
 <div class="hero-card mb-4">
-    <div class="row g-3 align-items-center">
+    <div class="row g-3 hero-layout align-items-stretch">
         <div class="col-md-8">
             <h1 class="display-5 fw-bold"><?= htmlspecialchars(translate('menu.hero.title')) ?></h1>
             <p class="lead mb-4"><?= htmlspecialchars(translate('menu.hero.subtitle')) ?></p>
@@ -29,33 +41,32 @@ $menuDateLabel = Carbon::now('Europe/Riga')->locale($locale === 'lv' ? 'lv' : 'r
                 <a href="/orders" class="btn btn-light btn-lg text-primary"><?= htmlspecialchars(translate('menu.hero.orders_btn')) ?></a>
                 <a href="/cart" class="btn btn-outline-light btn-lg hero-cart-btn border-white"><?= htmlspecialchars(translate('menu.hero.cart_btn')) ?></a>
             </div>
-            <div class="mt-3 mb-0">
-                <span class="badge rounded-pill bg-body-secondary text-body fw-semibold d-inline-flex align-items-center gap-2 px-3 py-2">
+        </div>
+        <div class="col-md-4 d-flex flex-column align-items-md-end align-items-start justify-content-start">
+            <div class="menu-hero-side">
+                <div class="menu-hero-date badge bg-light text-dark">
                     <span aria-hidden="true">📅</span>
                     <?= htmlspecialchars($menuDateLabel) ?>
-                </span>
+                </div>
+                <div class="menu-hero-stack">
+                    <div class="menu-hero-metric menu-hero-metric--stacked menu-hero-metric--large" data-filter-disabled="true">
+                        <span class="label"><?= htmlspecialchars(translate('menu.hero.metric_today')) ?></span>
+                        <span class="value"><?= count($menuItems) ?></span>
+                    </div>
+                    <div class="menu-hero-metric menu-hero-metric--stacked <?= $roleCategoryLabels['main'] ? 'menu-hero-metric--clickable' : '' ?>" data-filter-category="<?= htmlspecialchars($roleCategoryLabels['main'] ?? '') ?>">
+                        <span class="label"><?= htmlspecialchars(translate('menu.hero.metric_main')) ?></span>
+                        <span class="value"><?= $comboMainCount ?></span>
+                    </div>
+                    <div class="menu-hero-metric menu-hero-metric--stacked <?= $roleCategoryLabels['garnish'] ? 'menu-hero-metric--clickable' : '' ?>" data-filter-category="<?= htmlspecialchars($roleCategoryLabels['garnish'] ?? '') ?>">
+                        <span class="label"><?= htmlspecialchars(translate('menu.hero.metric_garnish')) ?></span>
+                        <span class="value"><?= $comboGarnishCount ?></span>
+                    </div>
+                    <div class="menu-hero-metric menu-hero-metric--stacked <?= $roleCategoryLabels['soup'] ? 'menu-hero-metric--clickable' : '' ?>" data-filter-category="<?= htmlspecialchars($roleCategoryLabels['soup'] ?? '') ?>">
+                        <span class="label"><?= htmlspecialchars(translate('menu.hero.metric_soups')) ?></span>
+                        <span class="value"><?= $comboSoupCount ?></span>
+                    </div>
+                </div>
             </div>
-            <div class="menu-hero-meta mt-2">
-                <div class="menu-hero-metric">
-                    <span class="label"><?= htmlspecialchars(translate('menu.hero.metric_today')) ?></span>
-                    <span class="value"><?= count($menuItems) ?></span>
-                </div>
-                <div class="menu-hero-metric">
-                    <span class="label"><?= htmlspecialchars(translate('menu.hero.metric_main')) ?></span>
-                    <span class="value"><?= $comboMainCount ?></span>
-                </div>
-                <div class="menu-hero-metric">
-                    <span class="label"><?= htmlspecialchars(translate('menu.hero.metric_garnish')) ?></span>
-                    <span class="value"><?= $comboGarnishCount ?></span>
-                </div>
-                <div class="menu-hero-metric">
-                    <span class="label"><?= htmlspecialchars(translate('menu.hero.metric_soups')) ?></span>
-                    <span class="value"><?= $comboSoupCount ?></span>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4 text-md-end d-flex flex-column align-items-start align-items-md-end gap-2">
-            <div class="badge bg-light text-dark fs-6"><?= htmlspecialchars(translate('menu.hero.available_badge', ['count' => count($menuItems)])) ?></div>
         </div>
     </div>
 </div>
@@ -83,29 +94,39 @@ $menuDateLabel = Carbon::now('Europe/Riga')->locale($locale === 'lv' ? 'lv' : 'r
 
 <div class="card shadow-sm border-0 mb-4 menu-filters">
     <div class="card-body">
-        <form class="row g-2 align-items-center" method="GET">
-            <div class="col-sm-6 col-md-5">
+        <form class="row g-3 align-items-end menu-filters__form" method="GET">
+            <div class="col-sm-6 col-md-7">
                 <label class="form-label text-muted mb-1"><?= htmlspecialchars(translate('menu.filters.search_label')) ?></label>
-                <input type="text" class="form-control" name="search" placeholder="<?= htmlspecialchars(translate('menu.filters.search_placeholder')) ?>" value="<?= htmlspecialchars($search) ?>">
+                <div class="menu-filters__control">
+                    <input type="text" class="form-control" name="search" placeholder="<?= htmlspecialchars(translate('menu.filters.search_placeholder')) ?>" value="<?= htmlspecialchars($search) ?>">
+                </div>
             </div>
 
-            <div class="col-sm-6 col-md-3">
+            <div class="col-sm-6 col-md-5">
                 <label class="form-label text-muted mb-1"><?= htmlspecialchars(translate('menu.filters.category_label')) ?></label>
-                <select name="category" class="form-select">
-                    <option value=""><?= htmlspecialchars(translate('menu.filters.category_all')) ?></option>
-                    <?php foreach ($categories as $category): ?>
-                        <option value="<?= htmlspecialchars($category) ?>" <?= $selectedCategory === $category ? 'selected' : '' ?>>
-                            <?= htmlspecialchars($category) ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-
-            <div class="col-md-3 d-flex gap-2 mt-3 mt-md-4">
-                <button type="submit" class="btn btn-primary flex-grow-1"><?= htmlspecialchars(translate('menu.filters.submit')) ?></button>
-                <a href="/menu" class="btn btn-outline-secondary flex-grow-1"><?= htmlspecialchars(translate('menu.filters.reset')) ?></a>
+                <div class="menu-filters__control menu-filters__control--select">
+                    <select name="category" class="form-select">
+                        <option value=""><?= htmlspecialchars(translate('menu.filters.category_all')) ?></option>
+                        <?php foreach ($categories as $category): ?>
+                            <option value="<?= htmlspecialchars($category) ?>" <?= $selectedCategory === $category ? 'selected' : '' ?>>
+                                <?= htmlspecialchars($category) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
             </div>
         </form>
+    </div>
+</div>
+
+<div id="activeCategoryBanner" class="active-filter-banner d-none mb-4" data-template="<?= htmlspecialchars(translate('menu.filters.active_notice_template', ['category' => '__CATEGORY__'])) ?>">
+    <div class="active-filter-banner__text">
+        <div class="active-filter-banner__title" id="activeFilterTitle"><?= htmlspecialchars(translate('menu.filters.active_notice_template', ['category' => ''])) ?></div>
+        <div class="active-filter-banner__subtitle"><?= htmlspecialchars(translate('menu.filters.active_notice_hint')) ?></div>
+    </div>
+    <div class="active-filter-banner__actions">
+        <small class="text-muted"><?= htmlspecialchars(translate('menu.filters.active_notice_reset_hint')) ?></small>
+        <button type="button" class="btn btn-outline-secondary btn-sm" id="activeFilterReset"><?= htmlspecialchars(translate('menu.filters.active_notice_reset_btn')) ?></button>
     </div>
 </div>
 
@@ -118,7 +139,10 @@ $menuDateLabel = Carbon::now('Europe/Riga')->locale($locale === 'lv' ? 'lv' : 'r
         <?php endif; ?>
     </div>
 <?php else: ?>
-    <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-4">
+    <div class="empty-state d-none" id="menuEmptyFiltered" data-empty-filtered="<?= htmlspecialchars(translate('menu.empty.filtered')) ?>">
+        <?= htmlspecialchars(translate('menu.empty.filtered')) ?>
+    </div>
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-4" id="menuCardsGrid">
         <?php foreach ($menuItems as $item): ?>
             <?php $gallery = $item->galleryImages(); $isUnique = $item->isUnique(); ?>
             <?php
