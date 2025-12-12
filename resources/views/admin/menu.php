@@ -94,7 +94,7 @@ $todayCount = count($selectedToday);
                                 </button>
                             </div>
                         </div>
-                        <textarea name="description" class="form-control" id="edit_desc"></textarea>
+                        <textarea name="description" class="form-control" id="edit_desc" required></textarea>
                         <div id="localizedDescriptions" class="row g-2 mt-2 d-none">
                             <div class="col-md-6">
                                 <label class="form-label small mb-1"><?= htmlspecialchars(translate('admin.menu.form.description_ru')) ?></label>
@@ -109,7 +109,7 @@ $todayCount = count($selectedToday);
 
                     <div>
                         <label class="form-label"><?= htmlspecialchars(translate('admin.menu.form.ingredients')) ?></label>
-                        <input type="text" name="ingredients" class="form-control" id="edit_ingr">
+                        <input type="text" name="ingredients" class="form-control" id="edit_ingr" required>
                     </div>
 
                     <div>
@@ -330,10 +330,77 @@ const nameRuInput = document.getElementById('edit_name_ru');
 const nameLvInput = document.getElementById('edit_name_lv');
 const descRuInput = document.getElementById('edit_desc_ru');
 const descLvInput = document.getElementById('edit_desc_lv');
+const menuForm = document.getElementById('menuForm');
+const requiredSummaryTemplate = <?= json_encode(translate('admin.menu.errors.required_summary', ['fields' => ':fields']), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
+const requiredFieldMessage = <?= json_encode(translate('common.field_required'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
+const requiredFieldLabels = {
+    title: <?= json_encode(translate('admin.menu.form.name'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+    description: <?= json_encode(translate('admin.menu.form.description'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+    ingredients: <?= json_encode(translate('admin.menu.form.ingredients'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+};
 document.addEventListener('DOMContentLoaded', () => {
     if (window.bootstrap) {
         Array.from(document.querySelectorAll('[data-bs-toggle=\"tooltip\"]')).forEach(el => new bootstrap.Tooltip(el));
     }
+});
+
+function showFieldError(field) {
+    if (!field) return;
+    field.classList.add('is-invalid');
+    let feedback = field.parentElement.querySelector('.invalid-feedback');
+    if (!feedback) {
+        feedback = document.createElement('div');
+        feedback.className = 'invalid-feedback';
+        field.parentElement.appendChild(feedback);
+    }
+    feedback.textContent = requiredFieldMessage;
+}
+
+function clearFieldError(field) {
+    if (!field) return;
+    field.classList.remove('is-invalid');
+    const feedback = field.parentElement.querySelector('.invalid-feedback');
+    if (feedback) {
+        feedback.textContent = '';
+    }
+}
+
+function validateRequiredFields() {
+    const required = [
+        { field: document.getElementById('edit_title'), name: requiredFieldLabels.title },
+        { field: document.getElementById('edit_desc'), name: requiredFieldLabels.description },
+        { field: document.getElementById('edit_ingr'), name: requiredFieldLabels.ingredients },
+    ];
+    const missing = [];
+    required.forEach(({ field, name }) => {
+        if (!field) return;
+        const isEmpty = !field.value || field.value.trim() === '';
+        if (isEmpty) {
+            missing.push(name);
+            showFieldError(field);
+        } else {
+            clearFieldError(field);
+        }
+    });
+    if (missing.length === 0) {
+        return true;
+    }
+    const summary = requiredSummaryTemplate.replace(':fields', missing.join(', '));
+    alert(summary);
+    const firstInvalid = required.find(entry => entry.field && (entry.field.value ?? '').trim() === '');
+    firstInvalid?.field?.focus();
+    return false;
+}
+
+menuForm?.addEventListener('submit', (event) => {
+    if (!validateRequiredFields()) {
+        event.preventDefault();
+    }
+});
+
+['edit_title', 'edit_desc', 'edit_ingr'].forEach(id => {
+    const field = document.getElementById(id);
+    field?.addEventListener('input', () => clearFieldError(field));
 });
 
 function syncManualPriceField(forceValue = null) {

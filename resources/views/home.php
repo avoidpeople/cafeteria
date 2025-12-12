@@ -57,35 +57,6 @@ $homeDateLabel = Carbon::now('Europe/Riga')->locale($currentLocale)->isoFormat('
         </div>
     </section>
 
-    <section class="info-grid mb-5">
-        <div class="info-card shadow-sm">
-            <h3><?= htmlspecialchars(translate('info.menu_title')) ?></h3>
-            <p><?= htmlspecialchars(translate('info.menu_text')) ?></p>
-        </div>
-        <div class="info-card shadow-sm">
-            <h3><?= htmlspecialchars(translate('info.history_title')) ?></h3>
-            <p><?= htmlspecialchars(translate('info.history_text')) ?></p>
-        </div>
-        <div class="info-card shadow-sm">
-            <h3><?= htmlspecialchars(translate('info.cart_title')) ?></h3>
-            <p><?= htmlspecialchars(translate('info.cart_text')) ?></p>
-        </div>
-    </section>
-
-    <section class="gallery-strip mt-5">
-        <div class="gallery-title">
-            <p class="hero-pill text-uppercase"><?= htmlspecialchars(translate('gallery.tagline')) ?></p>
-            <h3><?= htmlspecialchars(translate('gallery.title')) ?></h3>
-            <p><?= htmlspecialchars(translate('gallery.text')) ?></p>
-        </div>
-        <div class="gallery-grid">
-            <div class="gallery-item" style="background-image:url('https://images.unsplash.com/photo-1496417263034-38ec4f0b665a?auto=format&fit=crop&w=600&q=60');"></div>
-            <div class="gallery-item" style="background-image:url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=600&q=60');"></div>
-            <div class="gallery-item" style="background-image:url('https://images.unsplash.com/photo-1470337458703-46ad1756a187?auto=format&fit=crop&w=600&q=60');"></div>
-            <div class="gallery-item" style="background-image:url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=800&q=60');"></div>
-        </div>
-    </section>
-
     <section class="steps-card shadow-sm mt-5">
         <h3 class="mb-4"><?= htmlspecialchars(translate('steps.title')) ?></h3>
         <div class="steps-grid">
@@ -114,6 +85,35 @@ $homeDateLabel = Carbon::now('Europe/Riga')->locale($currentLocale)->isoFormat('
                 <h4><?= htmlspecialchars(translate('steps.5.title')) ?></h4>
                 <p><?= htmlspecialchars(translate('steps.5.text')) ?></p>
             </div>
+        </div>
+    </section>
+    <br>
+    <section class="info-grid mb-5">
+        <div class="info-card shadow-sm">
+            <h3><?= htmlspecialchars(translate('info.menu_title')) ?></h3>
+            <p><?= htmlspecialchars(translate('info.menu_text')) ?></p>
+        </div>
+        <div class="info-card shadow-sm">
+            <h3><?= htmlspecialchars(translate('info.history_title')) ?></h3>
+            <p><?= htmlspecialchars(translate('info.history_text')) ?></p>
+        </div>
+        <div class="info-card shadow-sm">
+            <h3><?= htmlspecialchars(translate('info.cart_title')) ?></h3>
+            <p><?= htmlspecialchars(translate('info.cart_text')) ?></p>
+        </div>
+    </section>
+
+    <section class="gallery-strip mt-5">
+        <div class="gallery-title">
+            <p class="hero-pill text-uppercase"><?= htmlspecialchars(translate('gallery.tagline')) ?></p>
+            <h3><?= htmlspecialchars(translate('gallery.title')) ?></h3>
+            <p><?= htmlspecialchars(translate('gallery.text')) ?></p>
+        </div>
+        <div class="gallery-grid">
+            <div class="gallery-item" style="background-image:url('https://images.unsplash.com/photo-1496417263034-38ec4f0b665a?auto=format&fit=crop&w=600&q=60');"></div>
+            <div class="gallery-item" style="background-image:url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=600&q=60');"></div>
+            <div class="gallery-item" style="background-image:url('https://images.unsplash.com/photo-1470337458703-46ad1756a187?auto=format&fit=crop&w=600&q=60');"></div>
+            <div class="gallery-item" style="background-image:url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=800&q=60');"></div>
         </div>
     </section>
 
