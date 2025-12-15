@@ -1,8 +1,37 @@
 <?php
 
+function configureSessionCookie(): void
+{
+    static $configured = false;
+    if ($configured || session_status() !== PHP_SESSION_NONE) {
+        $configured = true;
+        return;
+    }
+
+    $appEnv = getenv('APP_ENV') ?: 'production';
+    $isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on')
+        || (($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https');
+    $host = $_SERVER['HTTP_HOST'] ?? '';
+    $isLocalHost = in_array($host, ['localhost', '127.0.0.1'], true);
+    $isProduction = $appEnv === 'production' || (!$isLocalHost && $appEnv !== 'testing');
+    $secure = $isProduction ? true : $isHttps;
+
+    // Align session cookie attributes with OWASP Session Management Cheat Sheet
+    session_set_cookie_params([
+        'lifetime' => 0,
+        'path' => '/',
+        'httponly' => true,
+        'secure' => $secure,
+        'samesite' => 'Lax',
+    ]);
+
+    $configured = true;
+}
+
 function ensureSession(): void
 {
     if (session_status() === PHP_SESSION_NONE) {
+        configureSessionCookie();
         session_start();
     }
 }

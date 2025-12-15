@@ -8,6 +8,7 @@
         <?php endif; ?>
 
         <form method="POST" action="/login" class="d-flex flex-column gap-3">
+            <?= csrf_field() ?>
             <div>
                 <label class="form-label"><?= htmlspecialchars(translate('auth.login.username')) ?></label>
                 <input type="text" class="form-control" name="username" value="<?= htmlspecialchars($usernameValue) ?>" required>

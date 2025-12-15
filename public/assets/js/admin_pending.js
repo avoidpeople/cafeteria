@@ -4,6 +4,7 @@
     if (!container || !badge) {
         return;
     }
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
 
     const texts = {
         empty: container.dataset.emptyText || 'No new orders',
@@ -100,7 +101,7 @@
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 credentials: 'same-origin',
-                body: new URLSearchParams({ id, action }).toString(),
+                body: new URLSearchParams({ id, action, _token: csrfToken }).toString(),
             });
             if (response.ok) {
                 fetchPending();

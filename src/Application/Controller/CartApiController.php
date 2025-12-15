@@ -5,6 +5,7 @@ namespace App\Application\Controller;
 use App\Application\Service\CartService;
 use App\Application\Service\ComboService;
 use function translate;
+use function verify_csrf;
 
 class CartApiController
 {
@@ -16,12 +17,24 @@ class CartApiController
 
     public function add(): void
     {
+        if (!verify_csrf()) {
+            http_response_code(400);
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'message' => translate('common.csrf_failed')]);
+            return;
+        }
         header('Content-Type: application/json');
         echo json_encode(['success' => false, 'message' => translate('cart.api.combo_only')]);
     }
 
     public function addCombo(): void
     {
+        if (!verify_csrf()) {
+            http_response_code(400);
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'message' => translate('common.csrf_failed')]);
+            return;
+        }
         header('Content-Type: application/json');
         $mainId = intval($_POST['main_id'] ?? 0);
         $garnishId = intval($_POST['garnish_id'] ?? 0);

@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const translationsEl = document.getElementById('menuTranslations');
     const menuTexts = translationsEl ? JSON.parse(translationsEl.textContent) : {};
     const t = (key, fallback = '') => menuTexts[key] ?? fallback;
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
 
     const filterForm = document.querySelector('.menu-filters form');
     const searchInput = filterForm?.querySelector('input[name="search"]');
@@ -256,6 +257,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 formData.append(`extras[${key}]`, value);
             }
         });
+        if (csrfToken) {
+            formData.append('_token', csrfToken);
+        }
         const originalText = comboSubmit.textContent;
         comboSubmit.disabled = true;
         comboSubmit.textContent = t('adding', 'Adding...');

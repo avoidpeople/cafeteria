@@ -6,6 +6,7 @@
 <html lang="<?= htmlspecialchars(currentLocale()) ?>">
 <head>
     <meta charset="UTF-8">
+    <meta name="csrf-token" content="<?= htmlspecialchars(csrf_token_value()) ?>">
     <title><?= htmlspecialchars($title ?? 'Doctor Gorilka') ?></title>
     <link rel="icon" href="/assets/images/gorilka.jpg" type="image/jpeg">
     <link rel="stylesheet" href="/assets/css/styles.css">

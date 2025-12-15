@@ -55,6 +55,7 @@ $todayCount = count($selectedToday);
             <div class="card-body">
                 <h4 class="card-title mb-3"><?= htmlspecialchars(translate('admin.menu.form.title')) ?></h4>
                 <form method="POST" action="/admin/menu" enctype="multipart/form-data" class="d-flex flex-column gap-3" id="menuForm">
+                    <?= csrf_field() ?>
                     <input type="hidden" name="id" id="edit_id">
                     <input type="hidden" name="existing_gallery" id="existing_gallery">
                     <input type="hidden" name="current_image" id="current_image">
@@ -164,6 +165,7 @@ $todayCount = count($selectedToday);
 
     <div class="admin-column admin-table-block">
         <form method="POST" action="/admin/menu/today" class="h-100 d-flex flex-column">
+            <?= csrf_field() ?>
             <div class="card border-0 shadow-sm flex-grow-1">
                 <div class="card-body">
                     <h4 class="card-title mb-3"><?= htmlspecialchars(translate('admin.menu.table.title')) ?></h4>
@@ -229,7 +231,7 @@ $todayCount = count($selectedToday);
                                                 <div class="text-muted small mt-1"><?= htmlspecialchars(translate('admin.menu.errors.system_locked')) ?></div>
                                             <?php else: ?>
                                                 <div class="d-flex flex-column gap-2">
-                                                <button class="btn btn-sm btn-primary" type="button" onclick='fillForm(<?= json_encode([
+                                            <button class="btn btn-sm btn-primary" type="button" onclick='fillForm(<?= json_encode([
                                                     'id' => $item->id,
                                                     'title' => $item->title,
                                                     'name_original' => $item->nameOriginal ?? $item->title,
@@ -250,7 +252,11 @@ $todayCount = count($selectedToday);
                                                     'image' => $item->primaryImage(),
                                                     'gallery' => $gallery,
                                                 ], JSON_HEX_APOS | JSON_HEX_QUOT) ?>)'><?= htmlspecialchars(translate('admin.menu.actions.edit')) ?></button>
-                                                    <a class="btn btn-sm btn-outline-danger" href="/admin/menu/delete?id=<?= $item->id ?>" onclick="return confirm('<?= htmlspecialchars(translate('admin.menu.actions.confirm_delete')) ?>');"><?= htmlspecialchars(translate('combo.remove')) ?></a>
+                                                    <form method="POST" action="/admin/menu/delete" class="d-inline" onsubmit="return confirm('<?= htmlspecialchars(translate('admin.menu.actions.confirm_delete')) ?>');">
+                                                        <?= csrf_field() ?>
+                                                        <input type="hidden" name="id" value="<?= $item->id ?>">
+                                                        <button type="submit" class="btn btn-sm btn-outline-danger"><?= htmlspecialchars(translate('combo.remove')) ?></button>
+                                                    </form>
                                                 </div>
                                             <?php endif; ?>
                                         </td>

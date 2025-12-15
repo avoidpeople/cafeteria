@@ -8,6 +8,7 @@ use App\Infrastructure\SessionManager;
 use App\Infrastructure\ViewRenderer;
 use function setToast;
 use function translate;
+use function verify_csrf;
 
 class MenuController
 {
@@ -47,6 +48,11 @@ class MenuController
     public function save(): void
     {
         $this->requireAdmin();
+        if (!verify_csrf()) {
+            setToast(translate('common.csrf_failed'), 'warning');
+            header('Location: /admin/menu');
+            exit;
+        }
         $result = $this->menuService->save($_POST, $_FILES);
         if (!$result['success']) {
             $this->session->set('admin_menu_errors', $result['errors']);
@@ -60,7 +66,12 @@ class MenuController
     public function delete(): void
     {
         $this->requireAdmin();
-        $id = intval($_GET['id'] ?? 0);
+        if (!verify_csrf()) {
+            setToast(translate('common.csrf_failed'), 'warning');
+            header('Location: /admin/menu');
+            exit;
+        }
+        $id = intval($_POST['id'] ?? 0);
         if ($id > 0) {
             $deleted = $this->menuService->delete($id);
             if ($deleted) {
@@ -76,6 +87,11 @@ class MenuController
     public function today(): void
     {
         $this->requireAdmin();
+        if (!verify_csrf()) {
+            setToast(translate('common.csrf_failed'), 'warning');
+            header('Location: /admin/menu');
+            exit;
+        }
         $ids = $_POST['today_ids'] ?? [];
         if (!is_array($ids)) {
             $ids = [];

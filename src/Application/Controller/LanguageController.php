@@ -2,10 +2,20 @@
 
 namespace App\Application\Controller;
 
+use function setToast;
+use function translate;
+use function verify_csrf;
+
 class LanguageController
 {
     public function switch(): void
     {
+        if (!verify_csrf()) {
+            setToast(translate('common.csrf_failed'), 'warning');
+            header('Location: ' . ($_SERVER['HTTP_REFERER'] ?? '/'));
+            exit;
+        }
+
         $locales = availableLocales();
         $requested = $_POST['lang'] ?? null;
         if ($requested && isset($locales[$requested])) {

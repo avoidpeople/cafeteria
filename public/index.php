@@ -57,7 +57,7 @@ $router->post('/api/notifications/clear', [$notificationController, 'clear']);
 $router->get('/admin/menu', [$adminMenuController, 'index']);
 $router->post('/admin/menu', [$adminMenuController, 'save']);
 $router->post('/admin/menu/today', [$adminMenuController, 'today']);
-$router->get('/admin/menu/delete', [$adminMenuController, 'delete']);
+$router->post('/admin/menu/delete', [$adminMenuController, 'delete']);
 $router->get('/admin/orders', [$adminOrderController, 'index']);
 $router->get('/admin/orders/show', [$adminOrderController, 'show']);
 $router->post('/admin/orders/status', [$adminOrderController, 'updateStatus']);

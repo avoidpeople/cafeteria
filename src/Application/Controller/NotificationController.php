@@ -6,6 +6,7 @@ use App\Application\Service\AuthService;
 use App\Application\Service\NotificationService;
 use App\Infrastructure\SessionManager;
 use function translate;
+use function verify_csrf;
 
 class NotificationController
 {
@@ -65,6 +66,9 @@ class NotificationController
 
     public function clear(): void
     {
+        if (!verify_csrf()) {
+            $this->json(['authenticated' => false, 'success' => false, 'message' => translate('common.csrf_failed')]);
+        }
         $userId = $this->session->get('user_id');
         if (!$userId) {
             $this->json(['authenticated' => false, 'success' => false]);

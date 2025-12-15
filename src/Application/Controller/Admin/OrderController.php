@@ -8,6 +8,7 @@ use App\Infrastructure\SessionManager;
 use App\Infrastructure\ViewRenderer;
 use function setToast;
 use function translate;
+use function verify_csrf;
 
 class OrderController
 {
@@ -125,6 +126,9 @@ class OrderController
     public function handlePending(): void
     {
         $this->requireAdmin();
+        if (!verify_csrf()) {
+            $this->json(['success' => false, 'message' => translate('common.csrf_failed')]);
+        }
         $orderId = intval($_POST['id'] ?? 0);
         $action = $_POST['action'] ?? '';
         if ($orderId <= 0 || !in_array($action, ['accept','decline'], true)) {

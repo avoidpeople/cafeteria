@@ -44,6 +44,7 @@
                         </div>
                     <?php endif; ?>
                     <form method="POST" action="/profile/password" class="d-flex flex-column gap-3">
+                        <?= csrf_field() ?>
                         <div>
                             <label class="form-label"><?= htmlspecialchars(translate('profile.password.current')) ?></label>
                             <input type="password" class="form-control" name="current_password" required>

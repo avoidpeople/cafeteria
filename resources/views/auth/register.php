@@ -9,6 +9,7 @@
         <?php endforeach; ?>
 
         <form method="POST" action="/register" class="d-flex flex-column gap-3 mt-3">
+            <?= csrf_field() ?>
             <div class="d-flex gap-2 flex-column flex-md-row">
                 <div class="flex-grow-1">
                     <label class="form-label"><?= htmlspecialchars(translate('auth.register.first_name')) ?></label>

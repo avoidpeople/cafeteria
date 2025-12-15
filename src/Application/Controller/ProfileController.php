@@ -8,7 +8,9 @@ use App\Application\Service\PasswordValidator;
 use App\Domain\UserRepositoryInterface;
 use App\Infrastructure\SessionManager;
 use App\Infrastructure\ViewRenderer;
+use function setToast;
 use function translate;
+use function verify_csrf;
 
 class ProfileController
 {
@@ -58,6 +60,12 @@ class ProfileController
         if (!$user) {
             $this->authService->logout();
             header('Location: /login');
+            exit;
+        }
+
+        if (!verify_csrf()) {
+            setToast(translate('common.csrf_failed'), 'warning');
+            header('Location: /profile');
             exit;
         }
 

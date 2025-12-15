@@ -6,6 +6,7 @@
     if (!container || !badge) {
         return;
     }
+    const csrfToken = document.querySelector('meta[name=\"csrf-token\"]')?.getAttribute('content') || '';
     const emptyText = container.dataset.emptyText || 'No notifications yet';
     const loginText = container.dataset.loginText || 'Sign in to receive order updates.';
     const noneText = container.dataset.noneText || 'No orders yet';
@@ -96,8 +97,12 @@
         try {
             const response = await fetch('/api/notifications/clear', {
                 method: 'POST',
-                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
                 credentials: 'same-origin',
+                body: new URLSearchParams({ _token: csrfToken }).toString(),
             });
             if (response.ok) {
                 container.innerHTML = `<div class="text-muted">${clearedText}</div>`;

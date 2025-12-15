@@ -77,6 +77,7 @@ $nextLocaleShort = $locales[$nextLocale]['short'] ?? (is_string($nextLocale) && 
           <span class="badge bg-danger rounded-pill notif-badge d-none" id="notificationsBadge">0</span>
         </button>
         <form action="/language/switch" method="post" class="language-switcher d-flex align-items-center gap-2" aria-label="<?= htmlspecialchars(translate('nav.language_label')) ?>">
+          <?= csrf_field() ?>
           <input type="hidden" name="lang" value="<?= htmlspecialchars($nextLocale) ?>">
           <button type="submit" class="action-btn language-toggle" aria-label="<?= htmlspecialchars(translate('nav.language_label')) ?> (<?= htmlspecialchars($nextLocaleShort) ?>)">
               <?php if ($nextLocaleIcon): ?>

@@ -10,6 +10,7 @@ use App\Infrastructure\SessionManager;
 use App\Infrastructure\ViewRenderer;
 use function setToast;
 use function translate;
+use function verify_csrf;
 
 class OrderController
 {

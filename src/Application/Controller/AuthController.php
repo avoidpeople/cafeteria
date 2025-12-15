@@ -9,6 +9,7 @@ use App\Infrastructure\SessionManager;
 use App\Infrastructure\ViewRenderer;
 use function setToast;
 use function translate;
+use function verify_csrf;
 
 class AuthController
 {
@@ -40,6 +41,12 @@ class AuthController
     {
         if ($this->session->get('user_id')) {
             header('Location: /');
+            exit;
+        }
+
+        if (!verify_csrf()) {
+            setToast(translate('common.csrf_failed'), 'warning');
+            header('Location: /login');
             exit;
         }
 
@@ -107,6 +114,12 @@ class AuthController
     {
         if ($this->session->get('user_id')) {
             header('Location: /');
+            exit;
+        }
+
+        if (!verify_csrf()) {
+            setToast(translate('common.csrf_failed'), 'warning');
+            header('Location: /register');
             exit;
         }
 
