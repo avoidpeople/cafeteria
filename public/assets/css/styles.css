@@ -159,6 +159,7 @@ body.with-fixed-header {
 }
 
 .menu-page .hero-card h1::after {
+    margin-top: 2rem;
     content: '';
     display: block;
     width: clamp(140px, 24vw, 240px);
@@ -629,7 +630,7 @@ body.with-fixed-header {
         gap: 1rem;
     }
     .combo-step {
-        flex: 1 1 100%;
+        width: 100%;
         min-width: 0;
     }
 }
@@ -667,17 +668,6 @@ body.with-fixed-header {
     }
     .row.row-cols-1.row-cols-sm-2.row-cols-lg-3 {
         row-gap: 1.25rem;
-    }
-    .combo-option-grid {
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    }
-    .combo-option-card {
-        padding: 12px;
-        gap: 10px;
-    }
-    .combo-option-thumb {
-        width: 64px;
-        height: 64px;
     }
     .combo-summary {
         margin-top: 10px;
@@ -726,12 +716,6 @@ body.with-fixed-header {
     }
     .combo-price-pill {
         padding: 10px 14px;
-    }
-    .combo-option-grid {
-        grid-template-columns: 1fr;
-    }
-    .combo-option-card {
-        align-items: center;
     }
     .combo-modal-wide .modal-content {
         border-radius: 18px;
@@ -995,6 +979,13 @@ body.with-fixed-header {
     box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
 }
 
+:root:not([data-bs-theme='dark']) .home-page .step-item {
+    border-width: 1.5px;
+    border-style: solid;
+    border-color: rgba(15, 23, 42, 0.32);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.65), 0 12px 28px rgba(15,23,42,0.10);
+}
+
 .step-item h4 {
     margin: 10px 0 6px;
 }
@@ -1169,9 +1160,15 @@ body.with-fixed-header {
 }
 
 .combo-option-grid {
+    --combo-card-min: 340px;
+    --combo-card-gap: 1rem;
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 1rem;
+    width: 100%;
+    grid-template-columns: repeat(auto-fit, minmax(var(--combo-card-min), 1fr));
+    gap: var(--combo-card-gap);
+    align-items: stretch;
+    justify-content: start;
+    max-width: calc(4 * var(--combo-card-min) + 3 * var(--combo-card-gap));
 }
 
 .combo-modal-wide {
@@ -1185,13 +1182,14 @@ body.with-fixed-header {
 
 .combo-steps-grid {
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: column;
+    flex-wrap: nowrap;
     gap: 1.25rem;
 }
 
 .combo-step {
-    flex: 1 1 360px;
-    min-width: 300px;
+    width: 100%;
+    min-width: 0;
 }
 
 .combo-step-missing {
@@ -1219,10 +1217,10 @@ body.with-fixed-header {
 
 .combo-option-card {
     border: 1px solid var(--combo-option-border);
-    border-radius: 20px;
-    padding: 12px;
+    border-radius: 22px;
+    padding: 14px 16px;
     display: flex;
-    gap: 12px;
+    gap: 14px;
     align-items: flex-start;
     text-align: left;
     width: 100%;
@@ -1257,8 +1255,8 @@ body.with-fixed-header {
 }
 
 .combo-option-thumb {
-    width: 72px;
-    height: 72px;
+    width: 86px;
+    height: 86px;
     border-radius: 16px;
     background: var(--combo-thumb-bg);
     display: flex;
@@ -1277,20 +1275,32 @@ body.with-fixed-header {
 
 .combo-option-body {
     flex: 1;
+    display: flex;
+    flex-direction: column;
 }
 
 .combo-option-title {
     font-weight: 600;
+    font-size: 1.02rem;
+    line-height: 1.25;
 }
 
 .combo-option-desc {
-    font-size: 0.85rem;
+    font-size: 0.9rem;
     color: var(--combo-muted);
+}
+
+.combo-option-card .allergens-inline {
+    margin-top: 6px;
+    font-size: 0.82rem;
 }
 
 .combo-option-tag {
     display: inline-flex;
-    margin-top: 6px;
+    align-self: flex-start;
+    order: -1;
+    margin-top: 0;
+    margin-bottom: 6px;
     padding: 2px 10px;
     border-radius: 999px;
     background: var(--combo-tag-bg);
@@ -1332,6 +1342,37 @@ body.with-fixed-header {
     color: var(--combo-muted);
 }
 
+@media (min-width: 1400px) {
+    .combo-option-grid { --combo-card-min: 360px; }
+}
+
+@media (max-width: 1200px) {
+    .combo-option-grid { --combo-card-min: 300px; }
+}
+
+@media (max-width: 992px) {
+    .combo-option-grid { --combo-card-min: 280px; }
+}
+
+@media (max-width: 768px) {
+    .combo-option-grid { --combo-card-min: 240px; max-width: none; }
+    .combo-option-card {
+        padding: 12px;
+        gap: 10px;
+    }
+    .combo-option-thumb {
+        width: 64px;
+        height: 64px;
+    }
+}
+
+@media (max-width: 576px) {
+    .combo-option-grid { --combo-card-min: 240px; max-width: none; }
+    .combo-option-card {
+        align-items: center;
+    }
+}
+
 .allergens-badge {
     display: inline-flex;
     flex-wrap: wrap;
@@ -1353,6 +1394,36 @@ body.with-fixed-header {
     color: #f6c744;
     line-height: 1.35;
     word-break: break-word;
+}
+
+:root:not([data-bs-theme='dark']) .allergens-inline {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    border-radius: 12px;
+    border: 1px solid rgba(15, 23, 42, 0.18);
+    background: rgba(255, 193, 7, 0.32);
+    color: rgba(15, 23, 42, 0.92) !important;
+}
+
+:root:not([data-bs-theme='dark']) .allergens-inline__label {
+    color: inherit !important;
+}
+
+:root:not([data-bs-theme='dark']) .allergens-inline__value {
+    color: inherit !important;
+}
+
+:root:not([data-bs-theme='dark']) #dishAllergens {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    border-radius: 14px;
+    border: 1px solid rgba(15, 23, 42, 0.18);
+    background: rgba(255, 193, 7, 0.28);
+    color: rgba(15, 23, 42, 0.92) !important;
 }
 .allergens-inline__label {
     margin-right: 6px;

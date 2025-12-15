@@ -323,7 +323,7 @@ foreach ($menuItems as $item) {
                                         </button>
                                     <?php endif; ?>
                                     <?php foreach ($category['items'] as $option): ?>
-                                        <button type="button" class="combo-option-card" data-category="<?= htmlspecialchars($category['key']) ?>" data-id="<?= $option['id'] ?>" data-title="<?= htmlspecialchars($option['title']) ?>" data-description="<?= htmlspecialchars($option['description'] ?? '') ?>" data-image="<?= htmlspecialchars($option['image'] ?? '') ?>" data-price="<?= htmlspecialchars((string)($option['price'] ?? 0)) ?>" data-custom-price="<?= htmlspecialchars((string)($option['custom_price'] ?? '')) ?>" data-unique="<?= !empty($option['unique']) ? '1' : '0' ?>">
+                                        <button type="button" class="combo-option-card" data-category="<?= htmlspecialchars($category['key']) ?>" data-id="<?= $option['id'] ?>" data-title="<?= htmlspecialchars($option['title']) ?>" data-description="<?= htmlspecialchars($option['description'] ?? '') ?>" data-image="<?= htmlspecialchars($option['image'] ?? '') ?>" data-price="<?= htmlspecialchars((string)($option['price'] ?? 0)) ?>" data-custom-price="<?= htmlspecialchars((string)($option['custom_price'] ?? '')) ?>" data-unique="<?= !empty($option['unique']) ? '1' : '0' ?>" data-allergens="<?= htmlspecialchars(trim((string)($option['allergens'] ?? ''))) ?>">
                                             <div class="combo-option-thumb">
                                                 <?php if (!empty($option['image'])): ?>
                                                     <img src="/assets/images/<?= htmlspecialchars($option['image']) ?>" alt="<?= htmlspecialchars($option['title']) ?>">
@@ -333,6 +333,12 @@ foreach ($menuItems as $item) {
                                             </div>
                                             <div class="combo-option-body">
                                                 <div class="combo-option-title"><?= htmlspecialchars($option['title']) ?></div>
+                                                <?php if (!empty($option['allergens']) && trim((string)$option['allergens']) !== ''): ?>
+                                                    <div class="allergens-inline mb-2">
+                                                        <span class="allergens-inline__label"><?= htmlspecialchars(translate('menu.card.allergens')) ?>:</span>
+                                                        <span class="allergens-inline__value"><?= htmlspecialchars($option['allergens']) ?></span>
+                                                    </div>
+                                                <?php endif; ?>
                                                 <div class="combo-option-desc text-truncate-2">
                                                     <?= htmlspecialchars($option['description'] ?? translate('menu.combo_modal.description_pending')) ?>
                                                 </div>

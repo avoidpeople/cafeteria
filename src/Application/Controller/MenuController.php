@@ -170,6 +170,7 @@ class MenuController
             'role' => $key,
             'image' => $item->primaryImage(),
             'description' => $item->description ?? null,
+            'allergens' => $item->allergens ?? null,
             'price' => $price,
             'custom_price' => $pricing['custom_price'] ?? null,
             'unique' => $item->isUnique(),
