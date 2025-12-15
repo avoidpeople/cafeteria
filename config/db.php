@@ -198,4 +198,15 @@ $conn->exec("CREATE TABLE IF NOT EXISTS notifications (
     FOREIGN KEY (user_id) REFERENCES users(id),
     FOREIGN KEY (order_id) REFERENCES orders(id)
 )");
+
+$conn->exec("CREATE TABLE IF NOT EXISTS login_attempts (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    rate_key TEXT NOT NULL,
+    username TEXT,
+    ip TEXT,
+    attempted_at INTEGER NOT NULL,
+    successful INTEGER DEFAULT 0,
+    blocked_until INTEGER
+)");
+$conn->exec("CREATE INDEX IF NOT EXISTS idx_login_attempts_key_time ON login_attempts(rate_key, attempted_at)");
 ?>

@@ -4,6 +4,7 @@ namespace App\Application\Controller;
 
 use App\Application\Service\AuthService;
 use App\Application\Service\CartService;
+use App\Application\Service\LoginRateLimiter;
 use App\Infrastructure\SessionManager;
 use App\Infrastructure\ViewRenderer;
 use function setToast;
@@ -15,6 +16,7 @@ class AuthController
         private AuthService $authService,
         private ViewRenderer $view,
         private SessionManager $session,
+        private LoginRateLimiter $loginRateLimiter,
         private ?CartService $cartService = null
     ) {
     }
@@ -44,8 +46,21 @@ class AuthController
         $username = trim($_POST['username'] ?? '');
         $password = trim($_POST['password'] ?? '');
         $next = $this->rememberNext($_POST['next'] ?? $this->session->get('login_next', ''));
+        $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+
+        $block = $this->loginRateLimiter->check($username, $ip);
+        if ($block['blocked']) {
+            $this->session->set('login_error', translate('auth.errors.too_many_attempts', ['seconds' => (string) max(1, $block['retry_after'])]));
+            $this->session->set('login_username', $username);
+            $redirect = '/login' . ($next ? '?next=' . urlencode($next) : '');
+            $this->logSecurity(sprintf('Rate limit hit for user "%s" from %s (retry in %ds)', $this->maskUsername($username), $ip, (int) $block['retry_after']));
+            header('Location: ' . $redirect);
+            exit;
+        }
+
         $result = $this->authService->login($username, $password);
         if ($result['success']) {
+            $this->loginRateLimiter->hitSuccess($username, $ip);
             $this->cartService?->mergeUserCart((int)$this->session->get('user_id', 0));
             $this->session->unset('login_next');
             setToast(translate('auth.toast.login', ['name' => $result['display_name']]));
@@ -53,9 +68,21 @@ class AuthController
             exit;
         }
 
-        $this->session->set('login_error', $result['error'] ?? translate('auth.errors.invalid_credentials'));
+        $limitState = $this->loginRateLimiter->hitFailure($username, $ip);
+        $errorMessage = $result['error'] ?? translate('auth.errors.invalid_credentials');
+        if ($limitState['blocked']) {
+            $errorMessage = translate('auth.errors.too_many_attempts', ['seconds' => (string) max(1, $limitState['retry_after'])]);
+        }
+
+        $this->session->set('login_error', $errorMessage);
         $this->session->set('login_username', $username);
         $redirect = '/login' . ($next ? '?next=' . urlencode($next) : '');
+        $this->logSecurity(sprintf(
+            'Failed login for user "%s" from %s%s',
+            $this->maskUsername($username),
+            $ip,
+            $limitState['blocked'] ? ' (rate limited)' : ''
+        ));
         header('Location: ' . $redirect);
         exit;
     }
@@ -135,5 +162,23 @@ class AuthController
             return '';
         }
         return $next;
+    }
+
+    private function logSecurity(string $message): void
+    {
+        error_log('[security] ' . $message);
+    }
+
+    private function maskUsername(string $username): string
+    {
+        $trimmed = trim($username);
+        if ($trimmed === '') {
+            return '(empty)';
+        }
+        if (strlen($trimmed) <= 2) {
+            return $trimmed[0] . '*';
+        }
+
+        return substr($trimmed, 0, 1) . str_repeat('*', max(strlen($trimmed) - 2, 1)) . substr($trimmed, -1);
     }
 }

@@ -21,7 +21,7 @@ $app = App::create($view, new Router());
 
 $homeController = new HomeController($menuService, $view);
 $menuController = new MenuController($menuService, $comboService, $view);
-$authController = new AuthController($authService, $view, $sessionManager, $cartService);
+$authController = new AuthController($authService, $view, $sessionManager, $loginRateLimiter, $cartService);
 $cartController = new CartController($cartService, $view, $sessionManager);
 $orderController = new OrderController($authService, $orderService, $cartService, $menuRepository, $view, $sessionManager);
 $profileController = new ProfileController($authService, $userRepository, $orderService, $view, $sessionManager);

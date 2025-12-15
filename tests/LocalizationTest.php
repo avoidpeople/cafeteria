@@ -44,6 +44,7 @@ function createAdminService(): array
         image_gallery TEXT,
         is_today INTEGER DEFAULT 0,
         use_manual_price INTEGER DEFAULT 0,
+        allergens TEXT,
         name_original TEXT,
         name_ru TEXT,
         name_lv TEXT,

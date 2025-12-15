@@ -14,12 +14,15 @@ use App\Application\Service\ComboService;
 use App\Application\Service\OrderService;
 use App\Application\Service\AdminMenuService;
 use App\Application\Service\NotificationService;
+use App\Application\Service\LoginRateLimiter;
 use App\Application\Service\TranslateService;
 use App\Infrastructure\Repository\NotificationRepository;
 
 $sessionManager = new SessionManager();
 $userRepository = new UserRepository($conn);
 $authService = new AuthService($userRepository, $sessionManager);
+$securityConfig = require __DIR__ . '/config/security.php';
+$loginRateLimiter = new LoginRateLimiter($conn, null, $securityConfig);
 
 $menuRepository = new MenuRepository($conn);
 $menuService = new MenuService($menuRepository);
