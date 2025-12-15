@@ -2553,8 +2553,19 @@ h1, h2, h3 {
 }
 
 .language-toggle .language-flag {
-    font-size: 1.05rem;
-    line-height: 1;
+    width: 24px;
+    height: 24px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    overflow: hidden;
+    object-fit: cover;
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--border-muted) 60%, transparent);
+}
+
+.language-toggle img.language-flag {
+    object-fit: cover;
 }
 
 .language-toggle .language-code {

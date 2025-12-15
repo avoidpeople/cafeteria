@@ -10,11 +10,11 @@ if (!empty($localeKeys)) {
     $nextLocale = $localeKeys[($currentIndex === false ? 0 : $currentIndex + 1) % count($localeKeys)];
 }
 
-$localeFlags = [
-    'ru' => '🇷🇺',
-    'lv' => '🇱🇻',
+$localeFlagIcons = [
+    'ru' => '/assets/images/rus_flag.png',
+    'lv' => '/assets/images/lv_flag.png',
 ];
-$nextLocaleFlag = $localeFlags[$nextLocale] ?? '🌐';
+$nextLocaleIcon = $localeFlagIcons[$nextLocale] ?? null;
 $nextLocaleShort = $locales[$nextLocale]['short'] ?? (is_string($nextLocale) && $nextLocale !== '' ? strtoupper($nextLocale) : 'LANG');
 ?>
 <nav class="navbar navbar-expand-lg theme-navbar shadow-sm site-header">
@@ -79,7 +79,11 @@ $nextLocaleShort = $locales[$nextLocale]['short'] ?? (is_string($nextLocale) && 
         <form action="/language/switch" method="post" class="language-switcher d-flex align-items-center gap-2" aria-label="<?= htmlspecialchars(translate('nav.language_label')) ?>">
           <input type="hidden" name="lang" value="<?= htmlspecialchars($nextLocale) ?>">
           <button type="submit" class="action-btn language-toggle" aria-label="<?= htmlspecialchars(translate('nav.language_label')) ?> (<?= htmlspecialchars($nextLocaleShort) ?>)">
-              <span class="language-flag" aria-hidden="true"><?= htmlspecialchars($nextLocaleFlag) ?></span>
+              <?php if ($nextLocaleIcon): ?>
+                  <img src="<?= htmlspecialchars($nextLocaleIcon) ?>" alt="" class="language-flag" aria-hidden="true" width="24" height="24">
+              <?php else: ?>
+                  <span class="language-flag" aria-hidden="true"><?= htmlspecialchars($nextLocaleShort) ?></span>
+              <?php endif; ?>
               <span class="language-code"><?= htmlspecialchars($nextLocaleShort) ?></span>
               <span class="visually-hidden"><?= htmlspecialchars(translate('nav.language_label')) ?> <?= htmlspecialchars($nextLocaleShort) ?></span>
           </button>

@@ -12,7 +12,9 @@ class AuthService
     public function __construct(
         private UserRepositoryInterface $users,
         private SessionManager $session,
+        private ?PasswordValidator $passwordValidator = null,
     ) {
+        $this->passwordValidator ??= new PasswordValidator();
     }
 
     public function login(string $username, string $password): array
@@ -41,18 +43,30 @@ class AuthService
         $first = trim($data['first_name'] ?? '');
         $last = trim($data['last_name'] ?? '');
         $phone = trim($data['phone'] ?? '');
+        $usernameLength = mb_strlen($username, 'UTF-8');
+        $firstLength = mb_strlen($first, 'UTF-8');
+        $lastLength = mb_strlen($last, 'UTF-8');
 
         if ($username === '' || $password === '' || $confirm === '' || $first === '' || $last === '' || $phone === '') {
             $errors[] = translate('auth.errors.fields_required');
         }
-        if (strlen($username) < 3) {
+        if ($confirm === '') {
+            $errors[] = translate('auth.errors.password_confirm_required');
+        }
+        if ($usernameLength < 3) {
             $errors[] = translate('auth.errors.username_short');
         }
-        if ($password !== $confirm) {
-            $errors[] = translate('auth.errors.password_mismatch');
+        if ($usernameLength > 60) {
+            $errors[] = translate('auth.errors.username_long');
         }
-        if (strlen($password) < 5) {
-            $errors[] = translate('auth.errors.password_short');
+        if (!preg_match('/^[A-Za-z0-9]+$/', $username)) {
+            $errors[] = translate('auth.errors.username_latin');
+        }
+        if ($firstLength > 50) {
+            $errors[] = translate('auth.errors.first_name_long');
+        }
+        if ($lastLength > 50) {
+            $errors[] = translate('auth.errors.last_name_long');
         }
         if ($phone !== '' && !preg_match('/^[\d\s+\-()]{6,}$/u', $phone)) {
             $errors[] = translate('auth.errors.phone_invalid');
@@ -60,6 +74,9 @@ class AuthService
         if ($this->users->usernameExists($username)) {
             $errors[] = translate('auth.errors.username_taken');
         }
+
+        $confirmation = $confirm === '' ? null : $confirm;
+        $errors = array_merge($errors, $this->passwordValidator->validate($password, $confirmation));
 
         if ($errors) {
             return ['success' => false, 'errors' => $errors];

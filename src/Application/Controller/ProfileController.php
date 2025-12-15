@@ -4,6 +4,7 @@ namespace App\Application\Controller;
 
 use App\Application\Service\AuthService;
 use App\Application\Service\OrderService;
+use App\Application\Service\PasswordValidator;
 use App\Domain\UserRepositoryInterface;
 use App\Infrastructure\SessionManager;
 use App\Infrastructure\ViewRenderer;
@@ -16,8 +17,10 @@ class ProfileController
         private UserRepositoryInterface $users,
         private OrderService $orders,
         private ViewRenderer $view,
-        private SessionManager $session
+        private SessionManager $session,
+        private ?PasswordValidator $passwordValidator = null,
     ) {
+        $this->passwordValidator ??= new PasswordValidator();
     }
 
     public function index(): string
@@ -63,15 +66,16 @@ class ProfileController
         $confirm = trim($_POST['confirm_password'] ?? '');
         $errors = [];
 
-        if ($current === '' || $new === '' || $confirm === '') {
-            $errors[] = translate('profile.password.error_required');
+        if ($current === '') {
+            $errors[] = translate('profile.password.error_current_required');
         }
-        if (strlen($new) < 5) {
-            $errors[] = translate('profile.password.error_length');
+        if ($confirm === '') {
+            $errors[] = translate('auth.errors.password_confirm_required');
         }
-        if ($new !== $confirm) {
-            $errors[] = translate('profile.password.error_mismatch');
-        }
+
+        $confirmation = $confirm === '' ? null : $confirm;
+        $errors = array_merge($errors, $this->passwordValidator->validate($new, $confirmation, $user->passwordHash));
+
         if (!$errors && !password_verify($current, $user->passwordHash)) {
             $errors[] = translate('profile.password.error_current');
         }
