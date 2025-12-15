@@ -68,6 +68,9 @@ class AuthService
         if ($lastLength > 50) {
             $errors[] = translate('auth.errors.last_name_long');
         }
+        if (mb_strlen($phone, 'UTF-8') > 30) {
+            $errors[] = translate('auth.errors.phone_long');
+        }
         if ($phone !== '' && !preg_match('/^[\d\s+\-()]{6,}$/u', $phone)) {
             $errors[] = translate('auth.errors.phone_invalid');
         }

@@ -13,32 +13,32 @@
             <div class="d-flex gap-2 flex-column flex-md-row">
                 <div class="flex-grow-1">
                     <label class="form-label"><?= htmlspecialchars(translate('auth.register.first_name')) ?></label>
-                    <input type="text" class="form-control" name="first_name" value="<?= htmlspecialchars($inputs['first_name'] ?? '') ?>" required>
+                    <input type="text" class="form-control" name="first_name" value="<?= htmlspecialchars($inputs['first_name'] ?? '') ?>" required maxlength="50">
                 </div>
                 <div class="flex-grow-1">
                     <label class="form-label"><?= htmlspecialchars(translate('auth.register.last_name')) ?></label>
-                    <input type="text" class="form-control" name="last_name" value="<?= htmlspecialchars($inputs['last_name'] ?? '') ?>" required>
+                    <input type="text" class="form-control" name="last_name" value="<?= htmlspecialchars($inputs['last_name'] ?? '') ?>" required maxlength="50">
                 </div>
             </div>
 
             <div>
                 <label class="form-label"><?= htmlspecialchars(translate('auth.register.phone')) ?></label>
-                <input type="tel" class="form-control" name="phone" value="<?= htmlspecialchars($inputs['phone'] ?? '') ?>" required placeholder="+375 (29) 123-45-67">
+                <input type="tel" class="form-control" name="phone" value="<?= htmlspecialchars($inputs['phone'] ?? '') ?>" required placeholder="+375 (29) 123-45-67" maxlength="30">
             </div>
 
             <div>
                 <label class="form-label"><?= htmlspecialchars(translate('auth.register.username')) ?></label>
-                <input type="text" class="form-control" name="username" value="<?= htmlspecialchars($inputs['username'] ?? '') ?>" required>
+                <input type="text" class="form-control" name="username" value="<?= htmlspecialchars($inputs['username'] ?? '') ?>" required maxlength="60">
             </div>
 
             <div>
                 <label class="form-label"><?= htmlspecialchars(translate('auth.register.password')) ?></label>
-                <input type="password" class="form-control" name="password" required>
+                <input type="password" class="form-control" name="password" required maxlength="128">
             </div>
 
             <div>
                 <label class="form-label"><?= htmlspecialchars(translate('auth.register.password_confirm')) ?></label>
-                <input type="password" class="form-control" name="confirm" required>
+                <input type="password" class="form-control" name="confirm" required maxlength="128">
             </div>
 
             <?php if (!empty($next)): ?>

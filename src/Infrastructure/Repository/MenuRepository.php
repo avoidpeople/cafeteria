@@ -141,35 +141,41 @@ class MenuRepository implements MenuRepositoryInterface
 
     private function bindCommonFields(SQLite3Stmt $stmt, array $data): void
     {
+        $limit = static function ($value, int $max) {
+            if (!is_string($value)) {
+                return $value;
+            }
+            return mb_substr($value, 0, $max);
+        };
         $title = $data['title'] ?? ($data['name_original'] ?? '');
         $description = $data['description'] ?? ($data['description_original'] ?? '');
         $category = $data['category'] ?? ($data['category_original'] ?? '');
 
-        $stmt->bindValue(':title', $title, SQLITE3_TEXT);
-        $stmt->bindValue(':description', $description, SQLITE3_TEXT);
+        $stmt->bindValue(':title', $limit($title, 180), SQLITE3_TEXT);
+        $stmt->bindValue(':description', $limit($description, 2000), SQLITE3_TEXT);
         $ingredients = $data['ingredients'] ?? ($data['ingredients_original'] ?? '');
-        $stmt->bindValue(':ingredients', $ingredients, SQLITE3_TEXT);
+        $stmt->bindValue(':ingredients', $limit($ingredients, 1000), SQLITE3_TEXT);
         $stmt->bindValue(':price', (float)($data['price'] ?? 0), SQLITE3_FLOAT);
-        $stmt->bindValue(':category', $category, SQLITE3_TEXT);
-        $stmt->bindValue(':image_url', $data['image_url'] ?? null, SQLITE3_TEXT);
-        $stmt->bindValue(':image_gallery', !empty($data['image_gallery']) ? json_encode($data['image_gallery']) : null, SQLITE3_TEXT);
+        $stmt->bindValue(':category', $limit($category, 120), SQLITE3_TEXT);
+        $stmt->bindValue(':image_url', $limit($data['image_url'] ?? null, 255), SQLITE3_TEXT);
+        $stmt->bindValue(':image_gallery', !empty($data['image_gallery']) ? json_encode(array_slice($data['image_gallery'], 0, 20)) : null, SQLITE3_TEXT);
         $stmt->bindValue(':is_today', !empty($data['is_today']) ? 1 : 0, SQLITE3_INTEGER);
         $stmt->bindValue(':use_manual_price', !empty($data['use_manual_price']) ? 1 : 0, SQLITE3_INTEGER);
-        $stmt->bindValue(':name_original', $data['name_original'] ?? $title, SQLITE3_TEXT);
-        $stmt->bindValue(':name_ru', $data['name_ru'] ?? null, SQLITE3_TEXT);
-        $stmt->bindValue(':name_lv', $data['name_lv'] ?? null, SQLITE3_TEXT);
-        $stmt->bindValue(':description_original', $data['description_original'] ?? $description, SQLITE3_TEXT);
-        $stmt->bindValue(':description_ru', $data['description_ru'] ?? null, SQLITE3_TEXT);
-        $stmt->bindValue(':description_lv', $data['description_lv'] ?? null, SQLITE3_TEXT);
-        $stmt->bindValue(':category_original', $data['category_original'] ?? $category, SQLITE3_TEXT);
-        $stmt->bindValue(':category_ru', $data['category_ru'] ?? null, SQLITE3_TEXT);
-        $stmt->bindValue(':category_lv', $data['category_lv'] ?? null, SQLITE3_TEXT);
+        $stmt->bindValue(':name_original', $limit($data['name_original'] ?? $title, 180), SQLITE3_TEXT);
+        $stmt->bindValue(':name_ru', $limit($data['name_ru'] ?? null, 180), SQLITE3_TEXT);
+        $stmt->bindValue(':name_lv', $limit($data['name_lv'] ?? null, 180), SQLITE3_TEXT);
+        $stmt->bindValue(':description_original', $limit($data['description_original'] ?? $description, 2000), SQLITE3_TEXT);
+        $stmt->bindValue(':description_ru', $limit($data['description_ru'] ?? null, 2000), SQLITE3_TEXT);
+        $stmt->bindValue(':description_lv', $limit($data['description_lv'] ?? null, 2000), SQLITE3_TEXT);
+        $stmt->bindValue(':category_original', $limit($data['category_original'] ?? $category, 120), SQLITE3_TEXT);
+        $stmt->bindValue(':category_ru', $limit($data['category_ru'] ?? null, 120), SQLITE3_TEXT);
+        $stmt->bindValue(':category_lv', $limit($data['category_lv'] ?? null, 120), SQLITE3_TEXT);
         $stmt->bindValue(':category_role', $data['category_role'] ?? 'main', SQLITE3_TEXT);
-        $stmt->bindValue(':category_key', $data['category_key'] ?? null, SQLITE3_TEXT);
-        $stmt->bindValue(':ingredients_original', $data['ingredients_original'] ?? $ingredients, SQLITE3_TEXT);
-        $stmt->bindValue(':ingredients_ru', $data['ingredients_ru'] ?? null, SQLITE3_TEXT);
-        $stmt->bindValue(':ingredients_lv', $data['ingredients_lv'] ?? null, SQLITE3_TEXT);
-        $stmt->bindValue(':allergens', $data['allergens'] ?? null, SQLITE3_TEXT);
+        $stmt->bindValue(':category_key', $limit($data['category_key'] ?? null, 120), SQLITE3_TEXT);
+        $stmt->bindValue(':ingredients_original', $limit($data['ingredients_original'] ?? $ingredients, 1000), SQLITE3_TEXT);
+        $stmt->bindValue(':ingredients_ru', $limit($data['ingredients_ru'] ?? null, 1000), SQLITE3_TEXT);
+        $stmt->bindValue(':ingredients_lv', $limit($data['ingredients_lv'] ?? null, 1000), SQLITE3_TEXT);
+        $stmt->bindValue(':allergens', $limit($data['allergens'] ?? null, 500), SQLITE3_TEXT);
     }
 
     private function mapMenuItem(array $row): MenuItem
@@ -242,6 +248,29 @@ class MenuRepository implements MenuRepositoryInterface
     {
         $row = $this->db->querySingle('SELECT COUNT(*) as total FROM menu WHERE is_today = 1', true);
         return (int)($row['total'] ?? 0);
+    }
+
+    public function getAllImages(): array
+    {
+        $images = [];
+        $result = $this->db->query("SELECT image_url, image_gallery FROM menu");
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            if (!empty($row['image_url'])) {
+                $images[] = $row['image_url'];
+            }
+            $galleryField = $row['image_gallery'] ?? null;
+            if (is_string($galleryField) && $galleryField !== '') {
+                $decoded = json_decode($galleryField, true);
+                if (is_array($decoded)) {
+                    foreach ($decoded as $img) {
+                        if (is_string($img) && $img !== '') {
+                            $images[] = $img;
+                        }
+                    }
+                }
+            }
+        }
+        return array_values(array_unique($images));
     }
 
     private function categoryColumn(): string

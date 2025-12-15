@@ -4,41 +4,41 @@ include 'config/db.php';
 // Таблица пользователей
 $conn->exec("CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    username TEXT NOT NULL UNIQUE,
+    username TEXT NOT NULL UNIQUE CHECK(LENGTH(username) <= 60),
     password TEXT NOT NULL,
-    first_name TEXT,
-    last_name TEXT,
-    phone TEXT,
+    first_name TEXT CHECK(LENGTH(first_name) <= 50),
+    last_name TEXT CHECK(LENGTH(last_name) <= 50),
+    phone TEXT CHECK(LENGTH(phone) <= 30),
     role TEXT CHECK(role IN ('user','admin')) DEFAULT 'user'
 )");
 
 // Таблица меню
 $conn->exec("CREATE TABLE IF NOT EXISTS menu (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    title TEXT NOT NULL,
-    description TEXT,
-    ingredients TEXT,
-    allergens TEXT,
+    title TEXT NOT NULL CHECK(LENGTH(title) <= 180),
+    description TEXT CHECK(LENGTH(description) <= 2000),
+    ingredients TEXT CHECK(LENGTH(ingredients) <= 1000),
+    allergens TEXT CHECK(LENGTH(allergens) <= 500),
     price REAL NOT NULL DEFAULT 0,
     use_manual_price INTEGER DEFAULT 0,
-    image_url TEXT,
-    image_gallery TEXT,
-    category TEXT,
+    image_url TEXT CHECK(LENGTH(image_url) <= 255),
+    image_gallery TEXT CHECK(LENGTH(image_gallery) <= 8192),
+    category TEXT CHECK(LENGTH(category) <= 120),
     is_today INTEGER DEFAULT 0,
-    name_original TEXT,
-    name_ru TEXT,
-    name_lv TEXT,
-    description_original TEXT,
-    description_ru TEXT,
-    description_lv TEXT,
-    category_original TEXT,
-    category_ru TEXT,
-    category_lv TEXT,
+    name_original TEXT CHECK(LENGTH(name_original) <= 180),
+    name_ru TEXT CHECK(LENGTH(name_ru) <= 180),
+    name_lv TEXT CHECK(LENGTH(name_lv) <= 180),
+    description_original TEXT CHECK(LENGTH(description_original) <= 2000),
+    description_ru TEXT CHECK(LENGTH(description_ru) <= 2000),
+    description_lv TEXT CHECK(LENGTH(description_lv) <= 2000),
+    category_original TEXT CHECK(LENGTH(category_original) <= 120),
+    category_ru TEXT CHECK(LENGTH(category_ru) <= 120),
+    category_lv TEXT CHECK(LENGTH(category_lv) <= 120),
     category_role TEXT DEFAULT 'main',
-    category_key TEXT,
-    ingredients_original TEXT,
-    ingredients_ru TEXT,
-    ingredients_lv TEXT
+    category_key TEXT CHECK(LENGTH(category_key) <= 120),
+    ingredients_original TEXT CHECK(LENGTH(ingredients_original) <= 1000),
+    ingredients_ru TEXT CHECK(LENGTH(ingredients_ru) <= 1000),
+    ingredients_lv TEXT CHECK(LENGTH(ingredients_lv) <= 1000)
 )");
 
 // Таблица заказов

@@ -109,11 +109,30 @@ function testUsernameNonLatinFails(): void
     assertRegister(in_array(translate('auth.errors.username_latin'), $result['errors'] ?? [], true), 'Must include latin-only error');
 }
 
+function testPhoneTooLongFails(): void
+{
+    [$authService] = createRegisterStack();
+    $longPhone = str_repeat('1', 31);
+
+    $result = $authService->register([
+        'username' => 'User999',
+        'password' => 'ValidPass1!',
+        'confirm' => 'ValidPass1!',
+        'first_name' => 'Ivan',
+        'last_name' => 'Petrov',
+        'phone' => $longPhone,
+    ]);
+
+    assertRegister($result['success'] === false, 'Registration with long phone must fail');
+    assertRegister(in_array(translate('auth.errors.phone_long'), $result['errors'] ?? [], true), 'Must include phone length error');
+}
+
 try {
     testValidRegistrationPasses();
     testFirstNameTooLongFails();
     testUsernameTooLongFails();
     testUsernameNonLatinFails();
+    testPhoneTooLongFails();
 
     echo "Register validation tests passed.\n";
 } catch (Throwable $e) {

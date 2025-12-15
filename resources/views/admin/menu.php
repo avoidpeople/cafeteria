@@ -6,6 +6,14 @@ $selectedToday = $todayIds ?? [];
 $locale = currentLocale() === 'lv' ? 'lv' : 'ru';
 $todayDateLabel = Carbon::now('Europe/Riga')->locale($locale)->isoFormat('D MMMM YYYY, dddd');
 $todayCount = count($selectedToday);
+$maxImages = 5;
+$maxImageSizeMb = 5;
+$maxTotalSizeMb = 12;
+$maxTitleLength = 180;
+$maxDescriptionLength = 2000;
+$maxIngredientsLength = 1000;
+$maxAllergensLength = 500;
+$maxCategoryLength = 120;
 ?>
 <div class="page-container">
 <div class="d-flex align-items-center justify-content-between mb-3">
@@ -71,15 +79,15 @@ $todayCount = count($selectedToday);
                                 </button>
                             </div>
                         </div>
-                        <input type="text" class="form-control" name="title" id="edit_title" required>
+                        <input type="text" class="form-control" name="title" id="edit_title" required maxlength="<?= $maxTitleLength ?>">
                         <div id="localizedNames" class="row g-2 mt-2 d-none">
                             <div class="col-md-6">
                                 <label class="form-label small mb-1"><?= htmlspecialchars(translate('admin.menu.form.name_ru')) ?></label>
-                                <input type="text" class="form-control form-control-sm" name="name_ru" id="edit_name_ru" placeholder="<?= htmlspecialchars(translate('admin.menu.form.name_placeholder_ru')) ?>">
+                                <input type="text" class="form-control form-control-sm" name="name_ru" id="edit_name_ru" placeholder="<?= htmlspecialchars(translate('admin.menu.form.name_placeholder_ru')) ?>" maxlength="<?= $maxTitleLength ?>">
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label small mb-1"><?= htmlspecialchars(translate('admin.menu.form.name_lv')) ?></label>
-                                <input type="text" class="form-control form-control-sm" name="name_lv" id="edit_name_lv" placeholder="<?= htmlspecialchars(translate('admin.menu.form.name_placeholder_lv')) ?>">
+                                <input type="text" class="form-control form-control-sm" name="name_lv" id="edit_name_lv" placeholder="<?= htmlspecialchars(translate('admin.menu.form.name_placeholder_lv')) ?>" maxlength="<?= $maxTitleLength ?>">
                             </div>
                         </div>
                     </div>
@@ -95,22 +103,22 @@ $todayCount = count($selectedToday);
                                 </button>
                             </div>
                         </div>
-                        <textarea name="description" class="form-control" id="edit_desc" required></textarea>
+                        <textarea name="description" class="form-control" id="edit_desc" required maxlength="<?= $maxDescriptionLength ?>"></textarea>
                         <div id="localizedDescriptions" class="row g-2 mt-2 d-none">
                             <div class="col-md-6">
                                 <label class="form-label small mb-1"><?= htmlspecialchars(translate('admin.menu.form.description_ru')) ?></label>
-                                <textarea class="form-control form-control-sm" name="description_ru" id="edit_desc_ru" rows="2" placeholder="<?= htmlspecialchars(translate('admin.menu.form.desc_placeholder_ru')) ?>"></textarea>
+                                <textarea class="form-control form-control-sm" name="description_ru" id="edit_desc_ru" rows="2" placeholder="<?= htmlspecialchars(translate('admin.menu.form.desc_placeholder_ru')) ?>" maxlength="<?= $maxDescriptionLength ?>"></textarea>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label small mb-1"><?= htmlspecialchars(translate('admin.menu.form.description_lv')) ?></label>
-                                <textarea class="form-control form-control-sm" name="description_lv" id="edit_desc_lv" rows="2" placeholder="<?= htmlspecialchars(translate('admin.menu.form.desc_placeholder_lv')) ?>"></textarea>
+                                <textarea class="form-control form-control-sm" name="description_lv" id="edit_desc_lv" rows="2" placeholder="<?= htmlspecialchars(translate('admin.menu.form.desc_placeholder_lv')) ?>" maxlength="<?= $maxDescriptionLength ?>"></textarea>
                             </div>
                         </div>
                     </div>
 
                     <div>
                         <label class="form-label"><?= htmlspecialchars(translate('admin.menu.form.ingredients')) ?></label>
-                        <input type="text" name="ingredients" class="form-control" id="edit_ingr" required>
+                        <input type="text" name="ingredients" class="form-control" id="edit_ingr" required maxlength="<?= $maxIngredientsLength ?>">
                     </div>
 
                     <div>
@@ -120,7 +128,7 @@ $todayCount = count($selectedToday);
                         </div>
                         <div id="allergensWrapper" class="d-none">
                             <label class="form-label"><?= htmlspecialchars(translate('admin.menu.form.allergens')) ?></label>
-                            <textarea name="allergens" class="form-control" id="edit_allergens" rows="3"></textarea>
+                            <textarea name="allergens" class="form-control" id="edit_allergens" rows="3" maxlength="<?= $maxAllergensLength ?>"></textarea>
                         </div>
                     </div>
 
@@ -145,15 +153,16 @@ $todayCount = count($selectedToday);
                             <option value="custom"><?= htmlspecialchars(translate('category.custom')) ?></option>
                         </select>
                         <div id="categoryCustomWrapper" class="mt-2 d-none">
-                            <input type="text" class="form-control form-control-dark" name="category_custom" id="edit_category_custom" placeholder="<?= htmlspecialchars(translate('admin.menu.form.category_custom_placeholder')) ?>">
+                            <input type="text" class="form-control form-control-dark" name="category_custom" id="edit_category_custom" placeholder="<?= htmlspecialchars(translate('admin.menu.form.category_custom_placeholder')) ?>" maxlength="<?= $maxCategoryLength ?>">
                             <small class="text-muted"><?= htmlspecialchars(translate('admin.menu.form.category_custom_hint')) ?></small>
                         </div>
                     </div>
 
                     <div>
                         <label class="form-label"><?= htmlspecialchars(translate('admin.menu.form.photos')) ?></label>
-                        <input type="file" class="form-control" name="image[]" accept="image/*" multiple>
+                        <input type="file" class="form-control" name="image[]" accept="image/jpeg,image/png,image/gif,image/webp" multiple>
                         <small class="text-muted d-block mt-1"><?= htmlspecialchars(translate('admin.menu.form.photos_hint')) ?></small>
+                        <small class="text-muted d-block"><?= htmlspecialchars(translate('admin.menu.form.photos_limit_hint', ['max' => (string)$maxImages, 'single' => (string)$maxImageSizeMb, 'total' => (string)$maxTotalSizeMb])) ?></small>
                     </div>
                     <div id="galleryPreview" class="d-flex flex-wrap gap-2"></div>
 
@@ -332,6 +341,7 @@ const toggleLocalizedNames = document.getElementById('toggleLocalizedNames');
 const toggleLocalizedDesc = document.getElementById('toggleLocalizedDesc');
 const localizedNames = document.getElementById('localizedNames');
 const localizedDescriptions = document.getElementById('localizedDescriptions');
+const imageInput = document.querySelector('input[name="image[]"]');
 const nameRuInput = document.getElementById('edit_name_ru');
 const nameLvInput = document.getElementById('edit_name_lv');
 const descRuInput = document.getElementById('edit_desc_ru');
@@ -344,6 +354,12 @@ const requiredFieldLabels = {
     description: <?= json_encode(translate('admin.menu.form.description'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
     ingredients: <?= json_encode(translate('admin.menu.form.ingredients'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
 };
+const maxFileCount = <?= (int)$maxImages ?>;
+const maxSingleBytes = <?= (int)$maxImageSizeMb * 1024 * 1024 ?>;
+const maxTotalBytes = <?= (int)$maxTotalSizeMb * 1024 * 1024 ?>;
+const imageLimitMessage = <?= json_encode(translate('admin.menu.errors.images_limit', ['max' => (string)$maxImages]), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
+const imageSingleTemplate = <?= json_encode(translate('admin.menu.errors.image_size_single', ['name' => ':name', 'max' => (string)$maxImageSizeMb]), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
+const imageTotalMessage = <?= json_encode(translate('admin.menu.errors.image_size_total', ['max' => (string)$maxTotalSizeMb]), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
 document.addEventListener('DOMContentLoaded', () => {
     if (window.bootstrap) {
         Array.from(document.querySelectorAll('[data-bs-toggle=\"tooltip\"]')).forEach(el => new bootstrap.Tooltip(el));
@@ -398,8 +414,35 @@ function validateRequiredFields() {
     return false;
 }
 
+function validateUploads() {
+    if (!imageInput) {
+        return true;
+    }
+    const files = Array.from(imageInput.files || []);
+    if (!files.length) {
+        return true;
+    }
+    if (files.length > maxFileCount) {
+        alert(imageLimitMessage);
+        return false;
+    }
+    let total = 0;
+    for (const file of files) {
+        total += file.size;
+        if (file.size > maxSingleBytes) {
+            alert(imageSingleTemplate.replace(':name', file.name));
+            return false;
+        }
+    }
+    if (total > maxTotalBytes) {
+        alert(imageTotalMessage);
+        return false;
+    }
+    return true;
+}
+
 menuForm?.addEventListener('submit', (event) => {
-    if (!validateRequiredFields()) {
+    if (!validateRequiredFields() || !validateUploads()) {
         event.preventDefault();
     }
 });
@@ -407,6 +450,12 @@ menuForm?.addEventListener('submit', (event) => {
 ['edit_title', 'edit_desc', 'edit_ingr'].forEach(id => {
     const field = document.getElementById(id);
     field?.addEventListener('input', () => clearFieldError(field));
+});
+
+imageInput?.addEventListener('change', () => {
+    if (!validateUploads()) {
+        imageInput.value = '';
+    }
 });
 
 function syncManualPriceField(forceValue = null) {

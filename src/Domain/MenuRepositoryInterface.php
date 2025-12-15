@@ -31,4 +31,7 @@ interface MenuRepositoryInterface
     public function getTodayIds(): array;
 
     public function countToday(): int;
+
+    /** @return string[] */
+    public function getAllImages(): array;
 }
