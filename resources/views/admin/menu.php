@@ -173,8 +173,10 @@ $maxCategoryLength = 120;
     </div>
 
     <div class="admin-column admin-table-block">
-        <form method="POST" action="/admin/menu/today" class="h-100 d-flex flex-column">
+        <form id="todayForm" method="POST" action="/admin/menu/today">
             <?= csrf_field() ?>
+        </form>
+        <div class="h-100 d-flex flex-column">
             <div class="card border-0 shadow-sm flex-grow-1">
                 <div class="card-body">
                     <h4 class="card-title mb-3"><?= htmlspecialchars(translate('admin.menu.table.title')) ?></h4>
@@ -203,7 +205,7 @@ $maxCategoryLength = 120;
                                         <?php else: ?>
                                             <td class="today-cell">
                                                 <label class="today-flag">
-                                                    <input type="checkbox" class="today-checkbox" name="today_ids[]" value="<?= $item->id ?>" <?= in_array($item->id, $selectedToday, true) ? 'checked' : '' ?>>
+                                                    <input type="checkbox" class="today-checkbox" name="today_ids[]" value="<?= $item->id ?>" form="todayForm" <?= in_array($item->id, $selectedToday, true) ? 'checked' : '' ?>>
                                                     <span class="today-indicator"></span>
                                                     <span class="today-label"><?= htmlspecialchars(translate('admin.menu.today.flag')) ?></span>
                                                 </label>
@@ -277,9 +279,9 @@ $maxCategoryLength = 120;
                 </div>
             </div>
             <div class="text-end mt-3">
-                <button type="submit" class="btn btn-outline-primary"><?= htmlspecialchars(translate('admin.menu.today.save')) ?></button>
+                <button type="submit" class="btn btn-outline-primary" form="todayForm"><?= htmlspecialchars(translate('admin.menu.today.save')) ?></button>
             </div>
-        </form>
+        </div>
     </div>
     <div class="admin-column admin-today-block">
         <div class="card border-0 shadow-sm admin-today-card h-100">

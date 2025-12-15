@@ -510,6 +510,40 @@ body.with-fixed-header {
     color: var(--menu-price-color);
 }
 
+.menu-category-label {
+    display: inline-flex;
+    align-items: center;
+    width: fit-content;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    line-height: 1.2;
+    color: rgba(248, 251, 255, 0.96);
+    background: rgba(255, 255, 255, 0.11);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    box-shadow: 0 12px 26px rgba(0,0,0,0.22);
+}
+
+.menu-category-label--hot {
+    background: rgba(255, 74, 54, 0.4);
+    border-color: rgba(255, 74, 54, 0.78);
+    color: rgba(255, 242, 238, 1);
+}
+
+.menu-category-label--garnish {
+    background: rgba(36, 214, 112, 0.34);
+    border-color: rgba(36, 214, 112, 0.7);
+    color: rgba(236, 255, 244, 1);
+}
+
+.menu-category-label--soup {
+    background: rgba(61, 143, 255, 0.38);
+    border-color: rgba(61, 143, 255, 0.78);
+    color: rgba(238, 246, 255, 1);
+}
+
 .menu-price--placeholder {
     font-size: 0.85rem;
     text-transform: uppercase;
@@ -1263,6 +1297,24 @@ body.with-fixed-header {
     font-size: 0.75rem;
 }
 
+.combo-option-card[data-category="main"] .combo-option-tag {
+    background: rgba(255, 74, 54, 0.4);
+    border: 1px solid rgba(255, 74, 54, 0.78);
+    color: rgba(255, 242, 238, 1);
+}
+
+.combo-option-card[data-category="garnish"] .combo-option-tag {
+    background: rgba(36, 214, 112, 0.34);
+    border: 1px solid rgba(36, 214, 112, 0.7);
+    color: rgba(236, 255, 244, 1);
+}
+
+.combo-option-card[data-category="soup"] .combo-option-tag {
+    background: rgba(61, 143, 255, 0.38);
+    border: 1px solid rgba(61, 143, 255, 0.78);
+    color: rgba(238, 246, 255, 1);
+}
+
 .combo-option-extra {
     margin-top: 6px;
     font-size: 0.85rem;
@@ -1293,6 +1345,21 @@ body.with-fixed-header {
     line-height: 1.3;
     max-width: 100%;
     word-break: break-word;
+}
+.allergens-inline {
+    display: block;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #f6c744;
+    line-height: 1.35;
+    word-break: break-word;
+}
+.allergens-inline__label {
+    margin-right: 6px;
+    color: #f6c744;
+}
+.allergens-inline__value {
+    color: inherit;
 }
 
 .combo-option-check {

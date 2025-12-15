@@ -28,7 +28,10 @@
         </div>
         <div class="col-md-7">
             <p class="text-muted small"><?= htmlspecialchars(translate('menu.modal.carousel_hint')) ?></p>
-            <p class="text-muted" id="dishCategory"></p>
+            <p class="text-muted d-flex align-items-center gap-2 flex-wrap" id="dishCategoryRow">
+                <span id="dishCategoryText"></span>
+                <span id="dishCategoryBadge" class="menu-category-label d-none"></span>
+            </p>
             <p id="dishDescription" class="text-break"></p>
             <p id="dishIngridients" class="text-break"></p>
             <p id="dishAllergens" class="text-break text-warning fw-semibold" style="display:none;"></p>

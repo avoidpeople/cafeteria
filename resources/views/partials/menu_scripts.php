@@ -55,7 +55,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const modalTitle = document.getElementById('dishTitle');
     const modalDesc = document.getElementById('dishDescription');
     const modalIngr = document.getElementById('dishIngridients');
-    const modalCat = document.getElementById('dishCategory');
+    const modalCatText = document.getElementById('dishCategoryText');
+    const modalCatBadge = document.getElementById('dishCategoryBadge');
     const modalPrice = document.getElementById('dishPrice');
     const modalAllergens = document.getElementById('dishAllergens');
     const modalUniqueBadge = document.getElementById('dishUniqueBadge');
@@ -75,7 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
             modalTitle.textContent = item.title;
             modalDesc.textContent = item.description || t('description_missing', 'Description is not available.');
             modalIngr.textContent = item.ingredients ? `${t('ingredients_prefix', 'Ingredients:')} ${item.ingredients}` : '';
-            modalCat.textContent = item.category ? `${t('category_prefix', 'Category:')} ${item.category}` : t('category_none', 'No category');
+            applyModalCategory(item.category || '');
             if (modalAllergens) {
                 modalAllergens.textContent = item.allergens ? `${t('allergens_prefix', 'Allergens:')} ${item.allergens}` : '';
                 modalAllergens.style.display = item.allergens ? '' : 'none';
@@ -137,6 +138,68 @@ document.addEventListener('DOMContentLoaded', () => {
             dishModal.show();
         });
     });
+
+    function applyModalCategory(category) {
+        if (!modalCatText) {
+            return;
+        }
+        const normalized = normalize(category);
+        const prefix = t('category_prefix', 'Category:');
+
+        if (!normalized) {
+            modalCatText.textContent = t('category_none', 'No category');
+            modalCatBadge?.classList.add('d-none');
+            modalCatBadge && (modalCatBadge.textContent = '');
+            modalCatBadge && (modalCatBadge.className = 'menu-category-label d-none');
+            return;
+        }
+
+        modalCatText.textContent = prefix;
+        if (!modalCatBadge) {
+            return;
+        }
+
+        modalCatBadge.textContent = category;
+        modalCatBadge.className = 'menu-category-label';
+        const modifier = getCategoryBadgeModifier(normalized);
+        if (modifier) {
+            modalCatBadge.classList.add(modifier);
+        }
+        modalCatBadge.classList.remove('d-none');
+    }
+
+    function getCategoryBadgeModifier(normalizedCategory) {
+        const map = {
+            'горячие блюда': 'menu-category-label--hot',
+            'горячее': 'menu-category-label--hot',
+            'горячее блюдо': 'menu-category-label--hot',
+            'hot dishes': 'menu-category-label--hot',
+            'main dishes': 'menu-category-label--hot',
+            'main dish': 'menu-category-label--hot',
+            'main course': 'menu-category-label--hot',
+            'mains': 'menu-category-label--hot',
+            'karstie ēdieni': 'menu-category-label--hot',
+            'pamatēdiens': 'menu-category-label--hot',
+            'pamatēdieni': 'menu-category-label--hot',
+            'гарниры': 'menu-category-label--garnish',
+            'гарнир': 'menu-category-label--garnish',
+            'side dishes': 'menu-category-label--garnish',
+            'side dish': 'menu-category-label--garnish',
+            'side': 'menu-category-label--garnish',
+            'sides': 'menu-category-label--garnish',
+            'garnish': 'menu-category-label--garnish',
+            'garnīrs': 'menu-category-label--garnish',
+            'garnīri': 'menu-category-label--garnish',
+            'piedevas': 'menu-category-label--garnish',
+            'супы': 'menu-category-label--soup',
+            'суп': 'menu-category-label--soup',
+            'soups': 'menu-category-label--soup',
+            'soup': 'menu-category-label--soup',
+            'zupas': 'menu-category-label--soup',
+            'zupa': 'menu-category-label--soup',
+        };
+        return map[normalizedCategory] || '';
+    }
 
     modalAddBtn.addEventListener('click', () => {
         const role = modalAddBtn.dataset.comboRole;

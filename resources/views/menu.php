@@ -18,6 +18,71 @@ $localizedFieldMap = [
 ];
 $activeLocalizedFields = $localizedFieldMap[$locale] ?? ['name' => 'nameOriginal', 'description' => 'descriptionOriginal', 'category' => 'categoryOriginal'];
 $menuDateLabel = Carbon::now('Europe/Riga')->locale($locale === 'lv' ? 'lv' : 'ru')->isoFormat('D MMMM YYYY, dddd');
+$menuItems = $menuItems instanceof \Illuminate\Support\Collection ? $menuItems->all() : (is_array($menuItems) ? $menuItems : iterator_to_array($menuItems));
+$categoryPriorityMap = [
+    'горячие блюда' => 1,
+    'горячее' => 1,
+    'горячее блюдо' => 1,
+    'hot dishes' => 1,
+    'main dishes' => 1,
+    'main dish' => 1,
+    'main course' => 1,
+    'mains' => 1,
+    'karstie ēdieni' => 1,
+    'pamatēdiens' => 1,
+    'pamatēdieni' => 1,
+    'гарниры' => 2,
+    'гарнир' => 2,
+    'side dishes' => 2,
+    'side dish' => 2,
+    'side' => 2,
+    'sides' => 2,
+    'garnish' => 2,
+    'garnīrs' => 2,
+    'garnīri' => 2,
+    'piedevas' => 2,
+    'супы' => 3,
+    'суп' => 3,
+    'soups' => 3,
+    'soup' => 3,
+    'zupas' => 3,
+    'zupa' => 3,
+];
+$normalizeCategory = static function ($value) {
+    $normalized = is_string($value) ? trim($value) : '';
+    if ($normalized === '') {
+        return '';
+    }
+    return function_exists('mb_strtolower') ? mb_strtolower($normalized, 'UTF-8') : strtolower($normalized);
+};
+$getCategory = static function ($item) use ($activeLocalizedFields) {
+    $categoryField = $activeLocalizedFields['category'];
+    if (isset($item->$categoryField)) {
+        return $item->$categoryField;
+    }
+    if (isset($item->categoryOriginal)) {
+        return $item->categoryOriginal;
+    }
+    return '';
+};
+$menuItems = array_values($menuItems);
+if (count($menuItems) > 1) {
+    $indexedItems = [];
+    foreach ($menuItems as $index => $item) {
+        $indexedItems[] = ['index' => $index, 'item' => $item];
+    }
+    usort($indexedItems, static function ($a, $b) use ($categoryPriorityMap, $normalizeCategory, $getCategory) {
+        $categoryA = $normalizeCategory($getCategory($a['item']));
+        $categoryB = $normalizeCategory($getCategory($b['item']));
+        $priorityA = $categoryPriorityMap[$categoryA] ?? 4;
+        $priorityB = $categoryPriorityMap[$categoryB] ?? 4;
+        if ($priorityA !== $priorityB) {
+            return $priorityA <=> $priorityB;
+        }
+        return $a['index'] <=> $b['index'];
+    });
+    $menuItems = array_map(static fn ($entry) => $entry['item'], $indexedItems);
+}
 $roleCategoryLabels = ['main' => null, 'garnish' => null, 'soup' => null];
 foreach ($menuItems as $item) {
     $roleKey = $comboRoles[$item->id] ?? null;
@@ -176,22 +241,37 @@ foreach ($menuItems as $item) {
                 <?php endif; ?>
 
                     <div class="card-body d-flex flex-column">
-                        <div class="small text-muted mb-2"><?= htmlspecialchars($localizedCategory) ?></div>
+                        <?php
+                            $categoryNormalized = $normalizeCategory($localizedCategory);
+                            $categoryPriority = $categoryPriorityMap[$categoryNormalized] ?? null;
+                            $categoryLabelClasses = 'menu-category-label mb-2';
+                            if ($categoryPriority === 1) {
+                                $categoryLabelClasses .= ' menu-category-label--hot';
+                            } elseif ($categoryPriority === 2) {
+                                $categoryLabelClasses .= ' menu-category-label--garnish';
+                            } elseif ($categoryPriority === 3) {
+                                $categoryLabelClasses .= ' menu-category-label--soup';
+                            }
+                        ?>
+                        <div class="<?= htmlspecialchars($categoryLabelClasses) ?>"><?= htmlspecialchars($localizedCategory) ?></div>
                         <h5 class="card-title d-flex align-items-center gap-2">
                             <?= htmlspecialchars($localizedName) ?>
                             <?php if ($isUnique): ?>
                                 <span class="unique-chip" title="<?= htmlspecialchars(translate('menu.card.unique_badge')) ?>">★</span>
                             <?php endif; ?>
                         </h5>
+                        <?php if ($allergens): ?>
+                            <div class="allergens-inline mb-2">
+                                <span class="allergens-inline__label"><?= htmlspecialchars(translate('menu.card.allergens')) ?>:</span>
+                                <span class="allergens-inline__value"><?= htmlspecialchars($allergens) ?></span>
+                            </div>
+                        <?php endif; ?>
                         <p class="card-text flex-grow-1 text-muted fst-italic"><?= htmlspecialchars(translate('menu.card.click_hint')) ?></p>
                         <div class="d-flex justify-content-between align-items-center mt-2">
                             <?php if ($isUnique): ?>
                                 <span class="fs-5 fw-bold text-info menu-price"><?= number_format($item->price, 2, '.', ' ') ?> €</span>
                             <?php else: ?>
                                 <span class="menu-price menu-price--placeholder text-muted"><?= htmlspecialchars(translate('menu.card.price_included')) ?></span>
-                            <?php endif; ?>
-                            <?php if ($allergens): ?>
-                                <span class="allergens-badge"><?= htmlspecialchars(translate('menu.card.allergens')) ?>: <?= htmlspecialchars($allergens) ?></span>
                             <?php endif; ?>
                             <?php if ($roleKey): ?>
                                 <button type="button" class="btn btn-outline-light combo-select-btn" data-id="<?= $item->id ?>" data-default-text="<?= htmlspecialchars(translate('menu.card.button_default')) ?>" data-combo-role="<?= htmlspecialchars($roleKey) ?>" onclick="event.stopPropagation();"><?= htmlspecialchars(translate('menu.card.button_default')) ?></button>
