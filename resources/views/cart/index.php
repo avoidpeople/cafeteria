@@ -65,9 +65,17 @@ $loginRedirect = '/login?next=/cart';
                             <td class="no-row-toggle">
                                 <?php if ($isAvailable): ?>
                                     <div class="d-flex align-items-center gap-2">
-                                        <a class="btn btn-outline-secondary btn-sm" href="/cart/minus?id=<?= $item->id ?>">−</a>
+                                        <form method="POST" action="/cart/minus" class="d-inline">
+                                            <?= csrf_field() ?>
+                                            <input type="hidden" name="id" value="<?= $item->id ?>">
+                                            <button class="btn btn-outline-secondary btn-sm" type="submit">−</button>
+                                        </form>
                                         <strong><?= $entry['quantity'] ?></strong>
-                                        <a class="btn btn-outline-secondary btn-sm" href="/cart/add?id=<?= $item->id ?>">+</a>
+                                        <form method="POST" action="/cart/add" class="d-inline">
+                                            <?= csrf_field() ?>
+                                            <input type="hidden" name="id" value="<?= $item->id ?>">
+                                            <button class="btn btn-outline-secondary btn-sm" type="submit">+</button>
+                                        </form>
                                     </div>
                                 <?php else: ?>
                                     <div class="text-muted fw-semibold"><?= htmlspecialchars(translate('cart.qty.times', ['qty' => $entry['quantity']])) ?></div>
@@ -75,7 +83,11 @@ $loginRedirect = '/login?next=/cart';
                             </td>
                             <td><?= number_format($entry['sum'], 2, '.', ' ') ?>€</td>
                             <td class="no-row-toggle">
-                                <a class="btn btn-sm btn-outline-danger" href="/cart/remove?id=<?= $item->id ?>"><?= htmlspecialchars(translate('cart.delete')) ?></a>
+                                <form method="POST" action="/cart/remove" class="d-inline">
+                                    <?= csrf_field() ?>
+                                    <input type="hidden" name="id" value="<?= $item->id ?>">
+                                    <button class="btn btn-sm btn-outline-danger" type="submit"><?= htmlspecialchars(translate('cart.delete')) ?></button>
+                                </form>
                             </td>
                         </tr>
                     <?php endforeach; ?>
@@ -104,7 +116,10 @@ $loginRedirect = '/login?next=/cart';
                 </div>
             </div>
             <div class="d-flex flex-column gap-2 align-self-stretch">
-                <a class="btn btn-outline-danger" href="/cart/clear" onclick="return confirm('<?= htmlspecialchars(translate('cart.actions.confirm_clear')) ?>');"><?= htmlspecialchars(translate('cart.actions.clear')) ?></a>
+                <form method="POST" action="/cart/clear" onsubmit="return confirm('<?= htmlspecialchars(translate('cart.actions.confirm_clear')) ?>');">
+                    <?= csrf_field() ?>
+                    <button class="btn btn-outline-danger" type="submit"><?= htmlspecialchars(translate('cart.actions.clear')) ?></button>
+                </form>
                 <?php if ($isGuest): ?>
                     <button type="button" class="btn btn-success" id="submitOrder" data-login-redirect="<?= htmlspecialchars($loginRedirect) ?>"><?= htmlspecialchars(translate('cart.actions.login_checkout')) ?></button>
                 <?php else: ?>

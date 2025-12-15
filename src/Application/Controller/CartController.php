@@ -5,7 +5,9 @@ namespace App\Application\Controller;
 use App\Application\Service\CartService;
 use App\Infrastructure\SessionManager;
 use App\Infrastructure\ViewRenderer;
+use function setToast;
 use function translate;
+use function verify_csrf;
 
 class CartController
 {
@@ -53,7 +55,11 @@ class CartController
 
     public function removeCombo(): void
     {
-        $comboId = trim($_GET['combo'] ?? '');
+        if (!$this->assertPostWithCsrf()) {
+            header('Location: /cart');
+            exit;
+        }
+        $comboId = trim($_POST['combo'] ?? '');
         if ($comboId !== '') {
             $this->cartService->removeCombo($comboId);
         }
@@ -63,18 +69,36 @@ class CartController
 
     public function clear(): void
     {
-        $this->cartService->clear();
+        if ($this->assertPostWithCsrf()) {
+            $this->cartService->clear();
+        }
         header('Location: /cart');
         exit;
     }
 
     private function mutate(callable $callback): void
     {
-        $id = intval($_GET['id'] ?? 0);
+        if (!$this->assertPostWithCsrf()) {
+            header('Location: /cart');
+            exit;
+        }
+        $id = intval($_POST['id'] ?? 0);
         if ($id > 0) {
             $callback($id);
         }
         header('Location: /cart');
         exit;
+    }
+
+    private function assertPostWithCsrf(): bool
+    {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            return false;
+        }
+        if (!verify_csrf()) {
+            setToast(translate('common.csrf_failed'), 'warning');
+            return false;
+        }
+        return true;
     }
 }

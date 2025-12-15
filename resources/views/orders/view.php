@@ -4,7 +4,12 @@
 <div class="actions mt-20 mb-15">
     <a class="btn btn-secondary" href="<?= $backUrl ?>"><?= htmlspecialchars(translate('common.back_to_orders')) ?></a>
     <?php if (!$isAdmin && ($order->status === 'new' || $order->status === 'cooking')): ?>
-        <a class="btn btn-danger" href="/orders/view?code=<?= urlencode($orderCode ?? '') ?>&cancel=1" onclick="return confirm('<?= htmlspecialchars(translate('common.confirm_cancel')) ?>');"><?= htmlspecialchars(translate('orders.view.cancel')) ?></a>
+        <form method="POST" action="/orders/cancel" class="d-inline" onsubmit="return confirm('<?= htmlspecialchars(translate('common.confirm_cancel')) ?>');">
+            <?= csrf_field() ?>
+            <input type="hidden" name="order_id" value="<?= (int) $orderId ?>">
+            <input type="hidden" name="code" value="<?= htmlspecialchars($orderCode ?? '') ?>">
+            <button class="btn btn-danger" type="submit"><?= htmlspecialchars(translate('orders.view.cancel')) ?></button>
+        </form>
     <?php endif; ?>
 </div>
 

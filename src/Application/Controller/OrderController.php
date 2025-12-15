@@ -55,12 +55,6 @@ class OrderController
             $this->redirectBack();
         }
 
-        if (!$isAdmin && isset($_GET['cancel']) && ($order->status === 'new' || $order->status === 'cooking')) {
-            $this->orderService->updateStatus($order->id, 'cancelled', $userId);
-            header('Location: /orders');
-            exit;
-        }
-
         return $this->view->render('orders/view', [
             'title' => 'Doctor Gorilka — ' . translate('orders.view.title', ['id' => $orderCode ?: $order->id]),
             'order' => $order,
@@ -147,5 +141,46 @@ class OrderController
             'orderAddress' => $result['delivery_address'] ?? $deliveryAddress,
             'comment' => $result['comment'] ?? ($comment === '' ? null : $comment),
         ]);
+    }
+
+    public function cancel(): void
+    {
+        $this->authService->requireLogin(translate('auth.require.orders'), '/login?next=/orders');
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !verify_csrf()) {
+            setToast(translate('common.csrf_failed'), 'warning');
+            header('Location: /orders');
+            exit;
+        }
+
+        $orderCode = trim($_POST['code'] ?? '');
+        $orderId = intval($_POST['order_id'] ?? 0);
+        $order = $orderCode !== '' ? $this->orderService->getOrderByCode($orderCode) : null;
+        if (!$order && $orderId > 0) {
+            $order = $this->orderService->getOrder($orderId);
+        }
+        if (!$order) {
+            setToast(translate('orders.errors.not_found'), 'warning');
+            header('Location: /orders');
+            exit;
+        }
+
+        $userId = $this->session->get('user_id');
+        $isAdmin = $this->session->get('role') === 'admin';
+        if ($isAdmin || $order->userId !== $userId) {
+            setToast(translate('orders.errors.forbidden'), 'warning');
+            header('Location: /orders');
+            exit;
+        }
+
+        if (!in_array($order->status, ['new', 'cooking'], true)) {
+            setToast(translate('orders.errors.forbidden'), 'warning');
+            header('Location: /orders/view?code=' . urlencode($orderCode ?: (string)$orderId));
+            exit;
+        }
+
+        $this->orderService->updateStatus($order->id, 'cancelled', $userId);
+        setToast(translate('orders.view.cancel'), 'info');
+        header('Location: /orders');
+        exit;
     }
 }

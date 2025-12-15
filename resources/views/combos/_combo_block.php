@@ -99,6 +99,10 @@ $comboThumb = $combo['image'] ?? $combo['image_url'] ?? ($comboGallery[0] ?? 'ko
     <td class="no-row-toggle"><?= htmlspecialchars(translate('cart.qty.times', ['qty' => $quantity])) ?></td>
     <td><?= $sumFormatted ?>€</td>
     <td class="no-row-toggle">
-        <a class="btn btn-sm btn-outline-danger" href="/cart/combo/remove?combo=<?= urlencode($combo['id']) ?>"><?= htmlspecialchars(translate('combo.remove')) ?></a>
+        <form method="POST" action="/cart/combo/remove" class="d-inline">
+            <?= csrf_field() ?>
+            <input type="hidden" name="combo" value="<?= htmlspecialchars($combo['id']) ?>">
+            <button class="btn btn-sm btn-outline-danger" type="submit"><?= htmlspecialchars(translate('combo.remove')) ?></button>
+        </form>
     </td>
 </tr>
