@@ -9,6 +9,10 @@ use function translate;
 
 class AuthService
 {
+    private const MAX_USERNAME_LENGTH = 20;
+    private const MAX_FIRST_NAME_LENGTH = 20;
+    private const MAX_LAST_NAME_LENGTH = 20;
+
     public function __construct(
         private UserRepositoryInterface $users,
         private SessionManager $session,
@@ -56,16 +60,16 @@ class AuthService
         if ($usernameLength < 3) {
             $errors[] = translate('auth.errors.username_short');
         }
-        if ($usernameLength > 60) {
+        if ($usernameLength > self::MAX_USERNAME_LENGTH) {
             $errors[] = translate('auth.errors.username_long');
         }
         if (!preg_match('/^[A-Za-z0-9]+$/', $username)) {
             $errors[] = translate('auth.errors.username_latin');
         }
-        if ($firstLength > 50) {
+        if ($firstLength > self::MAX_FIRST_NAME_LENGTH) {
             $errors[] = translate('auth.errors.first_name_long');
         }
-        if ($lastLength > 50) {
+        if ($lastLength > self::MAX_LAST_NAME_LENGTH) {
             $errors[] = translate('auth.errors.last_name_long');
         }
         if (mb_strlen($phone, 'UTF-8') > 30) {

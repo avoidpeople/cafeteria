@@ -11,7 +11,7 @@
             <?= csrf_field() ?>
             <div>
                 <label class="form-label"><?= htmlspecialchars(translate('auth.login.username')) ?></label>
-                <input type="text" class="form-control" name="username" value="<?= htmlspecialchars($usernameValue) ?>" required>
+                <input type="text" class="form-control" name="username" value="<?= htmlspecialchars($usernameValue) ?>" required maxlength="20">
             </div>
             <div>
                 <label class="form-label"><?= htmlspecialchars(translate('auth.login.password')) ?></label>

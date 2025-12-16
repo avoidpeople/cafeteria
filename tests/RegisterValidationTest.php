@@ -59,7 +59,7 @@ function testValidRegistrationPasses(): void
 function testFirstNameTooLongFails(): void
 {
     [$authService] = createRegisterStack();
-    $longName = str_repeat('a', 51);
+    $longName = str_repeat('a', 21);
 
     $result = $authService->register([
         'username' => 'User123',
@@ -77,7 +77,7 @@ function testFirstNameTooLongFails(): void
 function testUsernameTooLongFails(): void
 {
     [$authService] = createRegisterStack();
-    $longUsername = str_repeat('a', 61);
+    $longUsername = str_repeat('a', 21);
 
     $result = $authService->register([
         'username' => $longUsername,
@@ -127,9 +127,28 @@ function testPhoneTooLongFails(): void
     assertRegister(in_array(translate('auth.errors.phone_long'), $result['errors'] ?? [], true), 'Must include phone length error');
 }
 
+function testLastNameTooLongFails(): void
+{
+    [$authService] = createRegisterStack();
+    $longLastName = str_repeat('a', 21);
+
+    $result = $authService->register([
+        'username' => 'User888',
+        'password' => 'ValidPass1!',
+        'confirm' => 'ValidPass1!',
+        'first_name' => 'Ivan',
+        'last_name' => $longLastName,
+        'phone' => '+37120000000',
+    ]);
+
+    assertRegister($result['success'] === false, 'Registration with long last name must fail');
+    assertRegister(in_array(translate('auth.errors.last_name_long'), $result['errors'] ?? [], true), 'Must include last name length error');
+}
+
 try {
     testValidRegistrationPasses();
     testFirstNameTooLongFails();
+    testLastNameTooLongFails();
     testUsernameTooLongFails();
     testUsernameNonLatinFails();
     testPhoneTooLongFails();
