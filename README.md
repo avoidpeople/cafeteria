@@ -27,3 +27,4 @@ Run:
 - `php tests/LoginRateLimiterTest.php`
 - `php tests/RegisterValidationTest.php`
 # email_cafe
+# email_cafe
